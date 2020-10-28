@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<GDTF DataVersion="1.0">
+    <FixtureType Name="Tungsten 8Bit" Description="8Bit Tungsten Lamp" ShortName="Dim8" LongName="Tungsten 8Bit" Manufacturer="Generic" FixtureTypeID="001B2163-D489-0000-9E2C-C1C702A22246">
+        <AttributeDefinitions>
+            <ActivationGroups />
+            <FeatureGroups>
+                <FeatureGroup Name="Dimmer" Pretty="Dimmer">
+                    <Feature Name="Dimmer" />
+                </FeatureGroup>
+            </FeatureGroups>
+            <Attributes>
+                <Attribute Name="Dimmer" Pretty="Dim" Feature="Dimmer.Dimmer" PhysicalUnit="LuminousIntensity" />
+            </Attributes>
+        </AttributeDefinitions>
+        <Wheels />
+        <PhysicalDescriptions>
+            <Emitters />
+        </PhysicalDescriptions>
+        <Models>
+            <Model Name="Body" Length="0.250000" Width="0.250000" Height="0.450000" PrimitiveType="Conventional" />
+            <Model Name="Beam" Length="0.200000" Width="0.200000" Height="0.020000" PrimitiveType="Cylinder" />
+        </Models>
+        <Geometries>
+            <Geometry Name="Body" Model="Body" Position="{1.000000,0.000000,0.000000,0.000000}{0.000000,1.000000,0.000000,0.000000}{0.000000,0.000000,1.000000,0.000000}{0.000000,0.000000,0.000000,1.000000}">
+                <Beam Name="Beam" Model="Beam" Position="{1.000000,0.000000,0.000000,0.000000}{0.000000,1.000000,0.000000,0.000000}{0.000000,0.000000,1.000000,-0.220000}{0.000000,0.000000,0.000000,1.000000}" LampType="Halogen" PowerConsumption="1000" LuminousFlux="12000" ColorTemperature="3200" BeamAngle="30" FieldAngle="35" BeamRadius="0.1" BeamType="Wash" />
+            </Geometry>
+        </Geometries>
+        <DMXModes>
+            <DMXMode Name="Default" Geometry="Body">
+                <DMXChannels>
+                    <DMXChannel Offset="1" Highlight="255/1" Geometry="Beam">
+                        <LogicalChannel Attribute="Dimmer" Master="Grand">
+                            <ChannelFunction Attribute="Dimmer" DMXFrom="0/1">
+                                <ChannelSet Name="Closed" DMXFrom="0/1" />
+                                <ChannelSet DMXFrom="1/1" />
+                                <ChannelSet Name="25%" DMXFrom="64/1" />
+                                <ChannelSet DMXFrom="65/1" />
+                                <ChannelSet Name="50%" DMXFrom="128/1" />
+                                <ChannelSet DMXFrom="129/1" />
+                                <ChannelSet Name="75%" DMXFrom="191/1" />
+                                <ChannelSet DMXFrom="192/1" />
+                                <ChannelSet Name="Open" DMXFrom="255/1" />
+                            </ChannelFunction>
+                        </LogicalChannel>
+                    </DMXChannel>
+                </DMXChannels>
+                <Relations />
+            </DMXMode>
+        </DMXModes>
+        <Revisions>
+            <Revision Text="Created fixture type as example for GDTF Share" Date="2018-05-17T14:00:00" UserID="0" />
+            <Revision Text="Updated fixture type according to GDTF 0.86" Date="2018-06-08T11:30:00" UserID="0" />
+            <Revision Text="corrected properties of geometry beam" Date="2018-06-22T14:45:00" UserID="0" />
+            <Revision Text="Updated fixture type according to GDTF 0.87" Date="2018-08-09T11:30:00" UserID="0" />
+            <Revision Text="Updated fixture type according to GDTF 0.88" Date="2018-12-07T17:00:00" UserID="0" />
+            <Revision Text="Updated fixture type to GDTF 1.0, Uploaded to GDTF Share." Date="2019-03-27T16:03:27" UserID="8"/>
+        </Revisions>
+    </FixtureType>
+</GDTF>
