@@ -1,5 +1,6 @@
 package org.cueglow.server.gdtf
 
+import com.gdtf_share.schemas.device.GDTF
 import org.xml.sax.Attributes
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
@@ -38,9 +39,11 @@ fun main() {
     val rootDir = currentThread().contextClassLoader?.getResource("")?.file
     println(rootDir)
     val inStream = FileInputStream(File(rootDir, "../../../../src/main/kotlin/org/cueglow/server/gdtf/description.xml"))
+    // TODO add validation here somewhere
     val source = SAXSource(xmlFilter, InputSource(inStream))
-    val collection = unmarshaller.unmarshal(source)
+    val collection = unmarshaller.unmarshal(source) as? GDTF
     println("The baby is alive and well! It's a GDTF object!")
     println("Look at it. It's beautiful: ")
     println(collection)
+    println(collection?.dataVersion)
 }

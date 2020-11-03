@@ -1,0 +1,41 @@
+//adapted from https://stackoverflow.com/a/61621855
+
+sourceSets {
+    generated {
+        java.srcDir "$generatedDir"
+    }
+}
+
+dependencies {
+    compile sourceSets.generated.output
+
+    compile 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
+    generatedCompile "org.glassfish.jaxb:jaxb-runtime:2.3.3"
+}
+
+// JAXB configuration holds classpath for running the JAXB XJC compiler
+configurations {
+    jaxb
+}
+
+dependencies {
+    jaxb "org.glassfish.jaxb:jaxb-xjc:2.3.3"
+}
+
+def addXjcTask(taskName, schema, pkg, dest, binding) {
+    // If you haven't already, create the generated output dir before running XJC or it will fail
+    file(dest).mkdirs()
+
+    // The main XJC task, calls XJCFacade which is the entry point of the XJC JAR
+    tasks.create(name: taskName, type: JavaExec) {
+        classpath configurations.jaxb
+        main 'com.sun.tools.xjc.XJCFacade'
+        // To explore available args, download the XJC JAR and run java -jar jaxb-xjc.jar --help
+        args schema, "-p", pkg, "-d", dest, "-b", binding
+    }
+    // Add a dependency on the new task so it gets invoked
+    // commented out because we check it into git and dont't want it to update automatically
+    // compileGeneratedJava.dependsOn tasks.getByName(taskName)
+}
+
+addXjcTask("generateGdtf", "src/main/schema/gdtf.xsd", "com.gdtf_share.schemas.device", "$generatedDir", "src/main/schema/gdtf-binding.xjb")

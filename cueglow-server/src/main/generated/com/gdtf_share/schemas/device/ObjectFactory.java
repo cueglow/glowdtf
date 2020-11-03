@@ -1,0 +1,591 @@
+//
+// Diese Datei wurde mit der Eclipse Implementation of JAXB, v2.3.3 generiert 
+// Siehe https://eclipse-ee4j.github.io/jaxb-ri 
+// Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
+// Generiert: 2020.11.03 um 10:54:32 AM CET 
+//
+
+
+package com.gdtf_share.schemas.device;
+
+import javax.xml.bind.annotation.XmlRegistry;
+
+
+/**
+ * This object contains factory methods for each 
+ * Java content interface and Java element interface 
+ * generated in the com.gdtf_share.schemas.device package. 
+ * &lt;p&gt;An ObjectFactory allows you to programatically 
+ * construct new instances of the Java representation 
+ * for XML content. The Java representation of XML 
+ * content can consist of schema derived interfaces 
+ * and classes representing the binding of schema 
+ * type definitions, element declarations and model 
+ * groups.  Factory methods for each of these are 
+ * provided in this class.
+ * 
+ */
+@XmlRegistry
+public class ObjectFactory {
+
+
+    /**
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: com.gdtf_share.schemas.device
+     * 
+     */
+    public ObjectFactory() {
+    }
+
+    /**
+     * Create an instance of {@link GDTF }
+     * 
+     */
+    public GDTF createGDTF() {
+        return new GDTF();
+    }
+
+    /**
+     * Create an instance of {@link FixtureType }
+     * 
+     */
+    public FixtureType createFixtureType() {
+        return new FixtureType();
+    }
+
+    /**
+     * Create an instance of {@link AttributeDefinitions }
+     * 
+     */
+    public AttributeDefinitions createAttributeDefinitions() {
+        return new AttributeDefinitions();
+    }
+
+    /**
+     * Create an instance of {@link ActivationGroups }
+     * 
+     */
+    public ActivationGroups createActivationGroups() {
+        return new ActivationGroups();
+    }
+
+    /**
+     * Create an instance of {@link ActivationGroup }
+     * 
+     */
+    public ActivationGroup createActivationGroup() {
+        return new ActivationGroup();
+    }
+
+    /**
+     * Create an instance of {@link FeatureGroups }
+     * 
+     */
+    public FeatureGroups createFeatureGroups() {
+        return new FeatureGroups();
+    }
+
+    /**
+     * Create an instance of {@link FeatureGroup }
+     * 
+     */
+    public FeatureGroup createFeatureGroup() {
+        return new FeatureGroup();
+    }
+
+    /**
+     * Create an instance of {@link Feature }
+     * 
+     */
+    public Feature createFeature() {
+        return new Feature();
+    }
+
+    /**
+     * Create an instance of {@link Attributes }
+     * 
+     */
+    public Attributes createAttributes() {
+        return new Attributes();
+    }
+
+    /**
+     * Create an instance of {@link Attribute }
+     * 
+     */
+    public Attribute createAttribute() {
+        return new Attribute();
+    }
+
+    /**
+     * Create an instance of {@link Wheels }
+     * 
+     */
+    public Wheels createWheels() {
+        return new Wheels();
+    }
+
+    /**
+     * Create an instance of {@link Wheel }
+     * 
+     */
+    public Wheel createWheel() {
+        return new Wheel();
+    }
+
+    /**
+     * Create an instance of {@link Slot }
+     * 
+     */
+    public Slot createSlot() {
+        return new Slot();
+    }
+
+    /**
+     * Create an instance of {@link Facet }
+     * 
+     */
+    public Facet createFacet() {
+        return new Facet();
+    }
+
+    /**
+     * Create an instance of {@link PhysicalDescriptions }
+     * 
+     */
+    public PhysicalDescriptions createPhysicalDescriptions() {
+        return new PhysicalDescriptions();
+    }
+
+    /**
+     * Create an instance of {@link Emitters }
+     * 
+     */
+    public Emitters createEmitters() {
+        return new Emitters();
+    }
+
+    /**
+     * Create an instance of {@link Emitter }
+     * 
+     */
+    public Emitter createEmitter() {
+        return new Emitter();
+    }
+
+    /**
+     * Create an instance of {@link Measurement }
+     * 
+     */
+    public Measurement createMeasurement() {
+        return new Measurement();
+    }
+
+    /**
+     * Create an instance of {@link MeasurementPoint }
+     * 
+     */
+    public MeasurementPoint createMeasurementPoint() {
+        return new MeasurementPoint();
+    }
+
+    /**
+     * Create an instance of {@link Filters }
+     * 
+     */
+    public Filters createFilters() {
+        return new Filters();
+    }
+
+    /**
+     * Create an instance of {@link Filter }
+     * 
+     */
+    public Filter createFilter() {
+        return new Filter();
+    }
+
+    /**
+     * Create an instance of {@link ColorSpace }
+     * 
+     */
+    public ColorSpace createColorSpace() {
+        return new ColorSpace();
+    }
+
+    /**
+     * Create an instance of {@link DMXProfiles }
+     * 
+     */
+    public DMXProfiles createDMXProfiles() {
+        return new DMXProfiles();
+    }
+
+    /**
+     * Create an instance of {@link DMXProfile }
+     * 
+     */
+    public DMXProfile createDMXProfile() {
+        return new DMXProfile();
+    }
+
+    /**
+     * Create an instance of {@link CRIs }
+     * 
+     */
+    public CRIs createCRIs() {
+        return new CRIs();
+    }
+
+    /**
+     * Create an instance of {@link CRI }
+     * 
+     */
+    public CRI createCRI() {
+        return new CRI();
+    }
+
+    /**
+     * Create an instance of {@link Models }
+     * 
+     */
+    public Models createModels() {
+        return new Models();
+    }
+
+    /**
+     * Create an instance of {@link Model }
+     * 
+     */
+    public Model createModel() {
+        return new Model();
+    }
+
+    /**
+     * Create an instance of {@link Geometries }
+     * 
+     */
+    public Geometries createGeometries() {
+        return new Geometries();
+    }
+
+    /**
+     * Create an instance of {@link Geometry }
+     * 
+     */
+    public Geometry createGeometry() {
+        return new Geometry();
+    }
+
+    /**
+     * Create an instance of {@link Axis }
+     * 
+     */
+    public Axis createAxis() {
+        return new Axis();
+    }
+
+    /**
+     * Create an instance of {@link FilterBeam }
+     * 
+     */
+    public FilterBeam createFilterBeam() {
+        return new FilterBeam();
+    }
+
+    /**
+     * Create an instance of {@link FilterColor }
+     * 
+     */
+    public FilterColor createFilterColor() {
+        return new FilterColor();
+    }
+
+    /**
+     * Create an instance of {@link FilterGobo }
+     * 
+     */
+    public FilterGobo createFilterGobo() {
+        return new FilterGobo();
+    }
+
+    /**
+     * Create an instance of {@link FilterShaper }
+     * 
+     */
+    public FilterShaper createFilterShaper() {
+        return new FilterShaper();
+    }
+
+    /**
+     * Create an instance of {@link Beam }
+     * 
+     */
+    public Beam createBeam() {
+        return new Beam();
+    }
+
+    /**
+     * Create an instance of {@link GeometryReference }
+     * 
+     */
+    public GeometryReference createGeometryReference() {
+        return new GeometryReference();
+    }
+
+    /**
+     * Create an instance of {@link Break }
+     * 
+     */
+    public Break createBreak() {
+        return new Break();
+    }
+
+    /**
+     * Create an instance of {@link DMXModes }
+     * 
+     */
+    public DMXModes createDMXModes() {
+        return new DMXModes();
+    }
+
+    /**
+     * Create an instance of {@link DMXMode }
+     * 
+     */
+    public DMXMode createDMXMode() {
+        return new DMXMode();
+    }
+
+    /**
+     * Create an instance of {@link DMXChannels }
+     * 
+     */
+    public DMXChannels createDMXChannels() {
+        return new DMXChannels();
+    }
+
+    /**
+     * Create an instance of {@link DMXChannel }
+     * 
+     */
+    public DMXChannel createDMXChannel() {
+        return new DMXChannel();
+    }
+
+    /**
+     * Create an instance of {@link LogicalChannel }
+     * 
+     */
+    public LogicalChannel createLogicalChannel() {
+        return new LogicalChannel();
+    }
+
+    /**
+     * Create an instance of {@link ChannelFunction }
+     * 
+     */
+    public ChannelFunction createChannelFunction() {
+        return new ChannelFunction();
+    }
+
+    /**
+     * Create an instance of {@link ChannelSet }
+     * 
+     */
+    public ChannelSet createChannelSet() {
+        return new ChannelSet();
+    }
+
+    /**
+     * Create an instance of {@link Relations }
+     * 
+     */
+    public Relations createRelations() {
+        return new Relations();
+    }
+
+    /**
+     * Create an instance of {@link Relation }
+     * 
+     */
+    public Relation createRelation() {
+        return new Relation();
+    }
+
+    /**
+     * Create an instance of {@link FTMacros }
+     * 
+     */
+    public FTMacros createFTMacros() {
+        return new FTMacros();
+    }
+
+    /**
+     * Create an instance of {@link FTMacro }
+     * 
+     */
+    public FTMacro createFTMacro() {
+        return new FTMacro();
+    }
+
+    /**
+     * Create an instance of {@link MacroDMX }
+     * 
+     */
+    public MacroDMX createMacroDMX() {
+        return new MacroDMX();
+    }
+
+    /**
+     * Create an instance of {@link DMXStep }
+     * 
+     */
+    public DMXStep createDMXStep() {
+        return new DMXStep();
+    }
+
+    /**
+     * Create an instance of {@link DMXValue }
+     * 
+     */
+    public DMXValue createDMXValue() {
+        return new DMXValue();
+    }
+
+    /**
+     * Create an instance of {@link MacroVisual }
+     * 
+     */
+    public MacroVisual createMacroVisual() {
+        return new MacroVisual();
+    }
+
+    /**
+     * Create an instance of {@link VisualStep }
+     * 
+     */
+    public VisualStep createVisualStep() {
+        return new VisualStep();
+    }
+
+    /**
+     * Create an instance of {@link VisualValue }
+     * 
+     */
+    public VisualValue createVisualValue() {
+        return new VisualValue();
+    }
+
+    /**
+     * Create an instance of {@link Revisions }
+     * 
+     */
+    public Revisions createRevisions() {
+        return new Revisions();
+    }
+
+    /**
+     * Create an instance of {@link Revision }
+     * 
+     */
+    public Revision createRevision() {
+        return new Revision();
+    }
+
+    /**
+     * Create an instance of {@link FTPresets }
+     * 
+     */
+    public FTPresets createFTPresets() {
+        return new FTPresets();
+    }
+
+    /**
+     * Create an instance of {@link FTPreset }
+     * 
+     */
+    public FTPreset createFTPreset() {
+        return new FTPreset();
+    }
+
+    /**
+     * Create an instance of {@link Protocols }
+     * 
+     */
+    public Protocols createProtocols() {
+        return new Protocols();
+    }
+
+    /**
+     * Create an instance of {@link RDM }
+     * 
+     */
+    public RDM createRDM() {
+        return new RDM();
+    }
+
+    /**
+     * Create an instance of {@link SoftwareVersionID }
+     * 
+     */
+    public SoftwareVersionID createSoftwareVersionID() {
+        return new SoftwareVersionID();
+    }
+
+    /**
+     * Create an instance of {@link DMXPersonality }
+     * 
+     */
+    public DMXPersonality createDMXPersonality() {
+        return new DMXPersonality();
+    }
+
+    /**
+     * Create an instance of {@link ArtNet }
+     * 
+     */
+    public ArtNet createArtNet() {
+        return new ArtNet();
+    }
+
+    /**
+     * Create an instance of {@link SACN }
+     * 
+     */
+    public SACN createSACN() {
+        return new SACN();
+    }
+
+    /**
+     * Create an instance of {@link KiNET }
+     * 
+     */
+    public KiNET createKiNET() {
+        return new KiNET();
+    }
+
+    /**
+     * Create an instance of {@link PosiStageNet }
+     * 
+     */
+    public PosiStageNet createPosiStageNet() {
+        return new PosiStageNet();
+    }
+
+    /**
+     * Create an instance of {@link OpenSoundControl }
+     * 
+     */
+    public OpenSoundControl createOpenSoundControl() {
+        return new OpenSoundControl();
+    }
+
+    /**
+     * Create an instance of {@link CITP }
+     * 
+     */
+    public CITP createCITP() {
+        return new CITP();
+    }
+
+}
