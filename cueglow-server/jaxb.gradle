@@ -39,3 +39,15 @@ def addXjcTask(taskName, schema, pkg, dest, binding) {
 }
 
 addXjcTask("generateGdtf", "src/main/schema/gdtf.xsd", "com.gdtf_share.schemas.device", "$generatedDir", "src/main/schema/gdtf-binding.xjb")
+
+// add task to show source sets for debug
+task sourceSets {
+    doLast {
+        sourceSets.each {
+            println(it)
+            it.allSource.each {
+                println(it)
+            }
+        }
+    }
+}
