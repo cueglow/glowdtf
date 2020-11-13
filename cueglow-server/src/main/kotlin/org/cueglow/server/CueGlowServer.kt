@@ -18,6 +18,7 @@ class CueGlowServer(port: Int = 7000) : Logging {
             config.requestLogger { ctx, executionTimeMs ->
                 logger.info("HTTP Request (${executionTimeMs}ms) \"${ctx.req.pathInfo}\"")
             }
+            config.addStaticFiles("/webui")
         }.apply {
             ws("/ws") { ws ->
                 ws.onConnect {
