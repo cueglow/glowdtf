@@ -1,18 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 // import ReconnectingWebSocket from 'reconnecting-websocket';
-import { Router, Link, RouteComponentProps } from '@reach/router';
-import { AnchorButton, Button, Colors } from '@blueprintjs/core';
+import { Router, RouteComponentProps, useNavigate } from '@reach/router';
+import { Button } from '@blueprintjs/core';
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
 const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
-console.log(bp);
-console.log("starting...");
-
-// TODO
-// serve this via Kotlin server
 
 // TODO remove hardcoded websocket url
 // make websocket request to url from which website was served
@@ -38,8 +33,6 @@ console.log("starting...");
 //   );
 // }
 
-console.log(bp.global["$pt-dark-app-background-color"].value.hex);
-
 // TODO install emotion (https://emotion.sh/docs/introduction), a CSS-in-JS library
 // in contrast to inline styles allows media queries, etc.
 
@@ -56,19 +49,16 @@ function App() {
 }
 
 function MainWindow(props: RouteComponentProps) {
+  const navigate = useNavigate();
   return (
-    // TODO renders non-valid HTML
-    // create Link-Button component with useNavigation Hook
-    <Link to="patch"><Button text="Patch" /></Link>
-    
+    <Button text="Patch" onClick = {() => navigate("patch")} />
   );
 }
 
 function PatchWindow(props: RouteComponentProps) {
+  const navigate = useNavigate();
   return (
-    // TODO renders non-valid HTML
-    // create Link-Button component with useNavigation Hook
-    <Link to="/"><Button text="Exit" /></Link>
+    <Button text="Exit" onClick = {() => navigate("/")} />
   );
 }
 
