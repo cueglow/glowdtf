@@ -42,23 +42,23 @@ function App() {
       height: "100vh",
       background: bp.global["$pt-dark-app-background-color"].value.hex
     }}>
-        <MainWindow path="/" />
-        <PatchWindow path="patch" />
-      </Router>
+      <MainWindow path="/" default/>
+      <PatchWindow path="patch" />
+    </Router>
   );
 }
 
 function MainWindow(props: RouteComponentProps) {
   const navigate = useNavigate();
   return (
-    <Button text="Patch" onClick = {() => navigate("patch")} />
+    <Button text="Patch" onClick={() => navigate("patch")} />
   );
 }
 
 function PatchWindow(props: RouteComponentProps) {
   const navigate = useNavigate();
   return (
-    <Button text="Exit" onClick = {() => navigate("/")} />
+    <Button text="Exit" onClick={() => navigate("/")} />
   );
 }
 

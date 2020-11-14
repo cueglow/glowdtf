@@ -19,6 +19,7 @@ class CueGlowServer(port: Int = 7000) : Logging {
                 logger.info("HTTP Request (${executionTimeMs}ms) \"${ctx.req.pathInfo}\"")
             }
             config.addStaticFiles("/webui")
+            config.addSinglePageRoot("/", "/webui/index.html")
         }.apply {
             ws("/ws") { ws ->
                 ws.onConnect {
@@ -30,12 +31,6 @@ class CueGlowServer(port: Int = 7000) : Logging {
                 }
             }
         }.start(port)
-        app.get("/") { ctx ->
-            run {
-                ctx.result("Hello World")
-                webSocketHandler.broadcastMessage("Hello World")
-            }
-        }
         logger.info("Serving frontend at http://localhost:$port")
     }
 
