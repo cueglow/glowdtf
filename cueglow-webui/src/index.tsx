@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import './index.scss'
 // import ReconnectingWebSocket from 'reconnecting-websocket';
-import { Router, RouteComponentProps, useNavigate } from '@reach/router';
-import { Button } from '@blueprintjs/core';
+import { Router } from '@reach/router';
+import PatchWindow from './PatchWindow/PatchWindow';
+import MainWindow from './MainWindow';
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
@@ -42,23 +44,9 @@ function App() {
       height: "100vh",
       background: bp.global["$pt-dark-app-background-color"].value.hex
     }}>
-        <MainWindow path="/" />
-        <PatchWindow path="patch" />
-      </Router>
-  );
-}
-
-function MainWindow(props: RouteComponentProps) {
-  const navigate = useNavigate();
-  return (
-    <Button text="Patch" onClick = {() => navigate("patch")} />
-  );
-}
-
-function PatchWindow(props: RouteComponentProps) {
-  const navigate = useNavigate();
-  return (
-    <Button text="Exit" onClick = {() => navigate("/")} />
+      <MainWindow path="/" />
+      <PatchWindow path="patch" />
+    </Router>
   );
 }
 
