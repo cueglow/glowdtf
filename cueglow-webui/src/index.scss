@@ -1,0 +1,13 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
+kbd {
+    display: inline-block;
+    color: 50%;
+    font-family: $pt-font-family;
+    font-size: 85%;
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 1px 3px;
+    position: relative;
+    bottom: 0.3px;
+}
