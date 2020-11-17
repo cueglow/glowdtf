@@ -3,7 +3,6 @@ node {
 }
 
 npm_run_build {
-    // not sure if this should include the nodeModulesDir path or not
     inputs.files("../cueglow-webui/package.json", "../cueglow-webui/package-lock.json", "../cueglow-webui/tsconfig.json")
     inputs.dir("../cueglow-webui/src")
     inputs.dir("../cueglow-webui/public")
@@ -19,5 +18,3 @@ processResources {
     }
     dependsOn npm_run_build
 }
-
-//processRsesources.dependsOn npm_run_build
