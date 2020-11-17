@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.4.10"
     application
+    id("com.github.node-gradle.node") version "2.2.4"
 }
 
 group = "org.cueglow"
@@ -31,9 +32,6 @@ tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "13"
 }
 
-// Copy the static files from webui into the jar
-//processResources {
-//    from ('frontend/dist/') {
-//        into 'public'
-//    }
-//}
+
+apply(from="npm.gradle")
+
