@@ -44,7 +44,7 @@ function App() {
       height: "100vh",
       background: bp.global["$pt-dark-app-background-color"].value.hex
     }}>
-      <MainWindow path="/" />
+      <MainWindow path="/" default/>
       <PatchWindow path="patch" />
     </Router>
   );
