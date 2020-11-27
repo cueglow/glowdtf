@@ -14,9 +14,22 @@ export function FixturePatch() {
     const [gridColumnApi, setGridColumnApi] = useState(null);
 
     const [rowData, setRowData] = useState([
-        { make: "Toyota", model: "Celica", price: 35000 },
-        { make: "Ford", model: "Mondeo", price: 32000 },
-        { make: "Porsche", model: "Boxter", price: 72000 }
+        {
+            fid: 1,
+            name: "Lamp 1",
+            fixtureType: "GLP impression Spot One",
+            dmxMode: "Standard (21 ch)",
+            universe: 1,
+            address: "1"
+        },
+        {
+            fid: 2,
+            name: "Lamp 2",
+            fixtureType: "GLP impression Spot One",
+            dmxMode: "Standard (21 ch)",
+            universe: 1,
+            address: "22"
+        },
     ]);
 
     return (
@@ -31,7 +44,7 @@ export function FixturePatch() {
         }}>
             <div style={{
                 display: "flex",
-                justifyContent: "flex-end",
+                justifyContent: "flex-start", //flex-end for right-align
                 marginBottom: bp.global["$pt-grid-size"].value,
             }}>
                 <Button intent="success" icon="plus">Add New Fixtures</Button>
@@ -40,10 +53,14 @@ export function FixturePatch() {
                 flexGrow: 1,
             }}>
                 <AgGridReact
-                    rowData={rowData}>
-                    <AgGridColumn field="make"></AgGridColumn>
-                    <AgGridColumn field="model"></AgGridColumn>
-                    <AgGridColumn field="price"></AgGridColumn>
+                    rowData={rowData}
+                    rowSelection="multiple">
+                    <AgGridColumn field="fid" headerName="FID"></AgGridColumn>
+                    <AgGridColumn field="name"></AgGridColumn>
+                    <AgGridColumn field="fixtureType"></AgGridColumn>
+                    <AgGridColumn field="dmxMode" headerName="DMX Mode"></AgGridColumn>
+                    <AgGridColumn field="universe"></AgGridColumn>
+                    <AgGridColumn field="address"></AgGridColumn>
                 </AgGridReact>
             </div>
         </div>
