@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine-dark.css';
+import { Button } from "@blueprintjs/core";
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
@@ -19,19 +20,33 @@ export function FixturePatch() {
     ]);
 
     return (
-        <div className="ag-theme-alpine-dark" style={{
+        <div style={{
             position: "absolute",
             top: bp.global["$pt-navbar-height"].value,
             bottom: "0px",
             width: "100%",
             padding: bp.global["$pt-grid-size"].value,
+            display: "flex",
+            flexDirection: "column",
         }}>
-            <AgGridReact
-                rowData={rowData}>
-                <AgGridColumn field="make"></AgGridColumn>
-                <AgGridColumn field="model"></AgGridColumn>
-                <AgGridColumn field="price"></AgGridColumn>
-            </AgGridReact>
+            <div style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginBottom: bp.global["$pt-grid-size"].value,
+            }}>
+                <Button intent="success" icon="plus">Add New Fixtures</Button>
+            </div>
+            <div className="ag-theme-alpine-dark" style={{
+                flexGrow: 1,
+            }}>
+                <AgGridReact
+                    rowData={rowData}>
+                    <AgGridColumn field="make"></AgGridColumn>
+                    <AgGridColumn field="model"></AgGridColumn>
+                    <AgGridColumn field="price"></AgGridColumn>
+                </AgGridReact>
+            </div>
         </div>
+
     );
 }
