@@ -1,9 +1,37 @@
-import React from "react";
+import { AgGridColumn, AgGridReact } from "ag-grid-react";
+import React, { useState } from "react";
+
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-alpine-dark.css';
+
+// Import SASS-variables from blueprint.js
+/* eslint import/no-webpack-loader-syntax: off */
+const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
 export function FixturePatch() {
+    const [gridApi, setGridApi] = useState(null);
+    const [gridColumnApi, setGridColumnApi] = useState(null);
+
+    const [rowData, setRowData] = useState([
+        { make: "Toyota", model: "Celica", price: 35000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Porsche", model: "Boxter", price: 72000 }
+    ]);
+
     return (
-        <div>
-            Fixtures
+        <div className="ag-theme-alpine-dark" style={{
+            position: "absolute",
+            top: bp.global["$pt-navbar-height"].value,
+            bottom: "0px",
+            width: "100%",
+            padding: bp.global["$pt-grid-size"].value,
+        }}>
+            <AgGridReact
+                rowData={rowData}>
+                <AgGridColumn field="make"></AgGridColumn>
+                <AgGridColumn field="model"></AgGridColumn>
+                <AgGridColumn field="price"></AgGridColumn>
+            </AgGridReact>
         </div>
     );
 }

@@ -19,7 +19,7 @@ function PatchWindow(props: RouteComponentProps) {
     }
 
     return (
-        <div>
+        <div style={{height: "100%",}}>
             <Navbar>
                 <NavbarGroup align={Alignment.LEFT}>
                     <Button text={<kbd>Esc</kbd>}
