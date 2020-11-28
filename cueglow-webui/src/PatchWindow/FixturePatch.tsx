@@ -38,11 +38,43 @@ export function FixturePatch() {
         },
         {
             fid: 10,
-            name: "Front",
+            name: "Front L",
             fixtureType: "Dimmer",
             dmxMode: "8-bit (1 ch)",
             universe: 1,
             address: 43,
+        },
+        {
+            fid: 11,
+            name: "Front R",
+            fixtureType: "Dimmer",
+            dmxMode: "8-bit (1 ch)",
+            universe: 1,
+            address: 44,
+        },
+        {
+            fid: 12,
+            name: "Bühne vorne",
+            fixtureType: "Dimmer",
+            dmxMode: "8-bit (1 ch)",
+            universe: 1,
+            address: 45,
+        },
+        {
+            fid: 12,
+            name: "Bühne mitte",
+            fixtureType: "Dimmer",
+            dmxMode: "8-bit (1 ch)",
+            universe: 1,
+            address: 46,
+        },
+        {
+            fid: 13,
+            name: "Bühne hinten",
+            fixtureType: "Dimmer",
+            dmxMode: "8-bit (1 ch)",
+            universe: 1,
+            address: 47,
         },
     ];
 
@@ -66,10 +98,12 @@ export function FixturePatch() {
             </div>
             <div style={{
                 flexGrow: 1,
+                minHeight: 0,
             }}>
                 <ReactTabulator
                     data={data}
                     columns={columns}
+                    options={{height: "100%",}}
                 />
             </div>
         </div>
