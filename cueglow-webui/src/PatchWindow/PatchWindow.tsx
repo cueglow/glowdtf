@@ -29,7 +29,7 @@ function PatchWindow(props: RouteComponentProps) {
                     </NavbarHeading>
                 </NavbarGroup>
                 <NavbarGroup align={Alignment.CENTER} style={{ justifyContent: "center", }}>
-                    <Tabs id="patchNavbar" onChange={handleNavbarTabChange}>
+                    <Tabs id="patchNavbar" animate={false} onChange={handleNavbarTabChange}>
                         <Tab id="fixtures" title="Fixtures" />
                         <Tab id="fixtureTypes" title="Fixture Types" />
                         {/* horrible hack to get navbar-height to the same size as Tabs-size
