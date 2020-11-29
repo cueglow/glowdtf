@@ -38,6 +38,7 @@ function PatchWindow(props: RouteComponentProps) {
                     </Tabs>
                 </NavbarGroup>
             </Navbar>
+            {/* switch this over to reach router so that reloading keeps you on Fixture Types */}
             {(() => {
                 switch (tabId) {
                     case "fixtures":

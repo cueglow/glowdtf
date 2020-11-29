@@ -12,9 +12,6 @@ import { PatchContext } from "..";
 const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
 export function FixturePatch() {
-
-
-
     return (
         <div style={{
             position: "absolute",
@@ -57,14 +54,15 @@ function PatchTable() {
     const data = patchData.fixtures.map((fixture) => {
         const associatedFixtureType = patchData.fixtureTypes.find(fixtureType => fixtureType.fixtureTypeId === fixture.fixtureTypeId);
         const fixtureTypeString = associatedFixtureType?.manufacturer + " " + associatedFixtureType?.name;
-        return {...fixture, fixtureType: fixtureTypeString}
-     });
-    
+        return { ...fixture, fixtureType: fixtureTypeString }
+    });
+
     return (
         <ReactTabulator
             data={data}
             columns={columns}
-            options={{ height: "100%", }} />
+            options={{ height: "100%", layout: "fitDataStretch", }}
+            />
     );
 }
 

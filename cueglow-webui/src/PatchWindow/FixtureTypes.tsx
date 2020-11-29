@@ -1,9 +1,97 @@
-import React from "react";
+import { Button } from "@blueprintjs/core";
+import { FLEX_EXPANDER } from "@blueprintjs/core/lib/esm/common/classes";
+import { stringify } from "querystring";
+import React, { useContext, useState } from "react";
+import { ReactTabulator } from "react-tabulator";
+import { PatchContext } from "..";
+
+// Import SASS-variables from blueprint.js
+/* eslint import/no-webpack-loader-syntax: off */
+const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
 export function FixtureTypes() {
+    const [detailState, setDetailState] = useState({
+        name: "",
+        manufacturer: "",
+        modes: [] as {name: string, channelCount: number}[],
+    });
+
     return (
-        <div>
-            Fixture Types
+        <div style={{
+            position: "absolute",
+            top: bp.global["$pt-navbar-height"].value,
+            bottom: "0px",
+            width: "100%",
+            padding: bp.global["$pt-grid-size"].value,
+            display: "flex",
+            flexDirection: "row",
+        }}>
+            <div style={{
+                // as flex-item
+                minWidth: 0,
+                flexBasis: 0,
+                flexGrow: 1,
+                paddingRight: bp.global["$pt-grid-size"].value,
+                // as flex-container
+                display: "flex",
+                flexDirection: "column",
+            }}>
+                <div style={{
+                    marginBottom: bp.global["$pt-grid-size"].value,
+                }}>
+                    <Button intent="success" icon="plus">Add GDTF</Button>
+                </div>
+                <div style={{
+                    flexGrow: 1,
+                    minHeight: 0,
+                }}>
+                    <FixtureTypeTable
+                        rowSelected={(row: any) => {
+                            console.log(row);
+                            setDetailState(row._row.data)
+                        }} />
+                </div>
+            </div>
+            <div style={{ flexGrow: 1, flexBasis: 0, }}>
+                <h4>Details</h4>
+                <div>
+                    Manufacturer: {detailState.manufacturer}
+                </div>
+                <div>
+                    Name: {detailState.name}
+                </div>
+                <div>
+                    <h5>Modes</h5>
+                    {detailState.modes.map((mode) => {
+                        return (
+                            <div>
+                                {mode.name + " (" + mode.channelCount + " ch)"}
+                            </div>);
+                    })}
+                </div>
+            </div>
+
         </div>
+    );
+}
+
+function FixtureTypeTable(props: { rowSelected: any; }) {
+    const patchData = useContext(PatchContext);
+
+    const columns = [
+        { field: "manufacturer", title: "Manufacturer" },
+        { field: "name", title: "Name" },
+    ];
+
+    return (
+        <ReactTabulator
+            data={patchData.fixtureTypes}
+            columns={columns}
+            // fitDataStretch: When making window narrow, not all data is visible in column width 
+            // and table-internal horizontal scrolling does not activate even though it should
+            options={{
+                height: "100%", layout: "fitDataStretch", selectable: 1,
+                rowSelected: props.rowSelected,
+            }} />
     );
 }
