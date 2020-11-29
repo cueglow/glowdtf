@@ -5,6 +5,7 @@ import { stringify } from "querystring";
 import React, { useContext, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import { PatchContext } from "..";
+import { DmxModeString } from "../FixtureType/FixtureTypeUtils";
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
@@ -66,7 +67,7 @@ export function FixtureTypes(props: RouteComponentProps) {
                     {detailState.modes.map((mode) => {
                         return (
                             <div>
-                                {mode.name + " (" + mode.channelCount + " ch)"}
+                                {DmxModeString(mode)}
                             </div>);
                     })}
                 </div>

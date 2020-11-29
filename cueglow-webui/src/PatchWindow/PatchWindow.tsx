@@ -12,7 +12,7 @@ const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scs
 
 function PatchWindow(props: RouteComponentProps) {
     const navigate = useNavigate();
-    useHotkeys('esc', () => { navigate("/"); });
+    
 
     return (
         <Router>
@@ -25,6 +25,7 @@ function PatchWindow(props: RouteComponentProps) {
 function PatchTabWrapper(this: any, props: RouteComponentProps) {
     const navigate = useNavigate();
     const location = useLocation();
+    useHotkeys('esc', () => { navigate("/"); });
     return (
         <div style={{ height: "100%", }}>
             <Navbar>

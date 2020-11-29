@@ -7,6 +7,7 @@ import 'react-tabulator/lib/css/tabulator_midnight.min.css'; // theme
 import { ReactTabulator } from 'react-tabulator'
 import { PatchContext } from "..";
 import { RouteComponentProps, useNavigate } from "@reach/router";
+import { fixtureTypeString } from "../FixtureType/FixtureTypeUtils";
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
@@ -57,8 +58,8 @@ function PatchTable() {
 
     const data = patchData.fixtures.map((fixture) => {
         const associatedFixtureType = patchData.fixtureTypes.find(fixtureType => fixtureType.fixtureTypeId === fixture.fixtureTypeId);
-        const fixtureTypeString = associatedFixtureType?.manufacturer + " " + associatedFixtureType?.name;
-        return { ...fixture, fixtureType: fixtureTypeString }
+        const associatedFixtureTypeString = fixtureTypeString(associatedFixtureType);
+        return { ...fixture, fixtureType: associatedFixtureTypeString }
     });
 
     return (
