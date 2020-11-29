@@ -6,12 +6,14 @@ import 'react-tabulator/lib/styles.css'; // required styles
 import 'react-tabulator/lib/css/tabulator_midnight.min.css'; // theme
 import { ReactTabulator } from 'react-tabulator'
 import { PatchContext } from "..";
+import { RouteComponentProps, useNavigate } from "@reach/router";
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
 const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
-export function FixturePatch() {
+export function FixturePatch(props: RouteComponentProps) {
+    const navigate = useNavigate();
     return (
         <div style={{
             position: "absolute",
@@ -27,7 +29,9 @@ export function FixturePatch() {
                 justifyContent: "flex-start", //flex-end for right-align
                 marginBottom: bp.global["$pt-grid-size"].value,
             }}>
-                <Button intent="success" icon="plus">Add New Fixtures</Button>
+                <Button intent="success" icon="plus"
+                    onClick={() => navigate("/patch/newFixture")}>
+                    Add New Fixtures</Button>
             </div>
             <div style={{
                 flexGrow: 1,

@@ -1,5 +1,6 @@
 import { Button } from "@blueprintjs/core";
 import { FLEX_EXPANDER } from "@blueprintjs/core/lib/esm/common/classes";
+import { RouteComponentProps } from "@reach/router";
 import { stringify } from "querystring";
 import React, { useContext, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
@@ -9,7 +10,7 @@ import { PatchContext } from "..";
 /* eslint import/no-webpack-loader-syntax: off */
 const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
-export function FixtureTypes() {
+export function FixtureTypes(props: RouteComponentProps) {
     const [detailState, setDetailState] = useState({
         name: "",
         manufacturer: "",

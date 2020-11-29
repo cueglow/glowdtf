@@ -7,6 +7,7 @@ import './index.scss'
 import { Router } from '@reach/router';
 import PatchWindow from './PatchWindow/PatchWindow';
 import MainWindow from './MainWindow';
+import NewFixture from './PatchWindow/NewFixture'
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
@@ -154,7 +155,7 @@ function App() {
         background: bp.global["$pt-dark-app-background-color"].value.hex
       }}>
         <MainWindow path="/" default />
-        <PatchWindow path="patch" />
+        <PatchWindow path="patch/*" />
       </Router>
     </PatchContext.Provider >
   );

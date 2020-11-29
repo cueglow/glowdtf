@@ -1,9 +1,10 @@
 import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs } from "@blueprintjs/core";
-import { RouteComponentProps, useNavigate } from "@reach/router";
+import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
 import React, { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
+import NewFixture from "./NewFixture";
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
@@ -12,14 +13,20 @@ const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scs
 function PatchWindow(props: RouteComponentProps) {
     const navigate = useNavigate();
     useHotkeys('esc', () => { navigate("/"); });
-    const [tabId, setTabId] = useState("fixtures");
-
-    function handleNavbarTabChange(newTabId: string) {
-        setTabId(newTabId);
-    }
 
     return (
-        <div style={{height: "100%",}}>
+        <Router>
+            <PatchTabWrapper path="/" default />
+            <NewFixture path="newFixture" />
+        </Router>
+    );
+}
+
+function PatchTabWrapper(this: any, props: RouteComponentProps) {
+    const navigate = useNavigate();
+    const location = useLocation();
+    return (
+        <div style={{ height: "100%", }}>
             <Navbar>
                 <NavbarGroup align={Alignment.LEFT}>
                     <Button text={<kbd>Esc</kbd>}
@@ -29,7 +36,22 @@ function PatchWindow(props: RouteComponentProps) {
                     </NavbarHeading>
                 </NavbarGroup>
                 <NavbarGroup align={Alignment.CENTER} style={{ justifyContent: "center", }}>
-                    <Tabs id="patchNavbar" animate={false} onChange={handleNavbarTabChange}>
+                    <Tabs id="patchNavbar" animate={false}
+                        onChange={(newTabId: string) => {
+                            if (newTabId === "fixtures") {
+                                navigate("/patch")
+                            } else {
+                                navigate("/patch/" + newTabId)
+                            }
+                        }}
+                        defaultSelectedTabId={(() => {
+                            const lastPath = location.pathname.split("/").pop();
+                            if (lastPath === "patch") {
+                                return "fixtures";
+                            } else {
+                                return lastPath;
+                            }
+                        })()}>
                         <Tab id="fixtures" title="Fixtures" />
                         <Tab id="fixtureTypes" title="Fixture Types" />
                         {/* horrible hack to get navbar-height to the same size as Tabs-size
@@ -38,18 +60,11 @@ function PatchWindow(props: RouteComponentProps) {
                     </Tabs>
                 </NavbarGroup>
             </Navbar>
-            {/* switch this over to reach router so that reloading keeps you on Fixture Types */}
-            {(() => {
-                switch (tabId) {
-                    case "fixtures":
-                        return <FixturePatch />;
-                    case "fixtureTypes":
-                        return <FixtureTypes />;
-                }
-            }) ()}
-        </div>
-
-    );
+            <Router>
+                <FixturePatch path="/" default />
+                <FixtureTypes path="fixtureTypes" />
+            </Router>
+        </div>);
 }
 
 
