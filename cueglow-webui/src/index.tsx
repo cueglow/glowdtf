@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import React, { createContext, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { v4 as uuidv4, NIL as uuidNilString, parse as uuidParse } from 'uuid';
 import './index.css';
@@ -7,35 +7,22 @@ import './index.scss'
 import { Router } from '@reach/router';
 import PatchWindow from './PatchWindow/PatchWindow';
 import MainWindow from './MainWindow';
-import NewFixture from './PatchWindow/NewFixture'
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import { Dialog, UL } from '@blueprintjs/core';
 
 // Import SASS-variables from blueprint.js
 /* eslint import/no-webpack-loader-syntax: off */
 const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
-// TODO remove hardcoded websocket url
-// make websocket request to url from which website was served
 
-// commented out WebSocket code
-//
-// let ws = new ReconnectingWebSocket("ws://localhost:7000/ws", [],
-//   { maxReconnectionDelay: 2000, minReconnectionDelay: 1000, debug: true});
 
-// ws.send("testing, testing");
+let ws = new ReconnectingWebSocket("ws://" + window.location.host + "/ws", [],
+  { maxReconnectionDelay: 1000, minReconnectionDelay: 1000, debug: true });
 
-// function App() {
-//   let [readyState, setReadyState] = useState(ws.readyState);
-//   ws.addEventListener(
-//     "close", (e) => { setTimeout(() => setReadyState(ws.readyState), 50) }
-//   );
-//   ws.addEventListener("open", e => (setReadyState(ws.readyState)));
+ws.send("testing, testing");
 
-//   return (
-//     <div className="App">
-//       {readyState}
-//     </div>
-//   );
-// }
+
+
 
 // TODO install emotion (https://emotion.sh/docs/introduction), a CSS-in-JS library
 // in contrast to inline styles allows media queries, etc.
@@ -143,11 +130,17 @@ const patchExampleData = {
     },
   ],
 };
-  
+
 
 export const PatchContext = createContext(patchExampleData);
 
 function App() {
+  const [wsConnectionState, setWsConnectionState] = useState(ws.readyState);
+  ws.addEventListener(
+    "close", () => { setTimeout(() => setWsConnectionState(ws.readyState)) }
+  );
+  ws.addEventListener("open", () => (setWsConnectionState(ws.readyState)));
+
   return (
     <PatchContext.Provider value={patchExampleData}>
       <Router className="bp3-dark" style={{
@@ -157,8 +150,28 @@ function App() {
         <MainWindow path="/" default />
         <PatchWindow path="patch/*" />
       </Router>
+      <NoConnectionAlert isOpen={wsConnectionState === 3 || wsConnectionState === 2 /*only show when connection is CLOSING or CLOSED*/} />
     </PatchContext.Provider >
   );
+}
+
+function NoConnectionAlert(props: { isOpen: boolean }) {
+  return (
+    <Dialog className="bp3-dark" isOpen={props.isOpen} icon="error" title="Connection Error"
+      isCloseButtonShown={false} canOutsideClickClose={false} canEscapeKeyClose={false}>
+      <div style={{
+        padding: bp.global["$pt-grid-size"].value,
+      }}>
+        <p style={{marginBottom: 2*bp.global["$pt-grid-size"].value,}}>Cannot connect to the server. Retrying every second...</p>
+        <p>Please check: </p>
+        <UL style={{marginBottom: 2*bp.global["$pt-grid-size"].value,}}>
+          <li>that the CueGlow Server is running</li>
+          <li>your network connection to the CueGlow Server</li>
+        </UL>
+        <p>You can also try reloading the page. </p>
+      </div>
+    </Dialog>
+  )
 }
 
 ReactDOM.render(
