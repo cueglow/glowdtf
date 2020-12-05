@@ -1,7 +1,5 @@
 import { Button } from "@blueprintjs/core";
-import { FLEX_EXPANDER } from "@blueprintjs/core/lib/esm/common/classes";
 import { RouteComponentProps } from "@reach/router";
-import { stringify } from "querystring";
 import React, { useContext, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import { PatchContext } from "..";
@@ -66,7 +64,7 @@ export function FixtureTypes(props: RouteComponentProps) {
                     <h5>Modes</h5>
                     {detailState.modes.map((mode) => {
                         return (
-                            <div>
+                            <div key={mode.name}>
                                 {DmxModeString(mode)}
                             </div>);
                     })}

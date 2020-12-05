@@ -1,6 +1,6 @@
 import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs } from "@blueprintjs/core";
 import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
-import React, { useState } from "react";
+import React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
@@ -11,7 +11,6 @@ import NewFixture from "./NewFixture";
 const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
 function PatchWindow(props: RouteComponentProps) {
-    const navigate = useNavigate();
     
 
     return (

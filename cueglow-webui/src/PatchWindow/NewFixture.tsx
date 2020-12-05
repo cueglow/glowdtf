@@ -4,7 +4,6 @@ import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useContext, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { getAutomaticTypeDirectiveNames } from 'typescript';
 import { PatchContext } from '..';
 import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../FixtureType/FixtureTypeUtils';
 
@@ -47,6 +46,7 @@ export default function NewFixture(props: RouteComponentProps) {
                                     disabled={modifiers.disabled}
                                     onClick={handleClick}
                                     text={highlightText(fixtureTypeString(fixtureType), query)}
+                                    key={fixtureType.fixtureTypeId.toString()}
                                 />
                             );
                         }}
@@ -72,6 +72,7 @@ export default function NewFixture(props: RouteComponentProps) {
                                     disabled={modifiers.disabled}
                                     onClick={handleClick}
                                     text={highlightText(DmxModeString(mode), query)}
+                                    key={DmxModeString(mode)}
                                 />
                             );
                         }}
@@ -146,7 +147,7 @@ function highlightText(text: string, query: string) {
 }
 
 function escapeRegExpChars(text: string) {
-    return text.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+    return text.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1");
 }
 
 const filterFixtureType: ItemPredicate<FixtureType> =

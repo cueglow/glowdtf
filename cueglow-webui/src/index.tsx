@@ -19,7 +19,7 @@ const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scs
 let ws = new ReconnectingWebSocket("ws://" + window.location.host + "/ws", [],
   { maxReconnectionDelay: 1000, minReconnectionDelay: 1000, debug: true });
 
-ws.send("testing, testing");
+ws.send("connection established");
 
 
 
