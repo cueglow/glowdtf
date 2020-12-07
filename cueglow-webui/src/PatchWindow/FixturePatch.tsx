@@ -5,7 +5,7 @@ import { Button } from "@blueprintjs/core";
 import 'react-tabulator/lib/styles.css'; // required styles
 import 'react-tabulator/lib/css/tabulator_midnight.min.css'; // theme
 import { ReactTabulator } from 'react-tabulator'
-import { PatchContext } from "..";
+import { PatchContext } from "../App";
 import { RouteComponentProps, useNavigate } from "@reach/router";
 import { fixtureTypeString } from "../FixtureType/FixtureTypeUtils";
 

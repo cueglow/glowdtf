@@ -58,5 +58,13 @@
   },
   "devDependencies": {
     "@types/reach__router": "^1.3.6"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "sass-extract-loader?.*": "<rootDir>/__mocks__/sass-extract-loader.js"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!@blueprintjs)/"
+    ]
   }
 }

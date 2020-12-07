@@ -2,7 +2,7 @@ import { Button } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
-import { PatchContext } from "..";
+import { PatchContext } from "../App";
 import { DmxModeString } from "../FixtureType/FixtureTypeUtils";
 
 // Import SASS-variables from blueprint.js
