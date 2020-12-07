@@ -35,7 +35,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "cypress:open": "cypress open"
+    "cy": "cypress open",
+    "e2e": "cypress open --config baseUrl=http://localhost:7000"
   },
   "eslintConfig": {
     "extends": [
