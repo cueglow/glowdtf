@@ -2,28 +2,52 @@
 
 ### Linux/macOS
 
-Dependencies: 
+Make sure you have the following dependencies installed: 
 
 - git
 - [JDK 15 with Hotspot](https://adoptopenjdk.net/installation.html?variant=openjdk15&jvmVariant=hotspot)
-- [Node.js LTS](https://adoptopenjdk.net/installation.html?variant=openjdk15&jvmVariant=hotspot#)
+- [Node.js 14 LTS](https://nodejs.org/) (recommended to install via [NodeSource](https://github.com/nodesource/distributions) or [nvm](https://github.com/nvm-sh/nvm))
 
 First clone the CueGlow repository by running
-
 ```
 git clone https://github.com/cueglow/cueglow.git
 ```
-
-which will clone the repo into a new folder named `cueglow`. 
-
-Run
-
+Go into the server folder with 
 ```
-./gradlew build
+cd cueglow/cueglow-server
 ```
+Build and run CueGlow with
+```
+./gradlew run
+```
+then, go to [localhost:7000](http://localhost:7000) in the browser to see the UI. 
+
+If you run into any problems, feel free to [open an issue](https://github.com/cueglow/cueglow/issues/new). 
 
 
+### Windows
 
+Make sure you have the following dependencies installed: 
+
+- [git](https://gitforwindows.org/)
+- [JDK 15 with Hotspot](https://adoptopenjdk.net/installation.html?variant=openjdk15&jvmVariant=hotspot)
+- [Node.js 14 LTS](https://nodejs.org/)
+
+First clone the CueGlow repository by running
+```
+git clone https://github.com/cueglow/cueglow.git
+```
+Go into the server folder with 
+```
+cd cueglow\cueglow-server
+```
+Build and run CueGlow with
+```
+gradlew run
+```
+then, go to [localhost:7000](http://localhost:7000) in the browser to see the UI. 
+
+If you run into any problems, feel free to [open an issue](https://github.com/cueglow/cueglow/issues/new). 
 
 ## Branching Guide
 
