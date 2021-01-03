@@ -5,7 +5,8 @@
 Dependencies: 
 
 - git
-- [JDK 15 with Hotspot](https://adoptopenjdk.net/?variant=openjdk15&jvmVariant=hotspot)
+- [JDK 15 with Hotspot](https://adoptopenjdk.net/installation.html?variant=openjdk15&jvmVariant=hotspot)
+- [Node.js LTS](https://adoptopenjdk.net/installation.html?variant=openjdk15&jvmVariant=hotspot#)
 
 First clone the CueGlow repository by running
 
@@ -18,7 +19,7 @@ which will clone the repo into a new folder named `cueglow`.
 Run
 
 ```
-./gradlew
+./gradlew build
 ```
 
 
