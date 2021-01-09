@@ -1,16 +1,15 @@
 package org.cueglow.server
 
-import io.javalin.websocket.WsConnectContext
-import io.javalin.websocket.WsContext
-import io.javalin.websocket.WsMessageContext
+import io.javalin.websocket.*
 import org.apache.logging.log4j.kotlin.Logging
 
 class WebSocketHandler : Logging {
 
     private val websocketList: MutableList<WsContext> = mutableListOf()
 
-    fun handleSocketMessage(ctx: WsMessageContext) {
+    fun handleMessage(ctx: WsMessageContext) {
         logger.info("Received \"${ctx.message()}\" from websocket")
+        EventHandler.parseMessage(ctx);
     }
 
     fun broadcastMessage(message: String) {
@@ -20,9 +19,17 @@ class WebSocketHandler : Logging {
         }
     }
 
-    fun connectSocket(ctx: WsConnectContext) {
-        ctx.send("Websocket to CueGlow opened")
+    fun handleConnect(ctx: WsConnectContext) {
+        ctx.send("Websocket to CueGlowServer opened")
         websocketList.add(ctx)
+    }
+
+    fun handleClose(ctx: WsCloseContext) {
+        TODO("Not yet implemented")
+    }
+
+    fun handleError(ctx: WsErrorContext) {
+        TODO("Not yet implemented")
     }
 
 }
