@@ -17,7 +17,8 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    testImplementation(kotlin("test-junit5"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 
     implementation("io.javalin:javalin:3.11.2")
 
@@ -28,6 +29,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.13.3")
 }
+
+tasks.test {
+    useJUnitPlatform()
+}
+
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "13"
 }
