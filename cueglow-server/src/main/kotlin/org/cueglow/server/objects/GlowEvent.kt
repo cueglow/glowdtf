@@ -1,6 +1,7 @@
 package org.cueglow.server.objects
 
-enum class GlowEvent(eventDiscriptor: String, eventType: GlowEventType) {
+enum class GlowEvent(val eventDescriptor: String, val eventType: GlowEventType) {
+
     SUBSCRIBE("subscribe", GlowEventType.CLIENT),
     UNSUBSCRIBE("unsubscribe", GlowEventType.CLIENT),
     STREAMINITIALSTATE("streamInitialState", GlowEventType.SERVER),
@@ -13,11 +14,19 @@ enum class GlowEvent(eventDiscriptor: String, eventType: GlowEventType) {
     UPDATEFIXTURES("updateFixtures", GlowEventType.CLIENT),
     DELETEFIXTURES("deleteFixtures", GlowEventType.CLIENT),
     FIXTURETYPEADDED("fixtureTypeAdded", GlowEventType.SERVER),
-    DELETEFIXTURETYPES("deleteFixtureTypes", GlowEventType.CLIENT),
+    DELETEFIXTURETYPES("deleteFixtureTypes", GlowEventType.CLIENT),;
 
+
+    companion object {
+        // Provide methode to lookup event enum by eventDescriptor string
+        private val map = values().associateBy(GlowEvent::eventDescriptor)
+        fun fromDiscriptor(eventDescriptor: String) = map[eventDescriptor]
+    }
 
 }
 
-enum class GlowEventType() {
+
+
+enum class GlowEventType {
     CLIENT, SERVER
 }

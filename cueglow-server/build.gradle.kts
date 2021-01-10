@@ -26,6 +26,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.13.3")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
 
+    implementation("com.beust:klaxon:5.4")
+
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.13.3")
 }
