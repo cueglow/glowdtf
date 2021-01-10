@@ -96,3 +96,19 @@ git checkout -b feature/my-feature main
 ```
 
 and then once you want a review, open a pull request in GitHub. 
+
+## Possible Issues
+
+### npmInstall failed
+
+If you run `./gradlew run` and get
+```
+> Task :npmInstall FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':npmInstall'.
+> A problem occurred starting process 'command 'npm''
+```
+you can try running `./gradlew --stop` to stop the Gradle daemon and then re-run `./gradlew run`. 
