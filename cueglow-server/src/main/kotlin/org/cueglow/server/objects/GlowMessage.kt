@@ -1,6 +1,5 @@
 package org.cueglow.server.objects
 
-import org.cueglow.server.GlowEvent
 import kotlin.properties.Delegates
 
 class GlowMessage {
@@ -14,6 +13,7 @@ class GlowMessage {
      */
     constructor(jsonString: String) {
         // TODO Convert JSON Message to parsed objects
+
         println("Created Message from jsonString: $jsonString")
     }
 

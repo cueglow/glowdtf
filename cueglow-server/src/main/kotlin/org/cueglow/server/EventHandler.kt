@@ -12,6 +12,7 @@ object EventHandler {
 
     fun parseMessage(message: WsMessageContext) {
         val glowMessage = GlowMessage(message.message());
+        // TODO
         // was will der von mir?
         // message aus json parsen
         // feststellen welches event
