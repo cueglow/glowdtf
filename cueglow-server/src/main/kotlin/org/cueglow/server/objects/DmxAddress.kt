@@ -1,13 +1,44 @@
 package org.cueglow.server.objects
 
-class DmxAddress(number: Short) {
-    private val number: Short
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.Ok
 
-    init {
-        if (number in 1..512) {
-            this.number = number
-        } else {
-            TODO("Errorhandling is WIP")
+/**
+ * Represents a DMX Address.
+ *
+ * Can only be instantiated with [tryFrom].
+ *
+ * DMX referts to DMX512-A specified in ANSI E1.11.
+ * The DMX Address refers to DMX slots 1 to 512.
+ *
+ * @property[value] A Short representing the DMX Address.
+ */
+class DmxAddress private constructor(val value: Short) {
+    companion object Factory {
+        /**
+         * Instantiate DmxAddress from Short.
+         *
+         * @return Result of valid DmxAddress or Error for invalid input (i.e. too small or too big)
+         */
+        fun tryFrom(input: Short): Result<DmxAddress, InvalidDmxAddress> {
+            return if (input in 1..512) {
+                Ok(DmxAddress(input))
+            } else {
+                Err(InvalidDmxAddress)
+            }
+        }
+        /**
+         * Instantiate DmxAddress from Int.
+         *
+         * @return Result of valid DmxAddress or Error for invalid input (i.e. too small or too big)
+         */
+        fun tryFrom(input: Int): Result<DmxAddress, InvalidDmxAddress> {
+            return if (input in 1..512) {
+                Ok(DmxAddress(input.toShort()))
+            } else {
+                Err(InvalidDmxAddress)
+            }
         }
     }
 }

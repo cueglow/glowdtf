@@ -13,3 +13,6 @@ object InvalidArtNetAddress: ArtNetAddressError()
 object InvalidArtNetNet: ArtNetAddressError()
 object InvalidArtNetSubNet: ArtNetAddressError()
 object InvalidArtNetUniverse: ArtNetAddressError()
+
+
+object InvalidDmxAddress: GlowError()
