@@ -18,7 +18,7 @@ data class PatchFixture(
 
 class Patch(
     val patchFixtureList: HashMap<UUID, PatchFixture>,
-    val fixtureTypeList: HashMap<UUID, GDTF>,
+//    val fixtureTypeList: HashMap<UUID, GDTF>,
 ) {
 //    TODO
 //    setters that call stream update handler
