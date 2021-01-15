@@ -18,6 +18,6 @@ enum class GlowEvent(eventDiscriptor: String, eventType: GlowEventType) {
 
 }
 
-enum class GlowEventType() {
+enum class GlowEventType {
     CLIENT, SERVER
 }
