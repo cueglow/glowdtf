@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class ArtNetAddressTest {
     //  Short Intialization
+
     @ParameterizedTest
     @ValueSource(shorts = [0.toShort(), 32_767.toShort()])
     fun validShorts(value: Short) {
@@ -26,6 +27,7 @@ class ArtNetAddressTest {
     }
 
     //  Int Initialization
+
     @ParameterizedTest
     @ValueSource(ints = [0, 32_767])
     fun validInts(value: Int) {
@@ -42,6 +44,7 @@ class ArtNetAddressTest {
     }
 
     //  Triple Initialization
+
     @ParameterizedTest
     @CsvSource(
         "0, 0, 0, 0",
@@ -67,6 +70,7 @@ class ArtNetAddressTest {
     }
 
     //  Get Net/Subnet/Universe
+
     @ParameterizedTest
     @CsvSource(
         "0, 0, 0, 0",
