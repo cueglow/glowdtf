@@ -1,0 +1,20 @@
+node {
+    nodeModulesDir = file("../cueglow-webui/")
+}
+
+npm_run_build {
+    inputs.files("../cueglow-webui/package.json", "../cueglow-webui/package-lock.json", "../cueglow-webui/tsconfig.json")
+    inputs.dir("../cueglow-webui/src")
+    inputs.dir("../cueglow-webui/public")
+    inputs.dir(fileTree("../cueglow-webui/node_modules").exclude(".cache"))
+
+    outputs.dir("../cueglow-webui/build")
+}
+
+// Copy the static files from webui into the jar
+processResources {
+    from ('../cueglow-webui/build') {
+        into 'webui'
+    }
+    dependsOn npm_run_build
+}
