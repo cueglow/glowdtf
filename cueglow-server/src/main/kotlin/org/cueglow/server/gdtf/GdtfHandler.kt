@@ -4,17 +4,14 @@ import com.gdtf_share.schemas.device.GDTF
 import org.xml.sax.Attributes
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
-import javax.xml.bind.JAXBContext
 import java.io.File
 import java.io.FileInputStream
-import java.lang.Thread.*
+import java.io.InputStream
+import java.util.*
+import java.util.zip.ZipInputStream
+import javax.xml.bind.JAXBContext
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.sax.SAXSource
-import java.lang.Thread.currentThread
-
-// A small test in parsing GDTF XML
-// It was manually extracted from the gdtf file
-
 
 // hack from http://cooljavablogs.blogspot.com/2008/08/how-to-instruct-jaxb-to-ignore.html
 // to fix namespace not being defined in GDTF-file, but in Schema
@@ -24,8 +21,34 @@ class XMLNameSpaceFilter(arg0: XMLReader): org.xml.sax.helpers.XMLFilterImpl(arg
     }
 }
 
+/**
+ * Handler for new GDTF
+ *
+ * Parses it and adds it to the Patch
+ */
+fun handleNewGdtf(inputStream: InputStream): Result<UUID, GlowError> {
+    val parseResult = parseGdtf(inputStream) // handle Err
 
-fun main() {
+    // add it to the Patch
+    // return right result
+}
+
+fun parseGdtf(inputStream: InputStream): Result<GDTF, GlowError> {
+    // TODO unzip, currently operates on XML directly
+    val zipInputStream = ZipInputStream(inputStream)
+
+    while (true) {
+        val entry = zipInputStream.nextEntry
+        if (entry.name == "description.xml") {
+            break
+        }
+        if (entry == null) {
+            TODO("return error - no description xml found")
+        }
+    }
+
+
+
     val jc = JAXBContext.newInstance("com.gdtf_share.schemas.device")
     val unmarshaller = jc.createUnmarshaller()
 
@@ -35,15 +58,16 @@ fun main() {
 
     // The filter class is set to the correct namespace by default
     val xmlFilter = XMLNameSpaceFilter(reader)
-    reader.setContentHandler(unmarshaller.unmarshallerHandler)
-    val rootDir = currentThread().contextClassLoader?.getResource("")?.file
-    println(rootDir)
-    val inStream = FileInputStream(File(rootDir, "../../../../src/main/kotlin/org/cueglow/server/gdtf/description.xml"))
+    reader.contentHandler = unmarshaller.unmarshallerHandler
+
     // TODO add validation here somewhere
-    val source = SAXSource(xmlFilter, InputSource(inStream))
+    // possible while parsing?
+
+    // TODO does this work? Does it only read the current entry in the zip file?
+    val source = SAXSource(xmlFilter, InputSource(zipInputStream))
+
+    // TODO unsafe null handling
     val collection = unmarshaller.unmarshal(source) as? GDTF
-    println("The baby is alive and well! It's a GDTF object!")
-    println("Look at it. It's beautiful: ")
-    println(collection)
-    println(collection?.dataVersion)
+
+    return Ok(collection)
 }
