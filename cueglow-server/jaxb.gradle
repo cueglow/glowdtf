@@ -34,7 +34,7 @@ def addXjcTask(taskName, schema, pkg, dest, binding) {
         args schema, "-p", pkg, "-d", dest, "-b", binding
     }
     // Add a dependency on the new task so it gets invoked
-    // commented out because we check it into git and dont't want it to update automatically
+    // commented out because we check it into git and don't want it to update automatically
     // compileGeneratedJava.dependsOn tasks.getByName(taskName)
 }
 
