@@ -11,17 +11,17 @@
   </xs:element>
   <xs:element name="FixtureType">
     <xs:complexType>
-      <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="t:AttributeDefinitions"/>
-        <xs:element ref="t:Wheels"/>
-        <xs:element ref="t:PhysicalDescriptions"/>
-        <xs:element ref="t:Models"/>
-        <xs:element ref="t:Geometries"/>
-        <xs:element ref="t:DMXModes"/>
-        <xs:element ref="t:Revisions"/>
-        <xs:element ref="t:FTPresets"/>
-        <xs:element ref="t:Protocols"/>
-      </xs:choice>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="t:AttributeDefinitions"/>
+        <xs:element minOccurs="0" ref="t:Wheels"/>
+        <xs:element minOccurs="0" ref="t:PhysicalDescriptions"/>
+        <xs:element minOccurs="0" ref="t:Models"/>
+        <xs:element minOccurs="0" ref="t:Geometries"/>
+        <xs:element minOccurs="0" ref="t:DMXModes"/>
+        <xs:element minOccurs="0" ref="t:Revisions"/>
+        <xs:element minOccurs="0" ref="t:FTPresets"/>
+        <xs:element minOccurs="0" ref="t:Protocols"/>
+      </xs:sequence>
       <xs:attribute name="Name" type="t:nametype" use="required"/>
       <xs:attribute name="ShortName" type="xs:string" use="optional"/>
       <xs:attribute name="LongName" type="xs:string" use="optional"/>
@@ -300,7 +300,7 @@
   </xs:element>
   <xs:element name="DMXMode">
     <xs:complexType>
-      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:sequence>
         <xs:element ref="t:DMXChannels"/>
         <xs:element ref="t:Relations" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="t:FTMacros" minOccurs="0" maxOccurs="1"/>
@@ -346,7 +346,7 @@
         <xs:element ref="t:ChannelFunction"/>
       </xs:sequence>
       <xs:attribute name="Name" type="t:nametype" use="optional"/>
-      <xs:attribute name="Attribute" type="t:AttributeEnum" use="required"/>
+      <xs:attribute name="Attribute" type="xs:string" use="required"/>
       <xs:attribute name="Snap" type="t:SnapEnum" use="optional"/>
       <xs:attribute name="Master" type="t:MasterEnum"/>
       <xs:attribute name="MibFade" type="xs:float" use="optional"/>
@@ -369,7 +369,7 @@
         <xs:element ref="t:ChannelSet"/>
       </xs:sequence>
       <xs:attribute name="Name" type="xs:string" use="optional"/>
-      <xs:attribute name="Attribute" type="t:AttributeEnum" use="required"/>
+      <xs:attribute name="Attribute" type="xs:string" use="required"/>
       <xs:attribute name="OriginalAttribute" type="xs:string" use="optional"/>
       <xs:attribute name="DMXFrom" type="t:dmxtype" use="optional"/>
       <xs:attribute name="PhysicalFrom" type="xs:float" use="optional"/>
@@ -568,7 +568,7 @@
   </xs:element>
   <xs:element name="ColorSpace">
     <xs:complexType>
-      <xs:attribute name="ColorSpace" type="t:ColorSpaceEnum" use="optional"/>
+      <xs:attribute name="Mode" type="t:ColorSpaceEnum" use="optional"/>
       <xs:attribute name="Red" type="t:colorcietype" use="optional"/>
       <xs:attribute name="Green" type="t:colorcietype" use="optional"/>
       <xs:attribute name="Blue" type="t:colorcietype" use="optional"/>
@@ -601,15 +601,16 @@
   </xs:element>
   <xs:element name="Protocols">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="t:RDM" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="t:Art-Net" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="t:sACN" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="t:KiNET" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="t:PosiStageNet" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="t:OpenSoundControl" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="t:CITP" minOccurs="0" maxOccurs="unbounded"/>
-      </xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="t:RDM" />
+        <xs:element ref="t:FTRDM" />
+        <xs:element ref="t:Art-Net" />
+        <xs:element ref="t:sACN" />
+        <xs:element ref="t:KiNET" />
+        <xs:element ref="t:PosiStageNet" />
+        <xs:element ref="t:OpenSoundControl" />
+        <xs:element ref="t:CITP" />
+      </xs:choice>
     </xs:complexType>
   </xs:element>
   <xs:element name="Art-Net">
@@ -630,15 +631,15 @@
   <xs:element name="CITP">
     <xs:complexType/>
   </xs:element>
-  <xs:element name="RDM">
-    <xs:complexType>
+  <xs:complexType name="RDMcontent">
       <xs:sequence minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="t:SoftwareVersionID" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attribute name="ManufacturerID" type="xs:string" use="optional"/>
-      <xs:attribute name="DeviceModelID" type="xs:string" use="optional"/>
-    </xs:complexType>
-  </xs:element>
+    <xs:attribute name="DeviceModelID" type="xs:string" use="optional"/>
+  </xs:complexType>
+  <xs:element name="RDM" type="t:RDMcontent" />
+  <xs:element name="FTRDM" type="t:RDMcontent" />
   <xs:element name="SoftwareVersionID">
     <xs:complexType>
       <xs:sequence>
@@ -720,7 +721,7 @@
   </xs:element>
   <xs:element name="Attribute">
     <xs:complexType>
-      <xs:attribute name="Name" type="t:AttributeEnum" use="required"/>
+      <xs:attribute name="Name" type="xs:string" use="required"/>
       <xs:attribute name="Pretty" type="xs:string" use="required"/>
       <xs:attribute name="ActivationGroup" type="xs:string" use="optional"/>
       <xs:attribute name="PhysicalUnit" type="t:PhysicalUnitEnum"/>
@@ -830,6 +831,10 @@
       <xs:enumeration value="Head"/>
       <xs:enumeration value="Scanner"/>
       <xs:enumeration value="Conventional"/>
+      <xs:enumeration value="Pigtail" />
+      <xs:enumeration value="Base1_1" />
+      <xs:enumeration value="Scanner1_1" />
+      <xs:enumeration value="Convetional1_1" />
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="LampTypeEnum">
