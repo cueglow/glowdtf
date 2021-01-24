@@ -20,6 +20,8 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.7.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
+    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.9")
+
     implementation("io.javalin:javalin:3.11.2")
 
     implementation("org.apache.logging.log4j:log4j-api:2.13.3")
@@ -36,7 +38,7 @@ tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "13"
 }
 
