@@ -55,16 +55,35 @@ class ArtNetAddress private constructor(val value: Short) {
 
     /**
      * @return 7-bit Art-Net "Net" address as Int
+     *
+     * The "Net" address is given by the bits 8 to 14 (starting from 0 for the least significant bit)
+     * in the Art-Net PortAddress.
+     * To access these bits, we just shift right by 8.
+     * This works because all bits of higher significance than the "Net"-bits are ensured to be zero (ArtNetAddress is
+     * positive and in range). When shifting right, the leftmost bits are filled with copies of the sign bit, here 0
+     * because the ArtNetAddress is positive. Therefore, after shifting, all bits but the lowest 7 bits (that form
+     * the "Net" address) are zero. No bitmasking is needed.
      */
-    fun getNet() = (value.toInt() shr 8) and 0b111_1111
+    fun getNet() = value.toInt() shr 8
 
     /**
      * @return 4-bit Art-Net "Sub-Net" address as Int
+     *
+     * The "Sub-Net" address is given by the bits 4 to 7 (starting from 0 for the least significant bit)
+     * in the Art-Net PortAddress.
+     * To access these bits, we first shift right by 4. Then, the relevant 4 bits are the lowest bits in the number.
+     * Finally, the remaining higher significance bits are "and"-masked with a number where the 4 lowest bits are set
+     * to 1 and the other bits are 0.
      */
     fun getSubNet() = (value.toInt() shr 4) and 0b1111
 
     /**
      * @return 4-bit Art-Net "Universe" address as Int
+     *
+     * The "Universe" address is given by the 4 bits 0 to 3 (starting from 0 for the least significant bit)
+     * in the Art-Net PortAddress.
+     * To access these bits, we "and"-mask with a number where the 4 lowest bits are set to 1 and the other bits are
+     * set to 0.
      */
     fun getUniverse() = value.toInt() and 0b1111
 }
