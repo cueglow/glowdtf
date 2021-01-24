@@ -1,7 +1,10 @@
 package org.cueglow.server
 
+import com.beust.klaxon.Klaxon
 import io.javalin.websocket.*
 import org.apache.logging.log4j.kotlin.Logging
+import org.cueglow.server.objects.*
+import java.io.StringReader
 
 class WebSocketHandler : Logging {
 
@@ -9,7 +12,16 @@ class WebSocketHandler : Logging {
 
     fun handleMessage(ctx: WsMessageContext) {
         logger.info("Received \"${ctx.message()}\" from websocket")
-        EventHandler.parseMessage(ctx);
+
+        // Parse JSON Message to GlowMessage
+        val glowMessage = Klaxon()
+            .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
+            .parse<GlowMessage>(StringReader(ctx.message()))
+
+        glowMessage ?: TODO("Errorhandling is still WIP")
+
+        dispatchInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
+
     }
 
     fun broadcastMessage(message: String) {
@@ -20,7 +32,7 @@ class WebSocketHandler : Logging {
     }
 
     fun handleConnect(ctx: WsConnectContext) {
-        ctx.send("Websocket to CueGlowServer opened")
+//        ctx.send("Websocket to CueGlowServer opened")
         websocketList.add(ctx)
     }
 
