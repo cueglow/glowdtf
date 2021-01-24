@@ -11,7 +11,7 @@ object EventHandler {
     val webSocketHandler = WebSocketHandler();
 
     fun parseMessage(message: WsMessageContext) {
-        val glowMessage = GlowMessage(message.message());
+        // val glowMessage = GlowMessage(message.message());
         // TODO
         // was will der von mir?
         // message aus json parsen
