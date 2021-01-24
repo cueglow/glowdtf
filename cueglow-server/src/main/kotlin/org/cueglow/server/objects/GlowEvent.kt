@@ -35,12 +35,17 @@ enum class GlowEvent(val eventDescriptor: String, val eventType: GlowEventType) 
 
             override fun canConvert(cls: Class<*>): Boolean = cls == GlowEvent::class.java
 
-            override fun fromJson(jv: JsonValue): GlowEvent? = fromDescriptor(jv.inside as String)
+            override fun fromJson(jv: JsonValue): GlowEvent? = fromDescriptor(jv.inside.toString())
         }
     }
 
 }
 
+/**
+ * Provide a Annotation to mark fields and allow Klaxon to use a special converter on all marked fields
+ * See [GlowEvent.glowEventConverter] for the special converter and [GlowMessage.glowEvent] for the marked field
+ * A Klaxon instance with the linked Annotation and Converter ist used in [GlowMessage.toJsonString]
+ */
 @Target(AnnotationTarget.FIELD)
 annotation class KlaxonGlowEvent
 

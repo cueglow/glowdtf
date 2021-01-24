@@ -18,12 +18,10 @@ class WebSocketHandler : Logging {
             .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
             .parse<GlowMessage>(StringReader(ctx.message()))
 
-        if (glowMessage != null) {
+        glowMessage ?: TODO("Errorhandling is still WIP")
 
-            dispatchInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
-        } else {
-            TODO("Errorhandling is still WIP")
-        }
+        dispatchInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
+
     }
 
     fun broadcastMessage(message: String) {
