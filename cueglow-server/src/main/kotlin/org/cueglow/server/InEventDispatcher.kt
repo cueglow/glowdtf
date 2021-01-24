@@ -8,8 +8,6 @@ import org.cueglow.server.objects.GlowRequest
  */
 object InEventDispatcher {
 
-    val webSocketHandler = WebSocketHandler();
-
     fun dispatchRequest(glowRequest: GlowRequest) {
 
         // Delegate to the correct function / subroutine depending on the event
