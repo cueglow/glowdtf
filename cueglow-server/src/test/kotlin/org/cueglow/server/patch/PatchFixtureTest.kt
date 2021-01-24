@@ -10,6 +10,7 @@ import java.util.*
 internal class PatchFixtureTest {
     // TODO
     // replace with proper tests of observer callbacks
+    // currently only tests that callbacks get called at all, which proves the data is observable
     @Test
     fun checkObserversThrowTodoWhenChangingProperties() {
         val exampleFixture = PatchFixture(1, "", UUID.randomUUID(),
