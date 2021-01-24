@@ -12,23 +12,23 @@ class GDTF(val fixtureTypeId: UUID)
  * Singleton that holds Patch Data and notifies Stream Handler on Changes
  */
 object Patch {
-    private val fixtureList: HashMap<UUID, PatchFixture> = HashMap()
-    private val fixtureTypeList: HashMap<UUID, GDTF> = HashMap()
+    private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
+    private val fixtureTypes: HashMap<UUID, GDTF> = HashMap()
 
-    fun getFixtureList() = ImmutableMap(this.fixtureList)
+    fun getFixtures() = ImmutableMap(this.fixtures)
 
-    fun getFixtureTypeList() = ImmutableMap(this.fixtureTypeList)
+    fun getFixtureTypes() = ImmutableMap(this.fixtureTypes)
 
     // -------------------
     // Modify Fixture List
     // -------------------
     fun putFixture(new: PatchFixture) {
-        fixtureList[new.uuid] = new
+        fixtures[new.uuid] = new
         // TODO notify patch stream handler
     }
 
     fun removeFixture(uuid: UUID) {
-        fixtureList.remove(uuid)
+        fixtures.remove(uuid)
         // TODO notify patch stream handler
     }
 
@@ -36,12 +36,12 @@ object Patch {
     // Modify Fixture Type List
     // ------------------------
     fun putFixtureType(new: GDTF) {
-        fixtureTypeList[new.fixtureTypeId] = new
+        fixtureTypes[new.fixtureTypeId] = new
         // TODO notify patch stream handler
     }
 
     fun removeFixtureType(fixtureTypeId: UUID) {
-        fixtureTypeList.remove(fixtureTypeId)
+        fixtureTypes.remove(fixtureTypeId)
         // TODO notify patch stream handler
     }
 }

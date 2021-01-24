@@ -11,33 +11,33 @@ import java.util.*
 internal class PatchTest {
     @Test
     fun patchFixtureList() {
-        assertTrue(Patch.getFixtureList().isEmpty())
+        assertTrue(Patch.getFixtures().isEmpty())
 
         val exampleFixture = PatchFixture(1, "", UUID.randomUUID(),
             "1ch", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
         Patch.putFixture(exampleFixture)
 
-        assertEquals(1, Patch.getFixtureList().size)
-        assertEquals(exampleFixture, Patch.getFixtureList()[exampleFixture.uuid])
+        assertEquals(1, Patch.getFixtures().size)
+        assertEquals(exampleFixture, Patch.getFixtures()[exampleFixture.uuid])
 
         Patch.removeFixture(exampleFixture.uuid)
 
-        assertTrue(Patch.getFixtureList().isEmpty())
+        assertTrue(Patch.getFixtures().isEmpty())
     }
 
     @Test
     fun patchFixtureTypeList() {
-        assertTrue(Patch.getFixtureTypeList().isEmpty())
+        assertTrue(Patch.getFixtureTypes().isEmpty())
 
         val exampleFixtureType = GDTF(UUID.randomUUID())
         Patch.putFixtureType(exampleFixtureType)
 
-        assertEquals(1, Patch.getFixtureTypeList().size)
-        assertEquals(exampleFixtureType, Patch.getFixtureTypeList()[exampleFixtureType.fixtureTypeId])
+        assertEquals(1, Patch.getFixtureTypes().size)
+        assertEquals(exampleFixtureType, Patch.getFixtureTypes()[exampleFixtureType.fixtureTypeId])
 
         Patch.removeFixtureType(exampleFixtureType.fixtureTypeId)
 
-        assertTrue(Patch.getFixtureTypeList().isEmpty())
+        assertTrue(Patch.getFixtureTypes().isEmpty())
     }
 
     // TODO
