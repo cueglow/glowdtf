@@ -1,48 +1,33 @@
 package org.cueglow.server.objects
 
+import com.beust.klaxon.Json
 import com.beust.klaxon.JsonObject
-import kotlin.properties.Delegates
+import com.beust.klaxon.Klaxon
 
 /**
- * Create a new GlowMessage and parse the values from the [json] object.
+ * Create a new GlowMessage object, which serves as the internal representation of a message
+ *
  * The json object MUST have the fields "event" (String) and "data" (JsonObject)
  * and CAN have the field "messageId" (Int)
  */
-class GlowMessage(json: JsonObject) {
+class GlowMessage @JvmOverloads constructor(
+    @Json(name = "event", index = 0)
+    @KlaxonGlowEvent
+    val glowEvent: GlowEvent,
+    @Json(index = 1)
+    val data: Any?,
+    @Json(index = 2)
+    val messageId: Int?) {
 
-    var glowEvent: GlowEvent
-    lateinit var data: JsonObject
-    var messageId by Delegates.notNull<Int>()
-
-    init {
-
-        // Read JSON Fields, check and write the data into the object
-        try {
-            val eventDescriptor = json.string("event")
-            if (eventDescriptor != null) {
-                val event = GlowEvent.fromDiscriptor(eventDescriptor);
-                if (event != null) {
-                    glowEvent = event
-                } else {
-                    TODO("Errorhandling is still WIP")
-                }
-            } else {
-                TODO("Errorhandling is still WIP")
-            }
-
-            val jsonData = json.obj("data")
-            if (jsonData != null) {
-                data = jsonData
-            }
-
-            val id = json.int("messageId")
-            if (id != null) {
-                messageId = id;
-            }
-
-        } catch (e: ClassCastException) {
-            TODO("Errorhandling is still WIP")
-        }
+    fun toJsonString(): String {
+        return Klaxon()
+            .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
+            .toJsonString(this)
     }
+}
 
+class GlowRequest(val glowMessage: GlowMessage, val glowClient: GlowClient) {
+    fun answerRequest(answerMessage: GlowMessage) {
+        glowClient.sendMessage(glowMessage)
+    }
 }
