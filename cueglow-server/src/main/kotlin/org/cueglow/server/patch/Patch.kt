@@ -22,7 +22,7 @@ object Patch {
     // -------------------
     // Modify Fixture List
     // -------------------
-    fun addFixture(new: PatchFixture) {
+    fun putFixture(new: PatchFixture) {
         fixtureList[new.uuid] = new
         // TODO notify patch stream handler
     }
@@ -35,7 +35,7 @@ object Patch {
     // ------------------------
     // Modify Fixture Type List
     // ------------------------
-    fun addFixtureType(new: GDTF) {
+    fun putFixtureType(new: GDTF) {
         fixtureTypeList[new.fixtureTypeId] = new
         // TODO notify patch stream handler
     }
