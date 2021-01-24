@@ -25,9 +25,3 @@ class GlowMessage @JvmOverloads constructor(
             .toJsonString(this)
     }
 }
-
-class GlowRequest(val glowMessage: GlowMessage, val glowClient: GlowClient) {
-    fun answerRequest(answerMessage: GlowMessage) {
-        glowClient.sendMessage(glowMessage)
-    }
-}
