@@ -19,7 +19,8 @@ class WebSocketHandler : Logging {
             .parse<GlowMessage>(StringReader(ctx.message()))
 
         if (glowMessage != null) {
-            InEventDispatcher.dispatchRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
+
+            dispatchInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
         } else {
             TODO("Errorhandling is still WIP")
         }
