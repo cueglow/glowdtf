@@ -21,13 +21,7 @@ class DmxAddress private constructor(val value: Short) {
          *
          * @return Result of valid DmxAddress or Error for invalid input (i.e. too small or too big)
          */
-        fun tryFrom(input: Short): Result<DmxAddress, InvalidDmxAddress> {
-            return if (input in 1..512) {
-                Ok(DmxAddress(input))
-            } else {
-                Err(InvalidDmxAddress)
-            }
-        }
+        fun tryFrom(input: Short) = tryFrom(input.toInt())
         /**
          * Instantiate DmxAddress from Int.
          *

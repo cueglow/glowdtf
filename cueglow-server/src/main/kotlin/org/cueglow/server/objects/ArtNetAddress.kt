@@ -19,13 +19,7 @@ class ArtNetAddress private constructor(val value: Short) {
          *
          * @return Result of valid ArtNetAddress or Error for invalid input (i.e. negative)
          */
-        fun tryFrom(input: Short): Result<ArtNetAddress, InvalidArtNetAddress> {
-            return if (input in 0..32_767) {
-                Ok(ArtNetAddress(input))
-            } else {
-                Err(InvalidArtNetAddress)
-            }
-        }
+        fun tryFrom(input: Short) = tryFrom(input.toInt())
         /**
          * Instantiate ArtNetAddress from Int.
          *
