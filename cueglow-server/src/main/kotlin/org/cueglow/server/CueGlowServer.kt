@@ -2,7 +2,6 @@ package org.cueglow.server
 
 import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
-import org.cueglow.server.WebSocketHandler
 
 
 fun main(args: Array<String>) {
@@ -12,8 +11,8 @@ fun main(args: Array<String>) {
 class CueGlowServer(port: Int = 7000) : Logging {
 
     init {
-        val webSocketHandler = WebSocketHandler()
         logger.info("Starting CueGlow Server")
+        val webSocketHandler = WebSocketHandler()
         val app = Javalin.create { config ->
             config.requestLogger { ctx, executionTimeMs ->
                 logger.info("HTTP Request (${executionTimeMs}ms) \"${ctx.req.pathInfo}\"")
@@ -23,11 +22,16 @@ class CueGlowServer(port: Int = 7000) : Logging {
         }.apply {
             ws("/ws") { ws ->
                 ws.onConnect {
-                    webSocketHandler.connectSocket(it)
+                    webSocketHandler.handleConnect(it)
                 }
-
                 ws.onMessage {
-                    WebSocketHandler().handleSocketMessage(it)
+                    webSocketHandler.handleMessage(it)
+                }
+                ws.onClose {
+                    webSocketHandler.handleClose(it)
+                }
+                ws.onError {
+                    webSocketHandler.handleError(it)
                 }
             }
         }.start(port)
@@ -35,4 +39,3 @@ class CueGlowServer(port: Int = 7000) : Logging {
     }
 
 }
-
