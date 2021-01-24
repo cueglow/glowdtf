@@ -1,7 +1,6 @@
 package org.cueglow.server.objects
 
 import com.beust.klaxon.Json
-import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 
 /**
@@ -17,7 +16,8 @@ class GlowMessage @JvmOverloads constructor(
     @Json(index = 1)
     val data: Any?,
     @Json(index = 2)
-    val messageId: Int?) {
+    val messageId: Int?
+) {
 
     fun toJsonString(): String {
         return Klaxon()

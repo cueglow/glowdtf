@@ -43,6 +43,9 @@ class GlowMessageTest {
 
         val jsonMessage = message.toJsonString()
 
-        Assertions.assertEquals("{\"event\" : \"streamInitialState\", \"data\" : {\"stream\": \"patch\", \"streamUpdateId\": 0}, \"messageId\" : 42}", jsonMessage)
+        Assertions.assertEquals(
+            "{\"event\" : \"streamInitialState\", \"data\" : {\"stream\": \"patch\", \"streamUpdateId\": 0}, \"messageId\" : 42}",
+            jsonMessage
+        )
     }
 }

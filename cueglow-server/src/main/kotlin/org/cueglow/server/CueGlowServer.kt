@@ -12,7 +12,7 @@ class CueGlowServer(port: Int = 7000) : Logging {
 
     init {
         logger.info("Starting CueGlow Server")
-        val webSocketHandler = WebSocketHandler();
+        val webSocketHandler = WebSocketHandler()
         val app = Javalin.create { config ->
             config.requestLogger { ctx, executionTimeMs ->
                 logger.info("HTTP Request (${executionTimeMs}ms) \"${ctx.req.pathInfo}\"")
