@@ -10,7 +10,7 @@ import kotlin.collections.HashMap
 
 internal class PatchTest {
     @Test
-    fun PatchFixtureList() {
+    fun patchFixtureList() {
         // assert empty map in the beginning
         assertEquals(HashMap<UUID, PatchFixture>(), Patch.getFixtureList())
         // add example fixture
@@ -30,7 +30,7 @@ internal class PatchTest {
     }
 
     @Test
-    fun PatchFixtureTypeList() {
+    fun patchFixtureTypeList() {
         // assert empty map in the beginning
         assertEquals(HashMap<UUID, GDTF>(), Patch.getFixtureTypeList())
         // add example fixture type
