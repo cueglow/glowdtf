@@ -9,15 +9,14 @@ import java.util.*
  * Currently only provides the most basic properties
  */
 class GdtfWrapper(private val gdtf: GDTF) {
-    val name = gdtf.fixtureType.name
-    val manufacturer = gdtf.fixtureType.manufacturer
-    val fixtureTypeId = UUID.fromString(gdtf.fixtureType.fixtureTypeID)
+    val name: String = gdtf.fixtureType.name
+    val manufacturer: String = gdtf.fixtureType.manufacturer
+    val fixtureTypeId: UUID = UUID.fromString(gdtf.fixtureType.fixtureTypeID)
     val modes: List<DmxMode> = run {
         gdtf.fixtureType.dmxModes.dmxMode.map {
             // TODO
-            // calculating channel count is hard for GDTF
+            // calculating channel count is hard for GDTF due to Geometry Reference
             // https://gdtf-share.com/forum/index.php?/topic/340-getting-channel-count-from-a-gdtf-fixture/
-            // current approach does not work for multi-instance fixtures
 
             val dmxChannels = it.dmxChannels?.dmxChannel ?: TODO("Err")
 
