@@ -1,6 +1,6 @@
 package org.cueglow.server.gdtf
 
-import com.gdtf_share.schemas.device.GDTF
+import org.cueglow.gdtf.GDTF
 import java.util.*
 
 /**
@@ -17,6 +17,7 @@ class GdtfWrapper(private val gdtf: GDTF) {
             // TODO
             // calculating channel count is hard for GDTF due to Geometry Reference
             // https://gdtf-share.com/forum/index.php?/topic/340-getting-channel-count-from-a-gdtf-fixture/
+            // this should be done differently once the facilities to calculate actual DMX Channel Layout are in place
 
             val dmxChannels = it.dmxChannels?.dmxChannel ?: TODO("Err")
 

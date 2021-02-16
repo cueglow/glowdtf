@@ -1,19 +1,16 @@
 package org.cueglow.server.patch
 
+import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.objects.ImmutableMap
 import java.util.*
 import kotlin.collections.HashMap
-
-// TODO
-// import GDTF class from gdtf branch later
-class GDTF(val fixtureTypeId: UUID)
 
 /**
  * Singleton that holds Patch Data and notifies Stream Handler on Changes
  */
 object Patch {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
-    private val fixtureTypes: HashMap<UUID, GDTF> = HashMap()
+    private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 
     fun getFixtures() = ImmutableMap(this.fixtures)
 
@@ -35,7 +32,7 @@ object Patch {
     // ------------------------
     // Modify Fixture Type List
     // ------------------------
-    fun putFixtureType(new: GDTF) {
+    fun putFixtureType(new: GdtfWrapper) {
         fixtureTypes[new.fixtureTypeId] = new
         // TODO notify patch stream handler
     }

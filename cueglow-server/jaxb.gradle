@@ -38,7 +38,7 @@ def addXjcTask(taskName, schema, pkg, dest, binding) {
     // compileGeneratedJava.dependsOn tasks.getByName(taskName)
 }
 
-addXjcTask("generateGdtf", "src/main/schema/gdtf.xsd", "com.gdtf_share.schemas.device", "$generatedDir", "src/main/schema/gdtf-binding.xjb")
+addXjcTask("generateGdtf", "src/main/schema/gdtf.xsd", "org.cueglow.gdtf", "$generatedDir", "src/main/schema/gdtf-binding.xjb")
 
 // add task to show source sets for debug
 task sourceSets {
