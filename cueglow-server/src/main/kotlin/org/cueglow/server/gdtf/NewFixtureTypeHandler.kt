@@ -23,7 +23,7 @@ fun handleNewFixtureType(ctx: Context) {
         // return 200 with FixtureTypeId in JSON Message
         val glowMessage = GlowMessage(
             GlowEvent.FIXTURE_TYPE_ADDED,
-            JsonObject(mapOf("fixtureTypeId" to result.get())),
+            JsonObject(mapOf("fixtureTypeId" to result.get().toString())),
             null
         )
         ctx.result(glowMessage.toJsonString())

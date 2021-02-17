@@ -1,6 +1,7 @@
 package org.cueglow.server.gdtf
 
 import org.cueglow.gdtf.GDTF
+import org.cueglow.server.objects.ImmutableList
 import java.util.*
 
 /**
@@ -12,8 +13,9 @@ class GdtfWrapper(private val gdtf: GDTF) {
     val name: String = gdtf.fixtureType.name
     val manufacturer: String = gdtf.fixtureType.manufacturer
     val fixtureTypeId: UUID = UUID.fromString(gdtf.fixtureType.fixtureTypeID)
-    val modes: List<DmxMode> = run {
-        gdtf.fixtureType.dmxModes.dmxMode.map {
+    val modes: ImmutableList<DmxMode> = run {
+        ImmutableList(
+            gdtf.fixtureType.dmxModes.dmxMode.map {
             // TODO
             // calculating channel count is hard for GDTF due to Geometry Reference
             // https://gdtf-share.com/forum/index.php?/topic/340-getting-channel-count-from-a-gdtf-fixture/
@@ -27,7 +29,7 @@ class GdtfWrapper(private val gdtf: GDTF) {
                     }.maxOrNull() ?: TODO("Err")
 
             DmxMode(it.name, channelCount)
-        }}
+    })}
 }
 
 data class DmxMode(val name: String, val channelCount: Int)
