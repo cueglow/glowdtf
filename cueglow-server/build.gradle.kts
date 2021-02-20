@@ -21,6 +21,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.7.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
+    testImplementation("org.java-websocket:Java-WebSocket:1.5.1")
 
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.9")
 
