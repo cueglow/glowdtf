@@ -2,6 +2,7 @@ package org.cueglow.server.objects
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.TypeFor
 
 /**
  * Create a new GlowMessage object, which serves as the internal representation of a message
@@ -10,11 +11,12 @@ import com.beust.klaxon.Klaxon
  * and CAN have the field "messageId" (Int)
  */
 class GlowMessage @JvmOverloads constructor(
-    @Json(name = "event", index = 0)
+    @Json(index = 0)
+    @TypeFor(field="data", adapter=GlowDataTypeAdapter::class)
     @KlaxonGlowEvent
-    val glowEvent: GlowEvent,
+    val event: GlowEvent,
     @Json(index = 1)
-    val data: Any?, // TODO Any is NOT the typ we will have in the future!
+    val data: GlowData, // TODO Is this field nullable?
     @Json(index = 2)
     val messageId: Int?
 ) {
