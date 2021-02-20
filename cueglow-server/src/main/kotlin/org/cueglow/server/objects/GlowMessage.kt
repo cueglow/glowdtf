@@ -14,7 +14,7 @@ class GlowMessage @JvmOverloads constructor(
     @KlaxonGlowEvent
     val glowEvent: GlowEvent,
     @Json(index = 1)
-    val data: Any?, // TODO Any is NOT the typ we will have in the future!
+    val data: GlowData, // TODO Is this field nullable?
     @Json(index = 2)
     val messageId: Int?
 ) {
