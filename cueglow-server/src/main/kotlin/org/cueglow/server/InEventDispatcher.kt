@@ -6,7 +6,7 @@ import org.cueglow.server.objects.GlowRequest
 fun dispatchInRequest(glowRequest: GlowRequest) {
 
     // Delegate to the correct function / subroutine depending on the event
-    when (glowRequest.glowMessage.glowEvent) {
+    when (glowRequest.glowMessage.event) {
         GlowEvent.SUBSCRIBE -> TODO()
         GlowEvent.UNSUBSCRIBE -> TODO()
         GlowEvent.STREAM_INITIAL_STATE -> TODO()
