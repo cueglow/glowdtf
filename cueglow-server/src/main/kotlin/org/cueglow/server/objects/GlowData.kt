@@ -1,5 +1,7 @@
 package org.cueglow.server.objects
 
+import com.beust.klaxon.Converter
+import com.beust.klaxon.JsonValue
 import com.beust.klaxon.TypeAdapter
 import org.cueglow.server.patch.PatchFixture
 import java.util.*
@@ -19,7 +21,7 @@ data class GlowDataFixturesAdded(val uuids : Array<UUID>): GlowData()
 data class GlowDataUpdateFixture(val uuid: UUID): GlowData() // TODO Requires diskussion regarding needed/optinal values
 data class GlowDataDeleteFixtures(val uuids : Array<UUID>): GlowData()
 data class GlowDataFixtureTypeAdded(val fixtureTypeId : UUID): GlowData()
-data class GlowDataDeleteFixtureTypes(val uuids : Array<UUID>): GlowData()
+data class GlowDataDeleteFixtureTypes(val fixtureTypeIds : Array<UUID>): GlowData()
 
 class GlowDataTypeAdapter: TypeAdapter<GlowData> {
     override fun classFor(type: Any): KClass<out GlowData> = when(type as String) {
@@ -37,6 +39,36 @@ class GlowDataTypeAdapter: TypeAdapter<GlowData> {
         "fixtureTypeAdded" -> GlowDataFixtureTypeAdded::class
         "deleteFixtureTypes" -> GlowDataDeleteFixtureTypes::class
         else -> throw IllegalArgumentException("Unknown \"data\" type: $type")
+    }
+}
+
+val UUIDConverter = object: Converter {
+    override fun canConvert(cls: Class<*>)
+            = cls == UUID::class.java
+
+    override fun toJson(value: Any): String
+            = """"${(value as UUID).toString()}""""
+
+    override fun fromJson(jv: JsonValue): UUID {
+        val parsed: UUID = UUID.fromString(jv.string)
+//        println("converting UUID from JSON to JVM. Value " + jv + " is parsed as " + parsed)
+        return parsed
+    }
+}
+
+val UUIDArrayConverter = object: Converter {
+    override fun canConvert(cls: Class<*>)
+            = cls == Array<UUID>::class.java
+
+    override fun toJson(value: Any): String = (value as Array<*>)
+        .map{it.toString()}
+        .map{"\"" + it + "\""}
+        .joinToString(",", "[", "]")
+
+    override fun fromJson(jv: JsonValue): Array<UUID> {
+        val parsed: Array<UUID> = jv.array?.map{UUID.fromString(it as String)}?.toTypedArray() ?: throw Error("Parsing UUID Arry failed")
+        println("converting UUID Array from JSON to JVM. Value " + jv + " is parsed as " + parsed)
+        return parsed
     }
 }
 

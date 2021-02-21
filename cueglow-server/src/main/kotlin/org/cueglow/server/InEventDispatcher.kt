@@ -1,7 +1,9 @@
 package org.cueglow.server
 
+import org.cueglow.server.objects.GlowDataDeleteFixtureTypes
 import org.cueglow.server.objects.GlowEvent
 import org.cueglow.server.objects.GlowRequest
+import org.cueglow.server.patch.Patch
 
 fun dispatchInRequest(glowRequest: GlowRequest) {
 
@@ -18,7 +20,9 @@ fun dispatchInRequest(glowRequest: GlowRequest) {
         GlowEvent.UPDATE_FIXTURES -> TODO()
         GlowEvent.DELETE_FIXTURES -> TODO()
         GlowEvent.FIXTURE_TYPE_ADDED -> TODO()
-        GlowEvent.DELETE_FIXTURE_TYPES -> TODO()
+        GlowEvent.DELETE_FIXTURE_TYPES ->
+            (glowRequest.glowMessage.data as GlowDataDeleteFixtureTypes)
+                .fixtureTypeIds.forEach{Patch.removeFixtureType(it)}
     }
 }
 

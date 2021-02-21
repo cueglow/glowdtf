@@ -24,6 +24,8 @@ class GlowMessage @JvmOverloads constructor(
     fun toJsonString(): String {
         return Klaxon()
             .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
+            .converter(UUIDConverter)
+            .converter(UUIDArrayConverter)
             .toJsonString(this)
     }
 }

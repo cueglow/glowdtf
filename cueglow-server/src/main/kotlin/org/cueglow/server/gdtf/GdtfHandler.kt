@@ -1,20 +1,16 @@
 package org.cueglow.server.gdtf
 
-import com.github.michaelbull.result.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getOrElse
+import org.cueglow.gdtf.GDTF
 import org.cueglow.server.objects.GlowError
-import org.xml.sax.Attributes
-import org.xml.sax.InputSource
-import org.xml.sax.XMLReader
-import java.io.File
-import java.io.FileInputStream
+import org.cueglow.server.patch.Patch
 import java.io.InputStream
 import java.util.*
 import java.util.zip.ZipInputStream
 import javax.xml.bind.JAXBContext
-import javax.xml.parsers.SAXParserFactory
-import javax.xml.transform.sax.SAXSource
-import org.cueglow.gdtf.GDTF
-import org.cueglow.server.patch.Patch
 
 /**
  * Handler for new GDTF
@@ -37,7 +33,7 @@ fun parseGdtf(inputStream: InputStream): Result<GDTF, GlowError> {
 
     while (true) {
         val entry = zipInputStream.nextEntry
-        if (entry.name == "description.xml") {
+        if (entry?.name == "description.xml") {
             break
         }
         if (entry == null) {
