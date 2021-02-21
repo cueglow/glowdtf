@@ -1,15 +1,11 @@
 package org.cueglow.server.gdtf
 
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Klaxon
 import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.get
 import com.github.michaelbull.result.unwrap
 import io.javalin.http.Context
 import org.cueglow.server.objects.GlowDataFixtureTypeAdded
 import org.cueglow.server.objects.GlowEvent
 import org.cueglow.server.objects.GlowMessage
-import org.cueglow.server.objects.UUIDConverter
 
 /**
  * Network Handler for New Fixture Types
@@ -29,8 +25,8 @@ fun handleNewFixtureType(ctx: Context) {
             GlowDataFixtureTypeAdded(result.unwrap()),
             null
         )
-        val JSONResponse = glowMessage.toJsonString()
-        ctx.result(JSONResponse)
+        val jsonResponse = glowMessage.toJsonString()
+        ctx.result(jsonResponse)
         ctx.status(200)
         ctx.contentType("application/json")
     } else {

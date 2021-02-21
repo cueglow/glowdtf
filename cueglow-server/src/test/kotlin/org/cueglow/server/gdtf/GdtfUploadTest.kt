@@ -86,7 +86,7 @@ class WsClient(uri: URI): WebSocketClient(uri) {
     }
 
     override fun onMessage(message: String?) {
-        println("WsClient received" + message)
+        println("WsClient received $message")
     }
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {

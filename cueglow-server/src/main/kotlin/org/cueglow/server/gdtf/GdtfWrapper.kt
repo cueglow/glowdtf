@@ -15,20 +15,20 @@ class GdtfWrapper(private val gdtf: GDTF) {
     val fixtureTypeId: UUID = UUID.fromString(gdtf.fixtureType.fixtureTypeID)
     val modes: ImmutableList<DmxMode> = run {
         ImmutableList(
-            gdtf.fixtureType.dmxModes.dmxMode.map {
-            // TODO
+            gdtf.fixtureType.dmxModes.dmxMode.map { dmxMode ->
+                // TODO
             // calculating channel count is hard for GDTF due to Geometry Reference
             // https://gdtf-share.com/forum/index.php?/topic/340-getting-channel-count-from-a-gdtf-fixture/
             // this should be done differently once the facilities to calculate actual DMX Channel Layout are in place
 
-            val dmxChannels = it.dmxChannels?.dmxChannel ?: TODO("Err")
+            val dmxChannels = dmxMode.dmxChannels?.dmxChannel ?: TODO("Err")
 
             val channelCount = dmxChannels.map{ dmxChannel ->
                         val offsetString = dmxChannel.offset ?: TODO("Err")
                         offsetString.split(",").map { it.toInt() }.maxOf {it}
                     }.maxOrNull() ?: TODO("Err")
 
-            DmxMode(it.name, channelCount)
+            DmxMode(dmxMode.name, channelCount)
     })}
 }
 

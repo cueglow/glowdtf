@@ -17,11 +17,11 @@ data class GlowDataRequestStreamData(val stream: String) : GlowData()
 data class GlowDataError(val error: GlowError): GlowData()
 
 data class GlowDataAddFixtures(val fixture: PatchFixture): GlowData() // TODO Requires diskussion regarding needed/optinal values
-data class GlowDataFixturesAdded(val uuids : Array<UUID>): GlowData()
+data class GlowDataFixturesAdded(val uuids : List<UUID>): GlowData()
 data class GlowDataUpdateFixture(val uuid: UUID): GlowData() // TODO Requires diskussion regarding needed/optinal values
-data class GlowDataDeleteFixtures(val uuids : Array<UUID>): GlowData()
+data class GlowDataDeleteFixtures(val uuids : List<UUID>): GlowData()
 data class GlowDataFixtureTypeAdded(val fixtureTypeId : UUID): GlowData()
-data class GlowDataDeleteFixtureTypes(val fixtureTypeIds : Array<UUID>): GlowData()
+data class GlowDataDeleteFixtureTypes(val fixtureTypeIds : List<UUID>): GlowData()
 
 class GlowDataTypeAdapter: TypeAdapter<GlowData> {
     override fun classFor(type: Any): KClass<out GlowData> = when(type as String) {
@@ -47,13 +47,10 @@ val UUIDConverter = object: Converter {
             = cls == UUID::class.java
 
     override fun toJson(value: Any): String
-            = """"${(value as UUID).toString()}""""
+            = """"${(value as UUID)}""""
 
-    override fun fromJson(jv: JsonValue): UUID {
-        val parsed: UUID = UUID.fromString(jv.string)
-//        println("converting UUID from JSON to JVM. Value " + jv + " is parsed as " + parsed)
-        return parsed
-    }
+    override fun fromJson(jv: JsonValue): UUID
+            = UUID.fromString(jv.string)
 }
 
 val UUIDArrayConverter = object: Converter {
@@ -61,15 +58,10 @@ val UUIDArrayConverter = object: Converter {
             = cls == Array<UUID>::class.java
 
     override fun toJson(value: Any): String = (value as Array<*>)
-        .map{it.toString()}
-        .map{"\"" + it + "\""}
-        .joinToString(",", "[", "]")
+        .map { it.toString() }.joinToString(",", "[", "]") { "\"" + it + "\"" }
 
-    override fun fromJson(jv: JsonValue): Array<UUID> {
-        val parsed: Array<UUID> = jv.array?.map{UUID.fromString(it as String)}?.toTypedArray() ?: throw Error("Parsing UUID Arry failed")
-        println("converting UUID Array from JSON to JVM. Value " + jv + " is parsed as " + parsed)
-        return parsed
-    }
+    override fun fromJson(jv: JsonValue): Array<UUID>
+            = jv.array?.map{UUID.fromString(it as String)}?.toTypedArray() ?: throw Error("Parsing UUID Arry failed")
 }
 
 

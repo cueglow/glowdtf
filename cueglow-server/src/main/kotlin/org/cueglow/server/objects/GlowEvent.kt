@@ -43,7 +43,7 @@ enum class GlowEvent(val eventDescriptor: String, val eventType: GlowEventType) 
 
 /**
  * Provide a Annotation to mark fields and allow Klaxon to use a special converter on all marked fields
- * See [GlowEvent.glowEventConverter] for the special converter and [GlowMessage.glowEvent] for the marked field
+ * See [GlowEvent.glowEventConverter] for the special converter and [GlowMessage.event] for the marked field
  * A Klaxon instance with the linked Annotation and Converter ist used in [GlowMessage.toJsonString]
  */
 @Target(AnnotationTarget.FIELD)
