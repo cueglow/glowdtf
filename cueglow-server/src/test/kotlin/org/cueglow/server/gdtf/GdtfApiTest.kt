@@ -2,6 +2,7 @@ package org.cueglow.server.gdtf
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
+import com.github.kittinunf.fuel.core.ResponseResultOf
 import org.cueglow.server.CueGlowServer
 import org.cueglow.server.api.GlowDataFixtureTypeAdded
 import org.cueglow.server.api.GlowEvent
@@ -10,30 +11,37 @@ import org.cueglow.server.patch.Patch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.io.File
 import java.net.URI
 import java.util.*
 
-internal class GdtfUploadTest {
-    @Test
-    fun testGdtfUpload() {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+internal class GdtfApiTest {
+    @BeforeAll
+    fun initiateEnvironmentForGdtfTest() {
         // Patch should be clean
         assertEquals(0, Patch.getFixtureTypes().size)
 
         // start Server
         CueGlowServer()
+    }
 
-        // client request
-        val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
-        val exampleGdtfFile= File(javaClass.classLoader.getResource(exampleGdtfFileName)?.file ?: throw Error("can't get resource"))
-
-        // HTTP Request
-        val (_, response, result) = Fuel.upload("http://localhost:7000/api/fixturetype")
+    private fun uploadGdtfFile(filename: String): ResponseResultOf<String> {
+        val exampleGdtfFile= File(javaClass.classLoader.getResource(filename)?.file ?: throw Error("can't get resource"))
+        return Fuel.upload("http://localhost:7000/api/fixturetype")
             .add(FileDataPart(
-                exampleGdtfFile, name="file", filename=exampleGdtfFileName
+                exampleGdtfFile, name="file", filename=filename
             ))
             .responseString()
+    }
+
+    @Test
+    fun testGdtfUpload() {
+        // HTTP Request
+        val (_, response, result) = uploadGdtfFile("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf")
 
         // evaluate response
         assertEquals(200, response.statusCode)
@@ -53,11 +61,14 @@ internal class GdtfUploadTest {
 
         // TODO check that streamUpdate is delivered (once streams are working)
 
-        // TODO check error response upon upload/delete fixture
+        // TODO check error response when uploading fixture
+    }
 
-        // Delete Fixture Type via WebSocket API
+    @Test
+    fun deleteFixtureTypeViaWebSocket() {
+        // TODO check error response when deleting fixture
         val deleteJSONMsg =
-        """
+            """
         {
             "event": "deleteFixtureTypes",
             "data": {
@@ -72,6 +83,18 @@ internal class GdtfUploadTest {
         wsClient.send(deleteJSONMsg)
         wsClient.closeBlocking()
         assertEquals(0, Patch.getFixtureTypes().size)
+    }
+
+    @Test
+    fun invalidGdtfUpload() {
+        val (_, response, _) = uploadGdtfFile("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf.broken")
+
+        assertEquals(500, response.statusCode)
+
+        // no fixtureType should be added
+        assertEquals(0, Patch.getFixtureTypes().size)
+
+        // TODO check error response once error handling is more mature
     }
 }
 
