@@ -3,6 +3,7 @@ package org.cueglow.server
 import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.gdtf.handleNewFixtureType
+import org.cueglow.server.handlers.WebSocketHandler
 
 
 fun main(args: Array<String>) {

@@ -1,10 +1,9 @@
-package org.cueglow.server
+package org.cueglow.server.handlers
 
-import com.beust.klaxon.Klaxon
 import io.javalin.websocket.*
 import org.apache.logging.log4j.kotlin.Logging
+import org.cueglow.server.dispatchInRequest
 import org.cueglow.server.objects.*
-import java.io.StringReader
 
 class WebSocketHandler : Logging {
 
