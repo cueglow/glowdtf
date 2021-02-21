@@ -13,18 +13,9 @@ class WebSocketHandler : Logging {
     fun handleMessage(ctx: WsMessageContext) {
         logger.info("Received \"${ctx.message()}\" from websocket")
 
-        // TODO refactor to be able to use this from outside (e.g. for Unit tests)
-        // Parse JSON Message to GlowMessage
-        val glowMessage = Klaxon()
-            .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
-            .converter(UUIDConverter)
-            .converter(UUIDArrayConverter)
-            .parse<GlowMessage>(StringReader(ctx.message()))
-
-        glowMessage ?: TODO("Errorhandling is still WIP")
+        val glowMessage = parseGlowMessage(ctx.message())
 
         dispatchInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
-
     }
 
     fun broadcastMessage(message: String) {

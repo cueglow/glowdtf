@@ -21,14 +21,11 @@ class GlowMessageTest {
             }
         """.trimIndent()
 
-        val message = Klaxon()
-            .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
-            .parse<GlowMessage>(StringReader(jsonString))
+        val message = parseGlowMessage(jsonString)
 
-        assert(message != null)
-        Assertions.assertEquals(GlowEvent.SUBSCRIBE, message?.event)
-        Assertions.assertEquals(GlowDataSubscribe("patch"), message?.data)
-        Assertions.assertEquals(1, message?.messageId)
+        Assertions.assertEquals(GlowEvent.SUBSCRIBE, message.event)
+        Assertions.assertEquals(GlowDataSubscribe("patch"), message.data)
+        Assertions.assertEquals(1, message.messageId)
 
     }
 

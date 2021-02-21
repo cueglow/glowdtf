@@ -40,11 +40,7 @@ internal class GdtfUploadTest {
 
         val responseJSON = result.component1() ?: ""
         // println(responseJSON)
-        // TODO replace with factored out parsing from WebSocketHandler
-        val glowMessage = Klaxon()
-            .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
-            .converter(UUIDConverter)
-            .parse<GlowMessage>(StringReader(responseJSON)) ?: throw Error("returned Message parses to null")
+        val glowMessage = parseGlowMessage(responseJSON)
         assertEquals(GlowEvent.FIXTURE_TYPE_ADDED, glowMessage.event)
 
         val expectedUUID = UUID.fromString("7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE")

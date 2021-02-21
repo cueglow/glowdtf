@@ -3,6 +3,7 @@ package org.cueglow.server.objects
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.TypeFor
+import java.io.StringReader
 
 /**
  * Create a new GlowMessage object, which serves as the internal representation of a message
@@ -29,3 +30,14 @@ class GlowMessage @JvmOverloads constructor(
             .toJsonString(this)
     }
 }
+
+/**
+ * Parse JSON to GlowMessage
+ */
+fun parseGlowMessage(input: String): GlowMessage = Klaxon()
+        .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
+        .converter(UUIDConverter)
+        .converter(UUIDArrayConverter)
+        .parse<GlowMessage>(StringReader(input))
+    ?: TODO("Errorhandling is WIP")
+
