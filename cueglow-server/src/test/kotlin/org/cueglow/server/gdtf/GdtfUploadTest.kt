@@ -1,17 +1,17 @@
 package org.cueglow.server.gdtf
 
-import com.beust.klaxon.Klaxon
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
 import org.cueglow.server.CueGlowServer
-import org.cueglow.server.objects.*
+import org.cueglow.server.api.GlowDataFixtureTypeAdded
+import org.cueglow.server.api.GlowEvent
+import org.cueglow.server.api.parseGlowMessage
 import org.cueglow.server.patch.Patch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.io.StringReader
 import java.net.URI
 import java.util.*
 

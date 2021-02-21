@@ -1,6 +1,7 @@
 package org.cueglow.server.objects
 
 import io.javalin.websocket.WsMessageContext
+import org.cueglow.server.api.GlowMessage
 
 interface GlowClient {
     fun sendMessage(message: GlowMessage)

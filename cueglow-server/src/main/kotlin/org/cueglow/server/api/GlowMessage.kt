@@ -1,4 +1,4 @@
-package org.cueglow.server.objects
+package org.cueglow.server.api
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon

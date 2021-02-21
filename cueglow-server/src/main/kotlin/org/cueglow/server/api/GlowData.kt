@@ -1,8 +1,9 @@
-package org.cueglow.server.objects
+package org.cueglow.server.api
 
 import com.beust.klaxon.Converter
 import com.beust.klaxon.JsonValue
 import com.beust.klaxon.TypeAdapter
+import org.cueglow.server.objects.GlowError
 import org.cueglow.server.patch.PatchFixture
 import java.util.*
 import kotlin.reflect.KClass
@@ -32,7 +33,7 @@ class GlowDataTypeAdapter: TypeAdapter<GlowData> {
         "streamUpdate" -> GlowDataStreamUpdate::class
         "requestStreamData" -> GlowDataRequestStreamData::class
         "error" -> GlowDataError::class
-        "addFixtures" ->GlowDataAddFixtures::class
+        "addFixtures" -> GlowDataAddFixtures::class
         "fixturesAdded" -> GlowDataFixturesAdded::class
         "updateFixture" -> GlowDataUpdateFixture::class
         "deleteFixtures" -> GlowDataDeleteFixtures::class

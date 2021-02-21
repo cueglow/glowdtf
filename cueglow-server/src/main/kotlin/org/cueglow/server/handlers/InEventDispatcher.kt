@@ -1,8 +1,8 @@
 package org.cueglow.server
 
-import org.cueglow.server.objects.GlowDataDeleteFixtureTypes
-import org.cueglow.server.objects.GlowEvent
-import org.cueglow.server.objects.GlowRequest
+import org.cueglow.server.api.GlowDataDeleteFixtureTypes
+import org.cueglow.server.api.GlowEvent
+import org.cueglow.server.api.GlowRequest
 import org.cueglow.server.patch.Patch
 
 fun dispatchInRequest(glowRequest: GlowRequest) {

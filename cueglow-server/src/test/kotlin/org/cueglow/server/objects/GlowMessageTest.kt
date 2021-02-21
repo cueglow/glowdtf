@@ -1,10 +1,9 @@
 package org.cueglow.server.objects
 
-import com.beust.klaxon.Klaxon
+import org.cueglow.server.api.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.io.StringReader
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GlowMessageTest {

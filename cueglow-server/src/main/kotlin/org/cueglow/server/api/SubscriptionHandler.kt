@@ -1,4 +1,4 @@
-package org.cueglow.server
+package org.cueglow.server.api
 
 object SubscriptionHandler {
 
