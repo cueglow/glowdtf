@@ -1,3 +1,6 @@
+# Issue #20: Gitignore the .idea folder (it keeps changing, which is very annoying)
+.idea
+
 # Created by https://www.toptal.com/developers/gitignore/api/vscode,gradle,kotlin,intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=vscode,gradle,kotlin,intellij
 
