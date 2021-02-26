@@ -1,4 +1,4 @@
-package org.cueglow.server.gdtf
+package org.cueglow.server.handlers
 
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
@@ -6,6 +6,7 @@ import io.javalin.http.Context
 import org.cueglow.server.api.GlowDataFixtureTypeAdded
 import org.cueglow.server.api.GlowEvent
 import org.cueglow.server.api.GlowMessage
+import org.cueglow.server.gdtf.handleNewGdtf
 
 /**
  * Network Handler for New Fixture Types
