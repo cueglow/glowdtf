@@ -62,11 +62,8 @@ internal class GdtfApiTest {
         // TODO check that streamUpdate is delivered (once streams are working)
 
         // TODO check error response when uploading fixture
-    }
 
-    @Test
-    fun deleteFixtureTypeViaWebSocket() {
-        // TODO check error response when deleting fixture
+        // delete Fixture again via WebSocket
         val deleteJSONMsg =
             """
         {
@@ -83,6 +80,8 @@ internal class GdtfApiTest {
         wsClient.send(deleteJSONMsg)
         wsClient.closeBlocking()
         assertEquals(0, Patch.getFixtureTypes().size)
+
+        // TODO check error response when deleting fixture
     }
 
     @Test
