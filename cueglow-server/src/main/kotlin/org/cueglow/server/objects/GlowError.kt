@@ -1,10 +1,20 @@
 package org.cueglow.server.objects
 
+import org.cueglow.server.api.GlowDataError
+import org.cueglow.server.api.GlowEvent
+import org.cueglow.server.api.GlowMessage
+
 /**
  * List of all custom Error types for CueGlow Server
  */
-sealed class
-GlowError
+sealed class GlowError(val description: String = "") {
+    fun toJsonString(): String =
+        GlowMessage(
+            GlowEvent.ERROR,
+            GlowDataError(this::class.simpleName ?: "Unnamed GlowError", description),
+            null
+        ).toJsonString()
+}
 
 /**
  * All Errors related to the ArtNetAddress class
@@ -25,3 +35,9 @@ object InvalidDmxAddress: GlowError()
  */
 sealed class GdtfError: GlowError()
 object MissingDescriptionXmlInGdtf: GdtfError()
+
+/**
+ * Errors related to the Network API
+ */
+sealed class ApiError(description: String): GlowError(description)
+object MissingFilePart: ApiError("The GDTF upload request should include the GDTF file in a part with the name \"file\".")

@@ -7,13 +7,14 @@ import org.cueglow.server.api.GlowDataFixtureTypeAdded
 import org.cueglow.server.api.GlowEvent
 import org.cueglow.server.api.GlowMessage
 import org.cueglow.server.gdtf.handleNewGdtf
+import org.cueglow.server.objects.MissingFilePart
 
 /**
  * Network Handler for New Fixture Types
  */
 fun handleNewFixtureType(ctx: Context) {
     val uploadedFile = ctx.uploadedFile("file") ?: run {
-        ctx.status(400).result("no file found under field file")
+        ctx.status(400).result(MissingFilePart.toJsonString())
         return
     }
 

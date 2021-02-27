@@ -4,6 +4,7 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import org.cueglow.server.CueGlowServer
+import org.cueglow.server.api.GlowDataError
 import org.cueglow.server.api.GlowDataFixtureTypeAdded
 import org.cueglow.server.api.GlowEvent
 import org.cueglow.server.api.parseGlowMessage
@@ -11,6 +12,7 @@ import org.cueglow.server.patch.Patch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -29,11 +31,11 @@ internal class GdtfApiTest {
         CueGlowServer()
     }
 
-    private fun uploadGdtfFile(filename: String): ResponseResultOf<String> {
+    private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
         val exampleGdtfFile= File(javaClass.classLoader.getResource(filename)?.file ?: throw Error("can't get resource"))
         return Fuel.upload("http://localhost:7000/api/fixturetype")
             .add(FileDataPart(
-                exampleGdtfFile, name="file", filename=filename
+                exampleGdtfFile, name=partname, filename=filename
             ))
             .responseString()
     }
@@ -47,7 +49,6 @@ internal class GdtfApiTest {
         assertEquals(200, response.statusCode)
 
         val responseJSON = result.component1() ?: ""
-        // println(responseJSON)
         val glowMessage = parseGlowMessage(responseJSON)
         assertEquals(GlowEvent.FIXTURE_TYPE_ADDED, glowMessage.event)
 
@@ -85,7 +86,7 @@ internal class GdtfApiTest {
     }
 
     @Test
-    fun invalidGdtfUpload() {
+    fun invalidGdtfFileUpload() {
         val (_, response, _) = uploadGdtfFile("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf.broken")
 
         assertEquals(500, response.statusCode)
@@ -95,6 +96,23 @@ internal class GdtfApiTest {
 
         // TODO check error response once error handling is more mature
     }
+
+    @Test
+    fun noFilePartInGdtfUploadErrors() {
+        val (_, response, _) = uploadGdtfFile(
+            "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf",
+            "strangePartName"
+        )
+
+        assertEquals(400, response.statusCode)
+
+        val responseJSON = response.body().asString("text/plain")
+        val glowMessage = parseGlowMessage(responseJSON)
+        val data = glowMessage.data as GlowDataError
+        assertEquals("MissingFilePart", data.errorName)
+        assertNotEquals("", data.errorDescription)
+    }
+
 }
 
 // Barebones WebSocket client for sending test messages

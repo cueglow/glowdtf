@@ -1,9 +1,9 @@
 package org.cueglow.server.api
 
 import com.beust.klaxon.Converter
+import com.beust.klaxon.Json
 import com.beust.klaxon.JsonValue
 import com.beust.klaxon.TypeAdapter
-import org.cueglow.server.objects.GlowError
 import org.cueglow.server.patch.PatchFixture
 import java.util.*
 import kotlin.reflect.KClass
@@ -15,7 +15,7 @@ data class GlowDataUnsubscribe(val stream: String) : GlowData()
 data class GlowDataStreamInitialState(val stream: String, val streamUpdateId: Int) : GlowData() // TODO Add Stream Content classes
 data class GlowDataStreamUpdate(val stream: String, val streamUpdateId: Int) : GlowData() // TODO Add Stream Content classes
 data class GlowDataRequestStreamData(val stream: String) : GlowData()
-data class GlowDataError(val error: GlowError): GlowData()
+data class GlowDataError(@Json(index=0) val errorName: String, @Json(index=1) val errorDescription: String): GlowData()
 
 data class GlowDataAddFixtures(val fixture: PatchFixture): GlowData() // TODO Requires diskussion regarding needed/optinal values
 data class GlowDataFixturesAdded(val uuids : List<UUID>): GlowData()
