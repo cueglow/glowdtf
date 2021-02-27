@@ -57,7 +57,7 @@ fun parseGdtf(inputStream: InputStream): Result<GDTF, GlowError> {
     val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
     // Since this is the XSD for GDTF version 1.1 and GDTF is not backwards compatible,
     // this only supports GDTF 1.1 which is equal to DIN 15800:2020-07.
-    val gdtfSchema: Schema = sf.newSchema(File("src/main/schema/gdtf.xsd"))
+    val gdtfSchema: Schema = sf.newSchema(File("src/main/resources/gdtf/gdtf.xsd"))
     unmarshaller.schema = gdtfSchema
 
     // TODO Additional Validation may be possible through Schematron in the future

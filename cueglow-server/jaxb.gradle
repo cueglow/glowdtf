@@ -40,7 +40,7 @@ def addXjcTask(taskName, schema, pkg, dest, binding) {
     compileGeneratedKotlin.dependsOn tasks.getByName(taskName)
 }
 
-addXjcTask("generateGdtf", "src/main/schema/gdtf.xsd", "org.cueglow.gdtf", "$generatedDir", "src/main/schema/gdtf-binding.xjb")
+addXjcTask("generateGdtf", "src/main/resources/gdtf/gdtf.xsd", "org.cueglow.gdtf", "$generatedDir", "src/main/resources/gdtf/gdtf-binding.xjb")
 
 // add task to show source sets for debug
 task sourceSets {
