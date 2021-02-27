@@ -5,7 +5,7 @@ import org.cueglow.server.api.GlowEvent
 import org.cueglow.server.api.GlowRequest
 import org.cueglow.server.patch.Patch
 
-fun dispatchInRequest(glowRequest: GlowRequest) {
+fun handleInRequest(glowRequest: GlowRequest) {
 
     // Delegate to the correct function / subroutine depending on the event
     when (glowRequest.glowMessage.event) {

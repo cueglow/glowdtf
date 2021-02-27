@@ -4,7 +4,7 @@ import io.javalin.websocket.*
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.api.GlowRequest
 import org.cueglow.server.api.parseGlowMessage
-import org.cueglow.server.dispatchInRequest
+import org.cueglow.server.handleInRequest
 import org.cueglow.server.objects.*
 
 class WebSocketHandler : Logging {
@@ -16,7 +16,7 @@ class WebSocketHandler : Logging {
 
         val glowMessage = parseGlowMessage(ctx.message())
 
-        dispatchInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
+        handleInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
     }
 
     fun broadcastMessage(message: String) {
