@@ -3,7 +3,8 @@ package org.cueglow.server.objects
 /**
  * List of all custom Error types for CueGlow Server
  */
-sealed class GlowError
+sealed class
+GlowError
 
 /**
  * All Errors related to the ArtNetAddress class
@@ -18,3 +19,9 @@ object InvalidArtNetUniverse: ArtNetAddressError()
  * Errors related to DmxAddress class
  */
 object InvalidDmxAddress: GlowError()
+
+/**
+ * All Errors related to GDTF files
+ */
+sealed class GdtfError: GlowError()
+object MissingDescriptionXmlInGdtf: GdtfError()

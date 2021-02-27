@@ -6,19 +6,16 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
 import org.cueglow.gdtf.GDTF
 import org.cueglow.server.objects.GlowError
+import org.cueglow.server.objects.MissingDescriptionXmlInGdtf
 import org.cueglow.server.patch.Patch
+import java.io.File
 import java.io.InputStream
 import java.util.*
 import java.util.zip.ZipInputStream
-import javax.xml.bind.JAXBContext
-import java.io.File
-
 import javax.xml.XMLConstants
+import javax.xml.bind.JAXBContext
 import javax.xml.validation.Schema
-
 import javax.xml.validation.SchemaFactory
-
-
 
 
 /**
@@ -40,15 +37,10 @@ fun handleNewGdtf(inputStream: InputStream): Result<UUID, GlowError> {
 fun parseGdtf(inputStream: InputStream): Result<GDTF, GlowError> {
     val zipInputStream = ZipInputStream(inputStream)
 
-    while (true) {
-        val entry = zipInputStream.nextEntry
-        if (entry?.name == "description.xml") {
-            break
-        }
-        if (entry == null) {
-            TODO("return error - no description xml found")
-        }
-    }
+    // Advance zipInputStream until current entry is description.xml
+    do {
+        val entry = zipInputStream.nextEntry ?: return Err(MissingDescriptionXmlInGdtf)
+    } while (entry.name != "description.xml")
 
     val jc = JAXBContext.newInstance("org.cueglow.gdtf")
     val unmarshaller = jc.createUnmarshaller()
@@ -63,8 +55,8 @@ fun parseGdtf(inputStream: InputStream): Result<GDTF, GlowError> {
     // TODO Additional Validation may be possible through Schematron in the future
     // Please track the progress of https://github.com/mvrdevelopment/spec/pull/64
 
-    // TODO unsafe null handling
-    val collection = unmarshaller.unmarshal(zipInputStream) as? GDTF ?: TODO()
+    val collection = unmarshaller.unmarshal(zipInputStream) as? GDTF ?:
+        throw ClassCastException("Unmarshalled GDTF cannot be cast to GDTF class")
 
     return Ok(collection)
 }
