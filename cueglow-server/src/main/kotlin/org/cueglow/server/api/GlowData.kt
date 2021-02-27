@@ -25,22 +25,9 @@ data class GlowDataFixtureTypeAdded(val fixtureTypeId : UUID): GlowData()
 data class GlowDataDeleteFixtureTypes(val fixtureTypeIds : List<UUID>): GlowData()
 
 class GlowDataTypeAdapter: TypeAdapter<GlowData> {
-    override fun classFor(type: Any): KClass<out GlowData> = when(type as String) {
-        // TODO this mapping kind of repeats the mapping in GlowEvent but I don't know how else to do it
-        "subscribe" -> GlowDataSubscribe::class
-        "unsubscribe" -> GlowDataUnsubscribe::class
-        "streamInitialState" -> GlowDataStreamInitialState::class
-        "streamUpdate" -> GlowDataStreamUpdate::class
-        "requestStreamData" -> GlowDataRequestStreamData::class
-        "error" -> GlowDataError::class
-        "addFixtures" -> GlowDataAddFixtures::class
-        "fixturesAdded" -> GlowDataFixturesAdded::class
-        "updateFixture" -> GlowDataUpdateFixture::class
-        "deleteFixtures" -> GlowDataDeleteFixtures::class
-        "fixtureTypeAdded" -> GlowDataFixtureTypeAdded::class
-        "deleteFixtureTypes" -> GlowDataDeleteFixtureTypes::class
-        else -> throw IllegalArgumentException("Unknown \"data\" type: $type")
-    }
+    override fun classFor(type: Any): KClass<out GlowData> =
+        GlowEvent.fromDescriptor(type as String)?.eventDataClass ?:
+        throw IllegalArgumentException("Unknown JSON event: $type")
 }
 
 val UUIDConverter = object: Converter {

@@ -2,22 +2,23 @@ package org.cueglow.server.api
 
 import com.beust.klaxon.Converter
 import com.beust.klaxon.JsonValue
+import kotlin.reflect.KClass
 
-enum class GlowEvent(val eventDescriptor: String, val eventType: GlowEventType) {
+enum class GlowEvent(val eventDescriptor: String, val eventType: GlowEventType, val eventDataClass: KClass<out GlowData>) {
 
-    SUBSCRIBE("subscribe", GlowEventType.CLIENT),
-    UNSUBSCRIBE("unsubscribe", GlowEventType.CLIENT),
-    STREAM_INITIAL_STATE("streamInitialState", GlowEventType.SERVER),
-    STREAM_UPDATE("streamUpdate", GlowEventType.SERVER),
-    REQUEST_STREAM_DATA("requestStreamData", GlowEventType.CLIENT),
-    ERROR("error", GlowEventType.SERVER),
+    SUBSCRIBE("subscribe", GlowEventType.CLIENT, GlowDataSubscribe::class),
+    UNSUBSCRIBE("unsubscribe", GlowEventType.CLIENT, GlowDataUnsubscribe::class),
+    STREAM_INITIAL_STATE("streamInitialState", GlowEventType.SERVER, GlowDataStreamInitialState::class),
+    STREAM_UPDATE("streamUpdate", GlowEventType.SERVER, GlowDataStreamUpdate::class),
+    REQUEST_STREAM_DATA("requestStreamData", GlowEventType.CLIENT, GlowDataRequestStreamData::class),
+    ERROR("error", GlowEventType.SERVER, GlowDataError::class),
 
-    ADD_FIXTURES("addFixtures", GlowEventType.CLIENT),
-    FIXTURES_ADDED("fixturesAdded", GlowEventType.SERVER),
-    UPDATE_FIXTURES("updateFixtures", GlowEventType.CLIENT),
-    DELETE_FIXTURES("deleteFixtures", GlowEventType.CLIENT),
-    FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowEventType.SERVER),
-    DELETE_FIXTURE_TYPES("deleteFixtureTypes", GlowEventType.CLIENT),;
+    ADD_FIXTURES("addFixtures", GlowEventType.CLIENT, GlowDataAddFixtures::class),
+    FIXTURES_ADDED("fixturesAdded", GlowEventType.SERVER, GlowDataFixturesAdded::class),
+    UPDATE_FIXTURES("updateFixtures", GlowEventType.CLIENT, GlowDataUpdateFixture::class),
+    DELETE_FIXTURES("deleteFixtures", GlowEventType.CLIENT, GlowDataDeleteFixtures::class),
+    FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowEventType.SERVER, GlowDataFixtureTypeAdded::class),
+    DELETE_FIXTURE_TYPES("deleteFixtureTypes", GlowEventType.CLIENT, GlowDataDeleteFixtureTypes::class),;
 
     override fun toString(): String {
         return eventDescriptor
