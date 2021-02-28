@@ -1,11 +1,14 @@
 package org.cueglow.server.patch
 
 import com.github.michaelbull.result.unwrap
+import org.cueglow.server.gdtf.GdtfWrapper
+import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.io.InputStream
 import java.util.*
 
 internal class PatchTest {
@@ -29,7 +32,12 @@ internal class PatchTest {
     fun patchFixtureTypeList() {
         assertTrue(Patch.getFixtureTypes().isEmpty())
 
-        val exampleFixtureType = GDTF(UUID.randomUUID())
+        val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
+        val inputStream: InputStream = javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?:
+                throw Error("inputStream is Null")
+        val parsedGdtf = parseGdtf(inputStream).unwrap()
+        val exampleFixtureType = GdtfWrapper(parsedGdtf)
+
         Patch.putFixtureType(exampleFixtureType)
 
         assertEquals(1, Patch.getFixtureTypes().size)

@@ -2,6 +2,8 @@ package org.cueglow.server
 
 import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
+import org.cueglow.server.handlers.handleNewFixtureType
+import org.cueglow.server.handlers.WebSocketHandler
 
 
 fun main(args: Array<String>) {
@@ -34,6 +36,8 @@ class CueGlowServer(port: Int = 7000) : Logging {
                     webSocketHandler.handleError(it)
                 }
             }
+        }.apply {
+            post("/api/fixturetype") { handleNewFixtureType(it) }
         }.start(port)
         logger.info("Serving frontend at http://localhost:$port")
     }

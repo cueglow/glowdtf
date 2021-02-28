@@ -1,7 +1,5 @@
 package org.cueglow.server
 
-import org.cueglow.server.objects.GlowClient
-
 object SubscriptionHandler {
 
     // streams: List<GlowStream>
