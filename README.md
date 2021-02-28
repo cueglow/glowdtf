@@ -7,7 +7,7 @@ It focuses on PC or Tablet control, Art-Net output and single cue
 list operation. This small feature set should be reliable, fast and easy to use. 
 
 CueGlow is currently in initial development and not yet usable. But if you like 
-our vision, you can help make it real by [contributing](#contributing). 
+our vision, you can help make it real by [contributing](CONTRIBUTING.md). 
 
 ## Installation
 
@@ -90,4 +90,5 @@ We though we should be able to do better. We set out to make a software that wou
   parts should be linkable.  
 - Non-technical and elicit emotional playing with lights 
 
-We are not there yet, but we started the journey. 
+We are not there yet, but we started the journey. You can help us get there by
+[contributing](CONTRIBUTING.md). 
