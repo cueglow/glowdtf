@@ -1,6 +1,7 @@
 package org.cueglow.server.handlers
 
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.unwrap
 import io.javalin.http.Context
 import org.cueglow.server.api.GlowDataFixtureTypeAdded
@@ -33,8 +34,7 @@ fun handleNewFixtureType(ctx: Context) {
         ctx.contentType("application/json")
     } else {
         // result is Err
-        // TODO
-        // return 200 with error in JSON Message
-        ctx.status(500)
+        ctx.status(400)
+            .result(result.getError()?.toJsonString() ?: "")
     }
 }

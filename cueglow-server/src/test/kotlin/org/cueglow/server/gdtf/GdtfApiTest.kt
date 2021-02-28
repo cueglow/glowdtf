@@ -113,6 +113,19 @@ internal class GdtfApiTest {
         assertNotEquals("", data.errorDescription)
     }
 
+    @Test
+    fun noDescriptionXmlUploadError() {
+        val (_, response, _) = uploadGdtfFile("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf.noDescriptionXml")
+
+        assertEquals(400, response.statusCode)
+
+        val responseJSON = response.body().asString("text/plain")
+        val glowMessage = parseGlowMessage(responseJSON)
+        val data = glowMessage.data as GlowDataError
+        assertEquals("MissingDescriptionXmlInGdtf", data.errorName)
+        assertNotEquals("", data.errorDescription)
+    }
+
 }
 
 // Barebones WebSocket client for sending test messages
