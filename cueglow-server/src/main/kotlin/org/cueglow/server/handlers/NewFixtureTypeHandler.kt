@@ -8,6 +8,7 @@ import org.cueglow.server.api.GlowDataFixtureTypeAdded
 import org.cueglow.server.api.GlowEvent
 import org.cueglow.server.api.GlowMessage
 import org.cueglow.server.gdtf.handleNewGdtf
+import org.cueglow.server.objects.MissingDescriptionXmlInGdtfError
 import org.cueglow.server.objects.MissingFilePartError
 
 /**
@@ -32,9 +33,12 @@ fun handleNewFixtureType(ctx: Context) {
         ctx.result(jsonResponse)
         ctx.status(200)
         ctx.contentType("application/json")
-    } else {
+    } else if (result.getError() is MissingDescriptionXmlInGdtfError) {
         // result is Err
         ctx.status(400)
+            .result(result.getError()?.toJsonString() ?: "")
+    } else {
+        ctx.status(500)
             .result(result.getError()?.toJsonString() ?: "")
     }
 }

@@ -34,7 +34,7 @@ object InvalidDmxAddress: GlowError()
  * All Errors related to GDTF files
  */
 sealed class GdtfError(description: String): GlowError(description)
-object MissingDescriptionXmlInGdtf: GdtfError("The uploaded GDTF file must contain a file in its archive called \"description.xml\".")
+object MissingDescriptionXmlInGdtfError: GdtfError("The uploaded GDTF file must contain a file in its archive called \"description.xml\".")
 
 /**
  * Errors related to the Network API

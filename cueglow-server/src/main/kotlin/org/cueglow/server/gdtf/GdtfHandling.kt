@@ -6,7 +6,7 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
 import org.cueglow.gdtf.GDTF
 import org.cueglow.server.objects.GlowError
-import org.cueglow.server.objects.MissingDescriptionXmlInGdtf
+import org.cueglow.server.objects.MissingDescriptionXmlInGdtfError
 import org.cueglow.server.patch.Patch
 import java.io.File
 import java.io.InputStream
@@ -39,7 +39,7 @@ fun parseGdtf(inputStream: InputStream): Result<GDTF, GlowError> {
 
     // Advance zipInputStream until current entry is description.xml
     do {
-        val entry = zipInputStream.nextEntry ?: return Err(MissingDescriptionXmlInGdtf)
+        val entry = zipInputStream.nextEntry ?: return Err(MissingDescriptionXmlInGdtfError)
     } while (entry.name != "description.xml")
 
     val jc = JAXBContext.newInstance("org.cueglow.gdtf")
