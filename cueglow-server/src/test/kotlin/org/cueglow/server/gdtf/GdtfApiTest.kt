@@ -109,7 +109,7 @@ internal class GdtfApiTest {
         val responseJSON = response.body().asString("text/plain")
         val glowMessage = parseGlowMessage(responseJSON)
         val data = glowMessage.data as GlowDataError
-        assertEquals("MissingFilePart", data.errorName)
+        assertEquals("MissingFilePartError", data.errorName)
         assertNotEquals("", data.errorDescription)
     }
 

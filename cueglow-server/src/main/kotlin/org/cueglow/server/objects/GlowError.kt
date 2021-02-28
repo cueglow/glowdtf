@@ -40,4 +40,4 @@ object MissingDescriptionXmlInGdtf: GdtfError("The uploaded GDTF file must conta
  * Errors related to the Network API
  */
 sealed class ApiError(description: String): GlowError(description)
-object MissingFilePart: ApiError("The GDTF upload request should include the GDTF file in a part with the name \"file\".")
+object MissingFilePartError: ApiError("The GDTF upload request should include the GDTF file in a part with the name \"file\".")
