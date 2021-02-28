@@ -49,18 +49,9 @@ protocols with e.g.
 
 ## Contributing
 
-CueGlow is a non-commercial project that can only work when lots of people bring their 
-abilities to the table and donate their time. Your contribution can take many 
-different forms: 
-
-- Using the software and reporting any bugs, issues or suggestions
-- Writing Tests for Known Issues
-- Fixing Bugs
-- Implementing New Features
-- UX and Design Work
-- Telling other People about CueGlow
-
-For details, see our [CONTRIBUTING.md](CONTRIBUTING.md). 
+Contributing to CueGlow can be as simple as using the software and reporting any
+bugs you find. To learn about the different ways of contributing to CueGlow, see
+our [CONTRIBUTING.md](CONTRIBUTING.md). 
 
 ## Roadmap
 
