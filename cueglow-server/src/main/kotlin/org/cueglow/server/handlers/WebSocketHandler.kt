@@ -4,19 +4,18 @@ import io.javalin.websocket.*
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.api.GlowRequest
 import org.cueglow.server.api.parseGlowMessage
-import org.cueglow.server.handleInRequest
-import org.cueglow.server.objects.*
+import org.cueglow.server.objects.WebSocketGlowClient
 
-class WebSocketHandler : Logging {
+class WebSocketHandler() : Logging {
 
     private val websocketList: MutableList<WsContext> = mutableListOf()
 
-    fun handleMessage(ctx: WsMessageContext) {
+    fun handleMessage(ctx: WsMessageContext, handler: InEventHandler) {
         logger.info("Received \"${ctx.message()}\" from websocket")
 
         val glowMessage = parseGlowMessage(ctx.message())
 
-        handleInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
+        handler.handleInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
     }
 
     fun broadcastMessage(message: String) {
@@ -26,16 +25,16 @@ class WebSocketHandler : Logging {
         }
     }
 
-    fun handleConnect(ctx: WsConnectContext) {
+    fun handleConnect(ctx: WsConnectContext, handler: InEventHandler) {
 //        ctx.send("Websocket to CueGlowServer opened")
         websocketList.add(ctx)
     }
 
-    fun handleClose(ctx: WsCloseContext) {
+    fun handleClose(ctx: WsCloseContext, handler: InEventHandler) {
         TODO("Not yet implemented")
     }
 
-    fun handleError(ctx: WsErrorContext) {
+    fun handleError(ctx: WsErrorContext, handler: InEventHandler) {
         TODO("Not yet implemented")
     }
 

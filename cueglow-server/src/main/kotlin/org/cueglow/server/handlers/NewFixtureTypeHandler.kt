@@ -7,20 +7,19 @@ import io.javalin.http.Context
 import org.cueglow.server.api.GlowDataFixtureTypeAdded
 import org.cueglow.server.api.GlowEvent
 import org.cueglow.server.api.GlowMessage
-import org.cueglow.server.gdtf.handleNewGdtf
 import org.cueglow.server.objects.MissingDescriptionXmlInGdtfError
 import org.cueglow.server.objects.MissingFilePartError
 
 /**
- * Network Handler for New Fixture Types
+ * REST Network Handler for New Fixture Types
  */
-fun handleNewFixtureType(ctx: Context) {
+fun handleNewFixtureType(ctx: Context, inEventHandler: InEventHandler) {
     val uploadedFile = ctx.uploadedFile("file") ?: run {
         ctx.status(400).result(MissingFilePartError.toJsonString())
         return
     }
 
-    val result = handleNewGdtf(uploadedFile.content)
+    val result = inEventHandler.handleNewGdtf(uploadedFile.content)
 
     if (result is Ok) {
         // return 200 with FixtureTypeId in JSON Message

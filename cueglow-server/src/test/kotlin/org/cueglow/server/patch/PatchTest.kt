@@ -12,25 +12,27 @@ import java.io.InputStream
 import java.util.*
 
 internal class PatchTest {
+    val patch = Patch()
+
     @Test
     fun patchFixtureList() {
-        assertTrue(Patch.getFixtures().isEmpty())
+        assertTrue(patch.getFixtures().isEmpty())
 
         val exampleFixture = PatchFixture(1, "", UUID.randomUUID(),
             "1ch", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
-        Patch.putFixture(exampleFixture)
+        patch.putFixture(exampleFixture)
 
-        assertEquals(1, Patch.getFixtures().size)
-        assertEquals(exampleFixture, Patch.getFixtures()[exampleFixture.uuid])
+        assertEquals(1, patch.getFixtures().size)
+        assertEquals(exampleFixture, patch.getFixtures()[exampleFixture.uuid])
 
-        Patch.removeFixture(exampleFixture.uuid)
+        patch.removeFixture(exampleFixture.uuid)
 
-        assertTrue(Patch.getFixtures().isEmpty())
+        assertTrue(patch.getFixtures().isEmpty())
     }
 
     @Test
     fun patchFixtureTypeList() {
-        assertTrue(Patch.getFixtureTypes().isEmpty())
+        assertTrue(patch.getFixtureTypes().isEmpty())
 
         val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
         val inputStream: InputStream = javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?:
@@ -38,14 +40,14 @@ internal class PatchTest {
         val parsedGdtf = parseGdtf(inputStream).unwrap()
         val exampleFixtureType = GdtfWrapper(parsedGdtf)
 
-        Patch.putFixtureType(exampleFixtureType)
+        patch.putFixtureType(exampleFixtureType)
 
-        assertEquals(1, Patch.getFixtureTypes().size)
-        assertEquals(exampleFixtureType, Patch.getFixtureTypes()[exampleFixtureType.fixtureTypeId])
+        assertEquals(1, patch.getFixtureTypes().size)
+        assertEquals(exampleFixtureType, patch.getFixtureTypes()[exampleFixtureType.fixtureTypeId])
 
-        Patch.removeFixtureType(exampleFixtureType.fixtureTypeId)
+        patch.removeFixtureType(exampleFixtureType.fixtureTypeId)
 
-        assertTrue(Patch.getFixtureTypes().isEmpty())
+        assertTrue(patch.getFixtureTypes().isEmpty())
     }
 
     // TODO

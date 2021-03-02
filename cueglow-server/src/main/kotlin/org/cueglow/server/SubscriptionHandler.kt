@@ -1,6 +1,6 @@
 package org.cueglow.server
 
-object SubscriptionHandler {
+class SubscriptionHandler {
 
     // streams: List<GlowStream>
     // TODO

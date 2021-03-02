@@ -2,8 +2,9 @@ package org.cueglow.server
 
 import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
-import org.cueglow.server.handlers.handleNewFixtureType
+import org.cueglow.server.handlers.InEventHandler
 import org.cueglow.server.handlers.WebSocketHandler
+import org.cueglow.server.handlers.handleNewFixtureType
 
 
 fun main(args: Array<String>) {
@@ -15,7 +16,12 @@ class CueGlowServer(port: Int = 7000) : Logging {
         logger.info("Starting CueGlow Server")
     }
 
+    val state = StateProvider()
+
+    val inEventHandler = InEventHandler(state)
+
     val webSocketHandler = WebSocketHandler()
+
     val app = Javalin.create { config ->
         config.requestLogger { ctx, executionTimeMs ->
             logger.info("HTTP Request (${executionTimeMs}ms) \"${ctx.req.pathInfo}\"")
@@ -24,21 +30,21 @@ class CueGlowServer(port: Int = 7000) : Logging {
         config.addSinglePageRoot("/", "/webui/index.html")
     }.apply {
         ws("/ws") { ws ->
-            ws.onConnect {
-                webSocketHandler.handleConnect(it)
+            ws.onConnect { ctx ->
+                webSocketHandler.handleConnect(ctx, inEventHandler)
             }
-            ws.onMessage {
-                webSocketHandler.handleMessage(it)
+            ws.onMessage { ctx ->
+                webSocketHandler.handleMessage(ctx, inEventHandler)
             }
-            ws.onClose {
-                webSocketHandler.handleClose(it)
+            ws.onClose { ctx ->
+                webSocketHandler.handleClose(ctx, inEventHandler)
             }
-            ws.onError {
-                webSocketHandler.handleError(it)
+            ws.onError { ctx ->
+                webSocketHandler.handleError(ctx, inEventHandler)
             }
         }
     }.apply {
-        post("/api/fixturetype") { handleNewFixtureType(it) }
+        post("/api/fixturetype") { ctx -> handleNewFixtureType(ctx, inEventHandler) }
     }.start(port)
 
     init {

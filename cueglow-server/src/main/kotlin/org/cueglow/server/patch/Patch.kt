@@ -8,7 +8,7 @@ import kotlin.collections.HashMap
 /**
  * Singleton that holds Patch Data and notifies Stream Handler on Changes
  */
-object Patch {
+class Patch {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
     private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 

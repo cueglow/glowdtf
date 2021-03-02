@@ -1,8 +1,9 @@
 package org.cueglow.server.objects
 
 import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import org.cueglow.server.objects.ArtNetAddress.Factory.tryFrom
 
 /**
  * Represents an Art-Net v4 Port-Address.

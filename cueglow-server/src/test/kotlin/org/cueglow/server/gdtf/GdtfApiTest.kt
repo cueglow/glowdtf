@@ -8,13 +8,11 @@ import org.cueglow.server.api.GlowDataError
 import org.cueglow.server.api.GlowDataFixtureTypeAdded
 import org.cueglow.server.api.GlowEvent
 import org.cueglow.server.api.parseGlowMessage
-import org.cueglow.server.patch.Patch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.io.File
@@ -24,13 +22,9 @@ import java.util.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class GdtfApiTest {
     val server = CueGlowServer()
-
-    @BeforeAll
-    fun initiateEnvironmentForGdtfTest() {
-        // Patch should be clean
-        assertEquals(0, Patch.getFixtureTypes().size)
-    }
-
+    
+    val patch = server.state.patch
+    
     private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
         val exampleGdtfFile= File(javaClass.classLoader.getResource(filename)?.file ?: throw Error("can't get resource"))
         return Fuel.upload("http://localhost:7000/api/fixturetype")
@@ -57,8 +51,8 @@ internal class GdtfApiTest {
         assertEquals(expectedUUID, returnedUUID)
 
         // check that fixture is added to Patch
-        assertEquals(1, Patch.getFixtureTypes().size)
-        assertEquals("Robin Esprite", Patch.getFixtureTypes()[expectedUUID]?.name)
+        assertEquals(1, patch.getFixtureTypes().size)
+        assertEquals("Robin Esprite", patch.getFixtureTypes()[expectedUUID]?.name)
 
         // TODO check that streamUpdate is delivered (once streams are working)
 
@@ -80,7 +74,7 @@ internal class GdtfApiTest {
         wsClient.connectBlocking()
         wsClient.send(deleteJSONMsg)
         wsClient.closeBlocking()
-        assertEquals(0, Patch.getFixtureTypes().size)
+        assertEquals(0, patch.getFixtureTypes().size)
 
         // TODO check error response when deleting fixture
     }
@@ -92,7 +86,7 @@ internal class GdtfApiTest {
         assertEquals(500, response.statusCode)
 
         // no fixtureType should be added
-        assertEquals(0, Patch.getFixtureTypes().size)
+        assertEquals(0, patch.getFixtureTypes().size)
 
         // TODO check error response once error handling is more mature
     }
