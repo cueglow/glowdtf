@@ -11,6 +11,7 @@ import org.cueglow.server.api.parseGlowMessage
 import org.cueglow.server.patch.Patch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeAll
@@ -22,13 +23,12 @@ import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class GdtfApiTest {
+    val server = CueGlowServer()
+
     @BeforeAll
     fun initiateEnvironmentForGdtfTest() {
         // Patch should be clean
         assertEquals(0, Patch.getFixtureTypes().size)
-
-        // start Server
-        CueGlowServer()
     }
 
     private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
@@ -124,6 +124,11 @@ internal class GdtfApiTest {
         val data = glowMessage.data as GlowDataError
         assertEquals("MissingDescriptionXmlInGdtfError", data.errorName)
         assertNotEquals("", data.errorDescription)
+    }
+
+    @AfterAll
+    fun shutdownServer() {
+        server.stop()
     }
 
 }
