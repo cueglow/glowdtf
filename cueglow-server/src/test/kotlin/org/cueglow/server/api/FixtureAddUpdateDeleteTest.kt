@@ -58,6 +58,8 @@ fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: GdtfWra
 }
 
 fun addFixtureInvalidFixtureTypeIdTest(wsClient: WsClient, patch: Patch) {
+    val initialFixtureCount = patch.getFixtures().size
+
     // changed fixtureTypeId
     val jsonToSend =
         """{
@@ -85,9 +87,13 @@ fun addFixtureInvalidFixtureTypeIdTest(wsClient: WsClient, patch: Patch) {
     assertEquals(GlowEvent.ERROR, message.event)
     assertEquals("UnknownFixtureTypeIdError", (message.data as GlowDataError).errorName)
     assertEquals(42, message.messageId)
+
+    assertEquals(initialFixtureCount, patch.getFixtures().size)
 }
 
 fun addFixtureInvalidDmxModeTest(wsClient: WsClient, patch: Patch) {
+    val initialFixtureCount = patch.getFixtures().size
+
     // changed dmx mode
     val jsonToSend =
         """{
@@ -115,4 +121,6 @@ fun addFixtureInvalidDmxModeTest(wsClient: WsClient, patch: Patch) {
     assertEquals(GlowEvent.ERROR, message.event)
     assertEquals("UnknownDmxModeError", (message.data as GlowDataError).errorName)
     assertEquals(42, message.messageId)
+
+    assertEquals(initialFixtureCount, patch.getFixtures().size)
 }
