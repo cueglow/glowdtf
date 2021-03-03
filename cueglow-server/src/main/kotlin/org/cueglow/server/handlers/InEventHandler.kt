@@ -12,6 +12,9 @@ import org.cueglow.server.api.GlowRequest
 import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.GlowError
+import org.cueglow.server.objects.UnknownDmxModeError
+import org.cueglow.server.objects.UnknownFixtureTypeIdError
+import org.cueglow.server.patch.PatchFixture
 import java.io.InputStream
 import java.util.*
 
@@ -31,20 +34,21 @@ class InEventHandler(private val state: StateProvider) {
             GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> {
                 val data = (glowRequest.glowMessage.data as GlowDataAddFixtures)
-                var targetFid = data.fixture.fid
-                repeat(data.quantity) { i ->
-                    // fid
-                    val newFid = state.patch.nextFreeFid(targetFid)
-                    // next targetFid should be one higher
-                    targetFid = newFid + 1
-
-                    // name
-                    if (data.quantity > 1) {
-                        //enumerate names
-                        val newName = "data.fixture.name ${i+1}"
-                    } else { val newName = data.fixture.name }
-
-
+                data.fixtures.forEach { fixture ->
+                    // TODO should this validation go into putFixture?
+                    // validate fixtureTypeId is in Patch
+                    val fixtureType: GdtfWrapper = state.patch.getFixtureTypes()[fixture.fixtureTypeId] ?: run {
+                        glowRequest.returnError(UnknownFixtureTypeIdError(fixture.fixtureTypeId))
+                        return
+                    }
+                    // TODO should this validation go into PatchFixture(...)?
+                    // validate dmxMode exists in fixtureType
+                    fixtureType.modes.find {it.name == fixture.dmxMode} ?: run {
+                        glowRequest.returnError(UnknownDmxModeError(fixture.dmxMode))
+                        return
+                    }
+                    val patchFixture = PatchFixture(fixture.fid, fixture.name, fixtureType, fixture.dmxMode, fixture.universe, fixture.address)
+                    state.patch.putFixture(patchFixture)
                 }
             }
             GlowEvent.FIXTURES_ADDED -> TODO()

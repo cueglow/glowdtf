@@ -1,8 +1,6 @@
 package org.cueglow.server.patch
 
 import com.github.michaelbull.result.unwrap
-import org.cueglow.gdtf.FixtureType
-import org.cueglow.gdtf.GDTF
 import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.ArtNetAddress
@@ -27,8 +25,8 @@ internal class PatchTest {
 
         // TODO should be impossible to add fixtures where the fixtureType is not part of the Patch
 
-        val exampleFixture = PatchFixture(1, "", UUID.randomUUID(),
-            "1ch", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
+        val exampleFixture = PatchFixture(1, "", exampleFixtureType,
+            "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
         patch.putFixture(exampleFixture)
 
         assertEquals(1, patch.getFixtures().size)
@@ -68,7 +66,7 @@ internal class PatchTest {
             PatchFixture(
             fid = it,
             name = "a_name",
-            fixtureTypeId = exampleFixtureType.fixtureTypeId,
+            fixtureType = exampleFixtureType,
             dmxMode = "mode1",
             universe = ArtNetAddress.tryFrom(1).unwrap(),
             address = DmxAddress.tryFrom(1).unwrap()
@@ -84,6 +82,35 @@ internal class PatchTest {
         assertEquals(22, patch.nextFreeFid(22))
         assertEquals(24, patch.nextFreeFid(23))
         assertEquals(24, patch.nextFreeFid(24))
+    }
+
+    @Test
+    fun testFindGapAtOrAfter() {
+        val exampleArray = arrayOf(10,11,12,20,21,23)
+        exampleArray.shuffle(kotlin.random.Random(42))
+        val exampleList = exampleArray.asList()
+
+        // gapSize 1
+        assertEquals(1, nextGap(exampleList, 1))
+        assertEquals(3, nextGap(exampleList, 3))
+        assertEquals(13, nextGap(exampleList, 10))
+        assertEquals(13, nextGap(exampleList, 12))
+        assertEquals(19, nextGap(exampleList, 19))
+        assertEquals(22, nextGap(exampleList, 20))
+        assertEquals(22, nextGap(exampleList, 21))
+        assertEquals(22, nextGap(exampleList, 22))
+        assertEquals(24, nextGap(exampleList, 23))
+        assertEquals(24, nextGap(exampleList, 24))
+
+        // bigger gapSize
+        assertEquals(1, nextGap(exampleList, 1, 9))
+        assertEquals(24, nextGap(exampleList, 1, 10))
+        assertEquals(13, nextGap(exampleList, 12, 7))
+        assertEquals(24, nextGap(exampleList, 12, 8))
+        assertEquals(18, nextGap(exampleList, 18, 2))
+        assertEquals(24, nextGap(exampleList, 18, 3))
+        assertEquals(24, nextGap(exampleList, 23, 9))
+        assertEquals(24, nextGap(exampleList, 24, 9))
     }
 
     // TODO

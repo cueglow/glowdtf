@@ -21,7 +21,7 @@ data class GlowDataStreamUpdate(val stream: String, val streamUpdateId: Int) : G
 data class GlowDataRequestStreamData(val stream: String) : GlowData()
 data class GlowDataError(@Json(index=0) val errorName: String, @Json(index=1) val errorDescription: String): GlowData()
 
-data class GlowDataAddFixtures(val quantity: Int, val fixture: PatchFixtureData): GlowData() // TODO replace PatchFixture with its parent PatchFixtureData which does not contain UUID or fancy callbacks upon update
+data class GlowDataAddFixtures(val fixtures: List<PatchFixtureData>): GlowData() // TODO replace PatchFixture with its parent PatchFixtureData which does not contain UUID or fancy callbacks upon update
 data class GlowDataFixturesAdded(val uuids : List<UUID>): GlowData()
 data class GlowDataUpdateFixture(val uuid: UUID): GlowData() // TODO Requires diskussion regarding needed/optinal values
 data class GlowDataDeleteFixtures(val uuids : List<UUID>): GlowData()

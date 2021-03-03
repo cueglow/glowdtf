@@ -1,6 +1,10 @@
 package org.cueglow.server.patch
 
+import com.github.michaelbull.result.getOr
+import com.github.michaelbull.result.unwrap
 import org.cueglow.server.gdtf.GdtfWrapper
+import org.cueglow.server.objects.ArtNetAddress
+import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.ImmutableMap
 import java.util.*
 import kotlin.collections.HashMap
@@ -29,33 +33,24 @@ class Patch {
         // TODO notify patch stream handler
     }
 
-    // TODO write unit tests for this algorithm
-    fun nextFreeFid(targetFid: Int = 1): Int {
-        val list = fixtures.values.map{it.fid}.sorted()
-        val firstCandidate = list.binarySearch(targetFid)
+    fun nextFreeFid(targetFid: Int = 1): Int =
+        nextGap(fixtures.values.map{it.fid}, targetFid)
 
-        if (firstCandidate < 0) {
-            // negative returned index means the targetFid does not exist in Patch yet
-            return targetFid
+    /**
+     * Tries to find the next free address at or after [target] in [universe] where there is a gap of [channelCount].
+     * If no space is found in this universe, null is returned.
+     */
+    fun nextFreeAddress(universe: ArtNetAddress, target: DmxAddress = DmxAddress.tryFrom(1).unwrap(), channelCount: Int): ArtNetAddress? {
+        // TODO write unit test
+        val list = fixtures.values.filter {it.universe == universe}.map{it.address?.value?.toInt()}.filterNotNull()
+        val candidate = nextGap(list, target.value.toInt(), channelCount)
+        if (candidate + channelCount - 1 > 512) {
+            return null
+        } else {
+            return ArtNetAddress.tryFrom(candidate).getOr(null)
         }
-
-        var lastFid: Int = targetFid
-        var currentFid: Int
-
-        for (i in firstCandidate+1..list.lastIndex) {
-            currentFid = list[i]
-            if (currentFid > lastFid + 1) {
-                return lastFid + 1
-            }
-            lastFid = currentFid
-        }
-
-        return lastFid + 1
     }
 
-    fun findGapAtOrAfter(list: List<Number>, gapSize: Int = 1) {
-        
-    }
 
     // ------------------------
     // Modify Fixture Type List
@@ -69,4 +64,32 @@ class Patch {
         fixtureTypes.remove(fixtureTypeId)
         // TODO notify patch stream handler
     }
+}
+
+/**
+ * Finds the first gap in [inputList] at or after [target]. The minimum size of the gap can be specified by [gapSize].
+ *
+ * [inputList] does not have to be sorted.
+ */
+fun nextGap(inputList: List<Int>, target: Int, gapSize: Int = 1): Int {
+    val list = inputList.sorted()
+    var firstCandidate = list.binarySearch(target)
+
+    if (firstCandidate < 0) {
+        // negative returned index means the targetFid does not exist in Patch yet
+        firstCandidate = -firstCandidate-1
+    }
+
+    var last: Int = target-1
+    var current: Int
+
+    for (i in firstCandidate..list.lastIndex) {
+        current = list[i]
+        if (current > last + gapSize) {
+            return last + 1
+        }
+        last = current
+    }
+
+    return last + 1
 }

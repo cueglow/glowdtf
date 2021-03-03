@@ -1,5 +1,6 @@
 package org.cueglow.server.patch
 
+import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import java.util.*
@@ -24,7 +25,7 @@ import kotlin.properties.Delegates
 class PatchFixture(
     fid: Int,
     name: String,
-    val fixtureTypeId: UUID,
+    val fixtureType: GdtfWrapper,
     val dmxMode: String,
     universe: ArtNetAddress?,
     address: DmxAddress?,
@@ -67,12 +68,22 @@ class PatchFixture(
 
         if (fid != other.fid) return false
         if (name != other.name) return false
-        if (fixtureTypeId != other.fixtureTypeId) return false
+        if (fixtureType != other.fixtureType) return false
         if (dmxMode != other.dmxMode) return false
         if (universe != other.universe) return false
         if (address != other.address) return false
         if (uuid != other.uuid) return false
 
+        return true
+    }
+
+    fun isSimilar(other: PatchFixture): Boolean {
+        if (fid != other.fid) return false
+        if (name != other.name) return false
+        if (fixtureType.fixtureTypeId != other.fixtureType.fixtureTypeId) return false
+        if (dmxMode != other.dmxMode) return false
+        if (universe?.value != other.universe?.value) return false
+        if (address?.value != other.address?.value) return false
         return true
     }
 }

@@ -3,6 +3,7 @@ package org.cueglow.server
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.ResponseResultOf
+import com.github.michaelbull.result.unwrap
 import org.awaitility.Awaitility
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.api.addFixtureTest
@@ -12,6 +13,7 @@ import org.java_websocket.handshake.ServerHandshake
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import java.io.File
+import java.io.InputStream
 import java.net.URI
 import java.time.Duration
 
@@ -48,6 +50,12 @@ internal class ApiIntegrationTest {
             .responseString()
     }
 
+    private val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
+    private val inputStream: InputStream = javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?:
+    throw Error("inputStream is Null")
+    private val parsedGdtf = parseGdtf(inputStream).unwrap()
+    private val exampleFixtureType = GdtfWrapper(parsedGdtf)
+
     //----------------------------
     // Test Series 1
     //----------------------------
@@ -58,7 +66,7 @@ internal class ApiIntegrationTest {
 
     @Test
     @Order(50)
-    fun addFixture() = addFixtureTest(wsClient, patch)
+    fun addFixture() = addFixtureTest(wsClient, patch, exampleFixtureType)
 
     @Test
     @Order(100)
