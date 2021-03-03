@@ -38,6 +38,8 @@ fun parseGlowMessage(input: String): GlowMessage = Klaxon()
         .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
         .converter(UUIDConverter)
         .converter(UUIDArrayConverter)
+        .converter(DmxAddressConverter)
+        .converter(ArtNetAddressConverter)
         .parse<GlowMessage>(StringReader(input))
     ?: TODO("Errorhandling is WIP")
 

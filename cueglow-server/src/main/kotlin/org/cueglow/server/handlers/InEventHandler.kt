@@ -5,6 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
 import org.cueglow.server.StateProvider
+import org.cueglow.server.api.GlowDataAddFixtures
 import org.cueglow.server.api.GlowDataDeleteFixtureTypes
 import org.cueglow.server.api.GlowEvent
 import org.cueglow.server.api.GlowRequest
@@ -28,7 +29,24 @@ class InEventHandler(private val state: StateProvider) {
             GlowEvent.STREAM_UPDATE -> TODO()
             GlowEvent.REQUEST_STREAM_DATA -> TODO()
             GlowEvent.ERROR -> TODO()
-            GlowEvent.ADD_FIXTURES -> TODO()
+            GlowEvent.ADD_FIXTURES -> {
+                val data = (glowRequest.glowMessage.data as GlowDataAddFixtures)
+                var targetFid = data.fixture.fid
+                repeat(data.quantity) { i ->
+                    // fid
+                    val newFid = state.patch.nextFreeFid(targetFid)
+                    // next targetFid should be one higher
+                    targetFid = newFid + 1
+
+                    // name
+                    if (data.quantity > 1) {
+                        //enumerate names
+                        val newName = "data.fixture.name ${i+1}"
+                    } else { val newName = data.fixture.name }
+
+
+                }
+            }
             GlowEvent.FIXTURES_ADDED -> TODO()
             GlowEvent.UPDATE_FIXTURES -> TODO()
             GlowEvent.DELETE_FIXTURES -> TODO()

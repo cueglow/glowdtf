@@ -29,6 +29,34 @@ class Patch {
         // TODO notify patch stream handler
     }
 
+    // TODO write unit tests for this algorithm
+    fun nextFreeFid(targetFid: Int = 1): Int {
+        val list = fixtures.values.map{it.fid}.sorted()
+        val firstCandidate = list.binarySearch(targetFid)
+
+        if (firstCandidate < 0) {
+            // negative returned index means the targetFid does not exist in Patch yet
+            return targetFid
+        }
+
+        var lastFid: Int = targetFid
+        var currentFid: Int
+
+        for (i in firstCandidate+1..list.lastIndex) {
+            currentFid = list[i]
+            if (currentFid > lastFid + 1) {
+                return lastFid + 1
+            }
+            lastFid = currentFid
+        }
+
+        return lastFid + 1
+    }
+
+    fun findGapAtOrAfter(list: List<Number>, gapSize: Int = 1) {
+        
+    }
+
     // ------------------------
     // Modify Fixture Type List
     // ------------------------

@@ -5,6 +5,7 @@ import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import org.awaitility.Awaitility
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
+import org.cueglow.server.api.addFixtureTest
 import org.cueglow.server.gdtf.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -56,6 +57,10 @@ internal class ApiIntegrationTest {
     fun uploadGdtfFixtureType() = gdtfUploadTest(::uploadGdtfFile, patch)
 
     @Test
+    @Order(50)
+    fun addFixture() = addFixtureTest(wsClient, patch)
+
+    @Test
     @Order(100)
     fun deleteGdtfFixtureType() = gdtfDeleteTest(wsClient, patch)
 
@@ -97,7 +102,7 @@ class WsClient(uri: URI): WebSocketClient(uri) {
     }
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
-        println("WsClient closed")
+        println("WsClient closed. Code $code. Reason: $reason")
     }
 
     override fun onError(ex: Exception?) {

@@ -36,16 +36,16 @@ class PatchFixture(
     // --------------------------------
 
     var fid: Int by Delegates.observable(fid) {
-        _, _, _ -> TODO("notify patch stream")
+        _, _, _ -> //TODO("notify patch stream")
     }
     var name: String by Delegates.observable(name) {
-        _, _, _ -> TODO("notify patch stream")
+        _, _, _ -> //TODO("notify patch stream")
     }
     var universe: ArtNetAddress? by Delegates.observable(universe) {
-        _, _, _ -> TODO("notify patch stream")
+        _, _, _ -> //TODO("notify patch stream")
     }
     var address: DmxAddress? by Delegates.observable(address) {
-            _, _, _ -> TODO("notify patch stream")
+            _, _, _ -> //TODO("notify patch stream")
     }
 
     // ---------
@@ -76,6 +76,15 @@ class PatchFixture(
         return true
     }
 }
+
+data class PatchFixtureData(
+    val fid: Int,
+    val name: String,
+    val fixtureTypeId: UUID,
+    val dmxMode: String,
+    val universe: ArtNetAddress?,
+    val address: DmxAddress?,
+)
 
 
 
