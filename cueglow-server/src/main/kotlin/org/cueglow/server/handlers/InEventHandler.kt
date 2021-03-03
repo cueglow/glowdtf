@@ -20,7 +20,6 @@ import java.util.*
  */
 class InEventHandler(private val state: StateProvider) {
     fun handleInRequest(glowRequest: GlowRequest) {
-
         // Delegate to the correct function / subroutine depending on the event
         when (glowRequest.glowMessage.event) {
             GlowEvent.SUBSCRIBE -> TODO()
@@ -29,31 +28,7 @@ class InEventHandler(private val state: StateProvider) {
             GlowEvent.STREAM_UPDATE -> TODO()
             GlowEvent.REQUEST_STREAM_DATA -> TODO()
             GlowEvent.ERROR -> TODO()
-            GlowEvent.ADD_FIXTURES -> {
-                val data = (glowRequest.glowMessage.data as GlowDataAddFixtures)
-                val uuidList: MutableList<UUID> = emptyList<UUID>().toMutableList()
-                data.fixtures.forEach { fixture ->
-                    // validate fixtureTypeId is in Patch
-                    val fixtureType: GdtfWrapper = state.patch.getFixtureTypes()[fixture.fixtureTypeId] ?: run {
-                        glowRequest.returnError(UnknownFixtureTypeIdError(fixture.fixtureTypeId))
-                        return
-                    }
-                    // validate dmxMode exists in fixtureType
-                    fixtureType.modes.find {it.name == fixture.dmxMode} ?: run {
-                        glowRequest.returnError(UnknownDmxModeError(fixture.dmxMode))
-                        return
-                    }
-                    val patchFixture = PatchFixture(fixture.fid, fixture.name, fixtureType, fixture.dmxMode, fixture.universe, fixture.address)
-
-                    state.patch.putFixture(patchFixture)
-                    uuidList.add(patchFixture.uuid)
-                }
-                glowRequest.answerRequest(GlowMessage(
-                    GlowEvent.FIXTURES_ADDED,
-                    GlowDataFixturesAdded(uuidList),
-                    glowRequest.glowMessage.messageId
-                ))
-            }
+            GlowEvent.ADD_FIXTURES -> handleAddFixtures(glowRequest)
             GlowEvent.FIXTURES_ADDED -> TODO()
             GlowEvent.UPDATE_FIXTURES -> TODO()
             GlowEvent.DELETE_FIXTURES -> TODO()
@@ -64,6 +39,35 @@ class InEventHandler(private val state: StateProvider) {
         }
     }
 
+    private fun handleAddFixtures(glowRequest: GlowRequest) {
+        val data = (glowRequest.glowMessage.data as GlowDataAddFixtures)
+        val uuidList: MutableList<UUID> = emptyList<UUID>().toMutableList()
+        data.fixtures.forEach { fixture ->
+            // validate fixtureTypeId is in Patch
+            val fixtureType: GdtfWrapper = state.patch.getFixtureTypes()[fixture.fixtureTypeId] ?: run {
+                glowRequest.returnError(UnknownFixtureTypeIdError(fixture.fixtureTypeId))
+                return
+            }
+            // validate dmxMode exists in fixtureType
+            fixtureType.modes.find { it.name == fixture.dmxMode } ?: run {
+                glowRequest.returnError(UnknownDmxModeError(fixture.dmxMode))
+                return
+            }
+            val patchFixture =
+                PatchFixture(fixture.fid, fixture.name, fixtureType, fixture.dmxMode, fixture.universe, fixture.address)
+
+            state.patch.putFixture(patchFixture)
+            uuidList.add(patchFixture.uuid)
+        }
+        glowRequest.answerRequest(
+            GlowMessage(
+                GlowEvent.FIXTURES_ADDED,
+                GlowDataFixturesAdded(uuidList),
+                glowRequest.glowMessage.messageId
+            )
+        )
+    }
+
     /**
      * Handler for new GDTF
      *
@@ -72,7 +76,7 @@ class InEventHandler(private val state: StateProvider) {
     fun handleNewGdtf(inputStream: InputStream): Result<UUID, GlowError> {
         val parseResult = parseGdtf(inputStream)
 
-        val parsedGdtf = parseResult.getOrElse {return Err(it) }
+        val parsedGdtf = parseResult.getOrElse { return Err(it) }
         val wrapper = GdtfWrapper(parsedGdtf)
 
         state.patch.putFixtureType(wrapper)
