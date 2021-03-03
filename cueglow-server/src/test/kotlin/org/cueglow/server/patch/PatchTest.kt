@@ -18,6 +18,9 @@ internal class PatchTest {
     private val parsedGdtf = parseGdtf(inputStream).unwrap()
     private val exampleFixtureType = GdtfWrapper(parsedGdtf)
 
+    val exampleFixture = PatchFixture(1, "", exampleFixtureType,
+        "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
+
     @Test
     fun patchFixtureList() {
         val patch = Patch()
@@ -25,8 +28,6 @@ internal class PatchTest {
 
         // TODO should be impossible to add fixtures where the fixtureType is not part of the Patch
 
-        val exampleFixture = PatchFixture(1, "", exampleFixtureType,
-            "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
         patch.putFixture(exampleFixture)
 
         assertEquals(1, patch.getFixtures().size)
@@ -47,10 +48,15 @@ internal class PatchTest {
         assertEquals(1, patch.getFixtureTypes().size)
         assertEquals(exampleFixtureType, patch.getFixtureTypes()[exampleFixtureType.fixtureTypeId])
 
-        // TODO should delete associated fixtures (?)
+        patch.putFixture(exampleFixture)
+        assertEquals(1, patch.getFixtures().size)
+
         patch.removeFixtureType(exampleFixtureType.fixtureTypeId)
 
         assertTrue(patch.getFixtureTypes().isEmpty())
+
+        // associated fixture should also be deleted
+        assertTrue(patch.getFixtures().isEmpty())
     }
 
     @Test

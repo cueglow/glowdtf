@@ -34,9 +34,11 @@ class Patch {
         // TODO notify patch stream handler
     }
 
+    // TODO logic will be moved to the client
     fun nextFreeFid(targetFid: Int = 1): Int =
         nextGap(fixtures.values.map{it.fid}, targetFid)
 
+    // TODO logic will be moved to the client
     /**
      * Tries to find the next free address at or after [target] in [universe] where there is a gap of [channelCount].
      * If no space is found in this universe, null is returned.
@@ -62,11 +64,15 @@ class Patch {
     }
 
     fun removeFixtureType(fixtureTypeId: UUID) {
+        // remove associated fixtures
+        fixtures.filter { it.value.fixtureType.fixtureTypeId == fixtureTypeId }.keys.forEach {fixtures.remove(it)}
+        // remove fixure type
         fixtureTypes.remove(fixtureTypeId)
         // TODO notify patch stream handler
     }
 }
 
+// TODO logic will be moved to the client
 /**
  * Finds the first gap in [inputList] at or after [target]. The minimum size of the gap can be specified by [gapSize].
  *
