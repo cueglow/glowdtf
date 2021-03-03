@@ -1,15 +1,16 @@
 package org.cueglow.server
 
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Parser
 import com.github.kittinunf.fuel.Fuel
+import org.awaitility.Awaitility.*
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.github.michaelbull.result.unwrap
 import org.apache.logging.log4j.kotlin.Logging
 import org.awaitility.Awaitility
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
+import org.cueglow.server.api.addFixtureInvalidDmxModeTest
 import org.cueglow.server.api.addFixtureTest
+import org.cueglow.server.api.addFixtureInvalidFixtureTypeIdTest
 import org.cueglow.server.gdtf.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -72,11 +73,19 @@ internal class ApiIntegrationTest {
     fun addFixture() = addFixtureTest(wsClient, patch, exampleFixtureType)
 
     @Test
+    @Order(75)
+    fun addFixtureInvalidFixtureTypeId() = addFixtureInvalidFixtureTypeIdTest(wsClient, patch)
+
+    @Test
+    @Order(87)
+    fun addFixtureInvalidDmxMode() = addFixtureInvalidDmxModeTest(wsClient, patch)
+
+    @Test
     @Order(100)
     fun deleteGdtfFixtureType() = gdtfDeleteTest(wsClient, patch)
 
     //-----------------------------------------------------
-    // Invalid Tests (don't change state)
+    // Invalid GDTF Upload Tests (don't change state)
     //-----------------------------------------------------
 
     @Test
@@ -122,5 +131,10 @@ class WsClient(uri: URI): WebSocketClient(uri), Logging {
 
     override fun onError(ex: Exception?) {
         logger.info("WsClient errored" + ex.toString())
+    }
+
+    fun receiveOneMessageBlocking(): String {
+        await().until { receivedMessages.isNotEmpty() }
+        return receivedMessages.removeFirst()
     }
 }

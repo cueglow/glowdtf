@@ -13,10 +13,10 @@ sealed class GlowError(val description: String = "") {
 
     fun toJsonString(): String = this.toGlowMessage().toJsonString()
 
-    fun toGlowMessage(): GlowMessage = GlowMessage(
+    fun toGlowMessage(messageId: Int? = null): GlowMessage = GlowMessage(
         GlowEvent.ERROR,
         GlowDataError(name, description),
-        null
+        messageId
     )
 }
 
@@ -30,10 +30,10 @@ class InvalidArtNetUniverse(value: Int): GlowError("The proprosed Art-Net Univer
 class InvalidDmxAddress(value: Int): GlowError("The proposed DMX Address ${value} is not within 1 to 512. ")
 
 // Errors related to GDTF files
-class MissingDescriptionXmlInGdtfError: GlowError("The uploaded GDTF file did not contain a file called \"description.xml\" in its archive. ")
+class MissingDescriptionXmlInGdtfError: GlowError("The uploaded GDTF file did not contain a file called 'description.xml' in its archive. ")
 class GdtfUnmarshalError(description: String): GlowError(description)
 
 // Errors related to the Network API
-class MissingFilePartError: GlowError("The GDTF upload request should include the GDTF file in a part with the name \"file\". ")
-class UnknownFixtureTypeIdError(fixtureTypeId: UUID): GlowError("The specified fixtureTypeId ${fixtureTypeId} was not found in the Patch. ")
-class UnknownDmxModeError(dmxMode: String): GlowError("The specified DMX Mode ${dmxMode} was not found in the Fixture Type. ")
+class MissingFilePartError: GlowError("The GDTF upload request should include the GDTF file in a part with the name 'file'. ")
+class UnknownFixtureTypeIdError(fixtureTypeId: UUID): GlowError("The specified fixtureTypeId '${fixtureTypeId}' was not found in the Patch. ")
+class UnknownDmxModeError(dmxMode: String): GlowError("The specified DMX Mode '${dmxMode}' was not found in the Fixture Type. ")

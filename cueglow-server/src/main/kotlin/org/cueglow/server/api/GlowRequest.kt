@@ -7,5 +7,5 @@ class GlowRequest(val glowMessage: GlowMessage, private val requestSource: GlowC
     fun answerRequest(answerMessage: GlowMessage) {
         requestSource.sendMessage(answerMessage)
     }
-    fun returnError(error: GlowError) = answerRequest(error.toGlowMessage())
+    fun returnError(error: GlowError) = answerRequest(error.toGlowMessage(glowMessage.messageId))
 }
