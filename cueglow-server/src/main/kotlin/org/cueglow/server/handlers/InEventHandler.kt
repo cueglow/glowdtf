@@ -5,10 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
 import org.cueglow.server.StateProvider
-import org.cueglow.server.api.GlowDataAddFixtures
-import org.cueglow.server.api.GlowDataDeleteFixtureTypes
-import org.cueglow.server.api.GlowEvent
-import org.cueglow.server.api.GlowRequest
+import org.cueglow.server.api.*
 import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.GlowError
@@ -34,22 +31,28 @@ class InEventHandler(private val state: StateProvider) {
             GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> {
                 val data = (glowRequest.glowMessage.data as GlowDataAddFixtures)
+                val uuidList: MutableList<UUID> = emptyList<UUID>().toMutableList()
                 data.fixtures.forEach { fixture ->
-                    // TODO should this validation go into putFixture?
                     // validate fixtureTypeId is in Patch
                     val fixtureType: GdtfWrapper = state.patch.getFixtureTypes()[fixture.fixtureTypeId] ?: run {
                         glowRequest.returnError(UnknownFixtureTypeIdError(fixture.fixtureTypeId))
                         return
                     }
-                    // TODO should this validation go into PatchFixture(...)?
                     // validate dmxMode exists in fixtureType
                     fixtureType.modes.find {it.name == fixture.dmxMode} ?: run {
                         glowRequest.returnError(UnknownDmxModeError(fixture.dmxMode))
                         return
                     }
                     val patchFixture = PatchFixture(fixture.fid, fixture.name, fixtureType, fixture.dmxMode, fixture.universe, fixture.address)
+
                     state.patch.putFixture(patchFixture)
+                    uuidList.add(patchFixture.uuid)
                 }
+                glowRequest.answerRequest(GlowMessage(
+                    GlowEvent.FIXTURES_ADDED,
+                    GlowDataFixturesAdded(uuidList),
+                    glowRequest.glowMessage.messageId
+                ))
             }
             GlowEvent.FIXTURES_ADDED -> TODO()
             GlowEvent.UPDATE_FIXTURES -> TODO()

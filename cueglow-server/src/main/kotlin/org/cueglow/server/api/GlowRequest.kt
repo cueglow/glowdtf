@@ -5,7 +5,7 @@ import org.cueglow.server.objects.GlowError
 
 class GlowRequest(val glowMessage: GlowMessage, private val requestSource: GlowClient) {
     fun answerRequest(answerMessage: GlowMessage) {
-        requestSource.sendMessage(glowMessage)
+        requestSource.sendMessage(answerMessage)
     }
-    fun returnError(error: GlowError) = requestSource.sendMessage(error.toGlowMessage())
+    fun returnError(error: GlowError) = answerRequest(error.toGlowMessage())
 }

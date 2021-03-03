@@ -35,9 +35,17 @@ fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: GdtfWra
 
     wsClient.send(jsonToSend)
 
-    // TODO wait for response
+    var received: String? = null
+    await().until {
+        received = wsClient.receivedMessages.removeFirstOrNull()
+        received != null
+    }
 
-    // TODO assert on response
+    val message = parseGlowMessage(received ?: "")
+
+    assertEquals(GlowEvent.FIXTURES_ADDED, message.event)
+    assertEquals(1, (message.data as GlowDataFixturesAdded).uuids.size)
+    assertEquals(42, message.messageId)
 
     val expectedPatchFixture = PatchFixture(
         1,
@@ -48,9 +56,7 @@ fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: GdtfWra
         DmxAddress.tryFrom(1).unwrap(),
     )
 
-    await().untilAsserted{
-        assertEquals(1, patch.getFixtures().size)
-    }
+    assertEquals(1, patch.getFixtures().size)
 
     assertTrue(expectedPatchFixture.isSimilar(patch.getFixtures().asSequence().first().value))
 

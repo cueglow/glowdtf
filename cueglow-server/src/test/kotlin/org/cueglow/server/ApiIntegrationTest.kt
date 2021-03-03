@@ -1,9 +1,12 @@
 package org.cueglow.server
 
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.github.michaelbull.result.unwrap
+import org.apache.logging.log4j.kotlin.Logging
 import org.awaitility.Awaitility
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.api.addFixtureTest
@@ -100,20 +103,24 @@ internal class ApiIntegrationTest {
 }
 
 // Barebones WebSocket client for sending test messages
-class WsClient(uri: URI): WebSocketClient(uri) {
+class WsClient(uri: URI): WebSocketClient(uri), Logging {
+    val receivedMessages = ArrayDeque<String>()
+
     override fun onOpen(handshakedata: ServerHandshake?) {
-        println("WsClient opened")
+        logger.info("WsClient opened")
     }
 
     override fun onMessage(message: String?) {
-        println("WsClient received $message")
+//        val pretty: String = (Parser.default().parse(StringBuilder(message)) as JsonObject).toJsonString(true)
+        logger.info("WsClient received $message")
+        receivedMessages.addLast(message ?: "")
     }
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
-        println("WsClient closed. Code $code. Reason: $reason")
+        logger.info("WsClient closed. Code $code. Reason: $reason")
     }
 
     override fun onError(ex: Exception?) {
-        println("WsClient errored" + ex.toString())
+        logger.info("WsClient errored" + ex.toString())
     }
 }

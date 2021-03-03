@@ -26,6 +26,7 @@ class Patch {
     fun putFixture(new: PatchFixture) {
         fixtures[new.uuid] = new
         // TODO notify patch stream handler
+        // TODO how do we know the added fixture type is currently in the patch and not just an object in memory?
     }
 
     fun removeFixture(uuid: UUID) {

@@ -26,7 +26,7 @@ class PatchFixture(
     fid: Int,
     name: String,
     val fixtureType: GdtfWrapper,
-    val dmxMode: String,
+    val dmxMode: String, // TODO how do we ensure this mode exists in the fixtureType?
     universe: ArtNetAddress?,
     address: DmxAddress?,
 ) {
