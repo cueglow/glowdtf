@@ -15,7 +15,7 @@ import org.cueglow.server.objects.MissingFilePartError
  */
 fun handleNewFixtureType(ctx: Context, inEventHandler: InEventHandler) {
     val uploadedFile = ctx.uploadedFile("file") ?: run {
-        ctx.status(400).result(MissingFilePartError.toJsonString())
+        ctx.status(400).result(MissingFilePartError().toJsonString())
         return
     }
 

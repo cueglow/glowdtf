@@ -59,14 +59,14 @@ class ArtNetAddressTest {
     }
     @Test
     fun invalidTriples() {
-        assertEquals(ArtNetAddress.tryFrom(0, 0, -1).getError(), InvalidArtNetUniverse)
-        assertEquals(ArtNetAddress.tryFrom(113, 3, 16).getError(), InvalidArtNetUniverse)
+        assertTrue(ArtNetAddress.tryFrom(0, 0, -1).getError() is InvalidArtNetUniverse)
+        assertTrue(ArtNetAddress.tryFrom(113, 3, 16).getError() is InvalidArtNetUniverse)
 
-        assertEquals(ArtNetAddress.tryFrom(0, -1, 1).getError(), InvalidArtNetSubNet)
-        assertEquals(ArtNetAddress.tryFrom(124, 16, 4).getError(), InvalidArtNetSubNet)
+        assertTrue(ArtNetAddress.tryFrom(0, -1, 1).getError() is InvalidArtNetSubNet)
+        assertTrue(ArtNetAddress.tryFrom(124, 16, 4).getError() is InvalidArtNetSubNet)
 
-        assertEquals(ArtNetAddress.tryFrom(-1, 15, 15).getError(), InvalidArtNetNet)
-        assertEquals(ArtNetAddress.tryFrom(128, 12, 11).getError(), InvalidArtNetNet)
+        assertTrue(ArtNetAddress.tryFrom(-1, 15, 15).getError() is InvalidArtNetNet)
+        assertTrue(ArtNetAddress.tryFrom(128, 12, 11).getError() is InvalidArtNetNet)
     }
 
     //  Get Net/Subnet/Universe

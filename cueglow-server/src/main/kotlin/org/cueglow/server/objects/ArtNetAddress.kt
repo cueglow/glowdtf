@@ -30,7 +30,7 @@ class ArtNetAddress private constructor(val value: Short) {
             return if (input in 0..32_767) {
                 Ok(ArtNetAddress(input.toShort()))
             } else {
-                Err(InvalidArtNetAddress)
+                Err(InvalidArtNetAddress(input))
             }
         }
         /**
@@ -41,11 +41,11 @@ class ArtNetAddress private constructor(val value: Short) {
          *
          * @return Result of valid ArtNetAddress or Error for invalid input
          */
-        fun tryFrom(net: Int, subNet: Int, universe: Int): Result<ArtNetAddress, ArtNetAddressError> {
+        fun tryFrom(net: Int, subNet: Int, universe: Int): Result<ArtNetAddress, GlowError> {
             return when {
-                net !in 0..127 -> Err(InvalidArtNetNet)
-                subNet !in 0..15 -> Err(InvalidArtNetSubNet)
-                universe !in 0..15 -> Err(InvalidArtNetUniverse)
+                net !in 0..127 -> Err(InvalidArtNetNet(net))
+                subNet !in 0..15 -> Err(InvalidArtNetSubNet(subNet))
+                universe !in 0..15 -> Err(InvalidArtNetUniverse(universe))
                 else -> {
                     val value = (net shl 8) + (subNet shl 4) + universe
                     Ok(ArtNetAddress(value.toShort()))

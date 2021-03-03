@@ -22,7 +22,7 @@ fun parseGdtf(inputStream: InputStream): Result<GDTF, GlowError> {
 
     // Advance zipInputStream until current entry is description.xml
     do {
-        val entry = zipInputStream.nextEntry ?: return Err(MissingDescriptionXmlInGdtfError)
+        val entry = zipInputStream.nextEntry ?: return Err(MissingDescriptionXmlInGdtfError())
     } while (entry.name != "description.xml")
 
     val jc = JAXBContext.newInstance("org.cueglow.gdtf")

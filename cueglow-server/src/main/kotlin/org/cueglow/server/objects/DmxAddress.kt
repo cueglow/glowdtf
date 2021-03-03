@@ -32,7 +32,7 @@ class DmxAddress private constructor(val value: Short) {
             return if (input in 1..512) {
                 Ok(DmxAddress(input.toShort()))
             } else {
-                Err(InvalidDmxAddress)
+                Err(InvalidDmxAddress(input))
             }
         }
     }
