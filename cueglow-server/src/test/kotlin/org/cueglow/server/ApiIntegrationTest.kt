@@ -1,16 +1,17 @@
 package org.cueglow.server
 
 import com.github.kittinunf.fuel.Fuel
-import org.awaitility.Awaitility.*
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.github.michaelbull.result.unwrap
 import org.apache.logging.log4j.kotlin.Logging
 import org.awaitility.Awaitility
+import org.awaitility.Awaitility.await
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.api.addFixtureInvalidDmxModeTest
-import org.cueglow.server.api.addFixtureTest
 import org.cueglow.server.api.addFixtureInvalidFixtureTypeIdTest
+import org.cueglow.server.api.addFixtureTest
+import org.cueglow.server.api.updateFixtureTest
 import org.cueglow.server.gdtf.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -68,6 +69,8 @@ internal class ApiIntegrationTest {
     @Order(0)
     fun uploadGdtfFixtureType() = gdtfUploadTest(::uploadGdtfFile, patch)
 
+    // Add Fixture
+
     @Test
     @Order(50)
     fun addFixture() = addFixtureTest(wsClient, patch, exampleFixtureType)
@@ -79,6 +82,12 @@ internal class ApiIntegrationTest {
     @Test
     @Order(87)
     fun addFixtureInvalidDmxMode() = addFixtureInvalidDmxModeTest(wsClient, patch)
+
+    // Update Fixture
+
+    @Test
+    @Order(93)
+    fun updateFixture() = updateFixtureTest(wsClient, patch)
 
     @Test
     @Order(100)

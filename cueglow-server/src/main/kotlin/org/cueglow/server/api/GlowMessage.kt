@@ -36,6 +36,8 @@ class GlowMessage @JvmOverloads constructor(
  */
 fun parseGlowMessage(input: String): GlowMessage = Klaxon()
         .fieldConverter(KlaxonGlowEvent::class, GlowEvent.glowEventConverter)
+        .fieldConverter(ArtNetAddressResult::class, ArtNetAddressResultConverter)
+        .fieldConverter(DmxAddressResult::class, DmxAddressResultConverter)
         .converter(UUIDConverter)
         .converter(UUIDArrayConverter)
         .converter(DmxAddressConverter)

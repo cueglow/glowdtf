@@ -9,6 +9,7 @@ import org.cueglow.server.api.parseGlowMessage
 import org.cueglow.server.patch.Patch
 import org.java_websocket.client.WebSocketClient
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.*
 
 // These test functions are executed in ApiIntegrationTest.kt
@@ -53,8 +54,9 @@ fun gdtfDeleteTest(wsClient: WebSocketClient, patch: Patch) {
     wsClient.send(deleteJSONMsg)
 
     await().untilAsserted{
-        Assertions.assertEquals(0, patch.getFixtureTypes().size)
+        assertEquals(0, patch.getFixtureTypes().size)
     }
+    assertEquals(0, patch.getFixtures().size)
 
     // TODO check error response when deleting fixture
 }

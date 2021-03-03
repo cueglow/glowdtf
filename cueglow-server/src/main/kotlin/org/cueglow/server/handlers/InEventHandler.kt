@@ -1,9 +1,6 @@
 package org.cueglow.server.handlers
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.*
 import org.cueglow.server.StateProvider
 import org.cueglow.server.api.*
 import org.cueglow.server.gdtf.GdtfWrapper
@@ -30,7 +27,14 @@ class InEventHandler(private val state: StateProvider) {
             GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> handleAddFixtures(glowRequest)
             GlowEvent.FIXTURES_ADDED -> TODO()
-            GlowEvent.UPDATE_FIXTURES -> TODO()
+            GlowEvent.UPDATE_FIXTURE -> {
+                val data = (glowRequest.glowMessage.data as GlowDataUpdateFixture)
+                val fixture = state.patch.getFixtures()[data.uuid] ?: TODO("Fixture UUID not found in Patch -> Implement GlowError")
+                data.fid?.let {fixture.fid = it}
+                data.name?.let {fixture.name = it}
+                if (data.universe is Ok) {fixture.universe = data.universe.unwrap()}
+                if (data.address is Ok) {fixture.address = data.address.unwrap()}
+            }
             GlowEvent.DELETE_FIXTURES -> TODO()
             GlowEvent.FIXTURE_TYPE_ADDED -> TODO()
             GlowEvent.DELETE_FIXTURE_TYPES ->

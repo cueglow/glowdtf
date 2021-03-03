@@ -15,7 +15,7 @@ enum class GlowEvent(val eventDescriptor: String, val eventType: GlowEventType, 
 
     ADD_FIXTURES("addFixtures", GlowEventType.CLIENT, GlowDataAddFixtures::class),
     FIXTURES_ADDED("fixturesAdded", GlowEventType.SERVER, GlowDataFixturesAdded::class),
-    UPDATE_FIXTURES("updateFixtures", GlowEventType.CLIENT, GlowDataUpdateFixture::class),
+    UPDATE_FIXTURE("updateFixture", GlowEventType.CLIENT, GlowDataUpdateFixture::class),
     DELETE_FIXTURES("deleteFixtures", GlowEventType.CLIENT, GlowDataDeleteFixtures::class),
     FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowEventType.SERVER, GlowDataFixtureTypeAdded::class),
     DELETE_FIXTURE_TYPES("deleteFixtureTypes", GlowEventType.CLIENT, GlowDataDeleteFixtureTypes::class),;

@@ -1,18 +1,15 @@
 package org.cueglow.server.api
 
-import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.github.michaelbull.result.unwrap
-import org.awaitility.Awaitility.*
-import org.cueglow.server.CueGlowServer
+import org.awaitility.Awaitility.await
 import org.cueglow.server.WsClient
 import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.Patch
 import org.cueglow.server.patch.PatchFixture
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import java.util.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 
 fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: GdtfWrapper) {
     val jsonToSend =
@@ -36,7 +33,7 @@ fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: GdtfWra
     wsClient.send(jsonToSend)
 
     val received = wsClient.receiveOneMessageBlocking()
-    val message = parseGlowMessage(received ?: "")
+    val message = parseGlowMessage(received)
 
     assertEquals(GlowEvent.FIXTURES_ADDED, message.event)
     assertEquals(1, (message.data as GlowDataFixturesAdded).uuids.size)
@@ -123,4 +120,35 @@ fun addFixtureInvalidDmxModeTest(wsClient: WsClient, patch: Patch) {
     assertEquals(42, message.messageId)
 
     assertEquals(initialFixtureCount, patch.getFixtures().size)
+}
+
+fun updateFixtureTest(wsClient: WsClient, patch: Patch) {
+    val uuidToModify = patch.getFixtures().keys.first()
+
+    val prev = patch.getFixtures()[uuidToModify]!!
+
+    // change address
+    val jsonToSend =
+        """{
+            "event": "updateFixture",
+            "data": {
+                "uuid": "$uuidToModify",
+                "address": 432
+            },
+            "messageId": 89
+        }""".trimIndent()
+
+    wsClient.send(jsonToSend)
+
+    await().untilAsserted {
+        assertEquals(432, patch.getFixtures()[uuidToModify]?.address?.value)
+    }
+
+    val post = patch.getFixtures()[uuidToModify]!!
+
+    assertEquals(prev.fid, post.fid)
+    assertEquals(prev.name, post.name)
+    assertEquals(prev.fixtureType, post.fixtureType)
+    assertEquals(prev.dmxMode, post.dmxMode)
+    assertEquals(prev.universe, post.universe)
 }

@@ -8,7 +8,6 @@ import org.cueglow.server.objects.DmxAddress
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.io.InputStream
-import java.util.*
 
 internal class PatchFixtureTest {
     private val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
