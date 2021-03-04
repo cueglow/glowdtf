@@ -8,6 +8,7 @@ import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.GlowError
 import org.cueglow.server.objects.UnknownDmxModeError
 import org.cueglow.server.objects.UnknownFixtureTypeIdError
+import org.cueglow.server.objects.UnknownFixtureUuidError
 import org.cueglow.server.patch.PatchFixture
 import java.io.InputStream
 import java.util.*
@@ -29,7 +30,10 @@ class InEventHandler(private val state: StateProvider) {
             GlowEvent.FIXTURES_ADDED -> TODO()
             GlowEvent.UPDATE_FIXTURE -> {
                 val data = (glowRequest.glowMessage.data as GlowDataUpdateFixture)
-                val fixture = state.patch.getFixtures()[data.uuid] ?: TODO("Fixture UUID not found in Patch -> Implement GlowError")
+                val fixture = state.patch.getFixtures()[data.uuid] ?: run {
+                    glowRequest.returnError(UnknownFixtureUuidError(data.uuid))
+                    return
+                    }
                 data.fid?.let {fixture.fid = it}
                 data.name?.let {fixture.name = it}
                 if (data.universe is Ok) {fixture.universe = data.universe.unwrap()}

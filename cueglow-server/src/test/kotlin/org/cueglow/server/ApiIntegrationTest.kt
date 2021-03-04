@@ -8,10 +8,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.awaitility.Awaitility
 import org.awaitility.Awaitility.await
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
-import org.cueglow.server.api.addFixtureInvalidDmxModeTest
-import org.cueglow.server.api.addFixtureInvalidFixtureTypeIdTest
-import org.cueglow.server.api.addFixtureTest
-import org.cueglow.server.api.updateFixtureTest
+import org.cueglow.server.api.*
 import org.cueglow.server.gdtf.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -39,20 +36,6 @@ internal class ApiIntegrationTest {
 
         Awaitility.setDefaultPollInterval(fibonacci())
         Awaitility.setDefaultTimeout(Duration.ofSeconds(2))
-    }
-
-    //-----------------------------------------------------
-    // Helpers
-    //-----------------------------------------------------
-    private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
-        val exampleGdtfFile= File(javaClass.classLoader.getResource(filename)?.file ?: throw Error("can't get resource"))
-        return Fuel.upload("http://localhost:7000/api/fixturetype")
-            .add(
-                FileDataPart(
-                exampleGdtfFile, name=partname, filename=filename
-            )
-            )
-            .responseString()
     }
 
     private val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
@@ -84,10 +67,25 @@ internal class ApiIntegrationTest {
     fun addFixtureInvalidDmxMode() = addFixtureInvalidDmxModeTest(wsClient, patch)
 
     // Update Fixture
+    @Test
+    @Order(90)
+    fun updateUnknownFixture() = updateUnknownFixtureTest(wsClient, patch)
 
     @Test
     @Order(93)
-    fun updateFixture() = updateFixtureTest(wsClient, patch)
+    fun updateAddress() = updateAddressTest(wsClient, patch)
+
+    @Test
+    @Order(96)
+    fun updateUniverse() = updateUniverseTest(wsClient, patch)
+
+    @Test
+    @Order(98)
+    fun updateNameAndFid() = updateNameAndFidTest(wsClient, patch)
+
+//    @Test
+//    @Order(99)
+//    fun deleteFixture() = deleteFixtureTest(wsClient, patch)
 
     @Test
     @Order(100)
@@ -117,6 +115,17 @@ internal class ApiIntegrationTest {
     fun teardown() {
         wsClient.closeBlocking()
         server.stop()
+    }
+
+    private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
+        val exampleGdtfFile= File(javaClass.classLoader.getResource(filename)?.file ?: throw Error("can't get resource"))
+        return Fuel.upload("http://localhost:7000/api/fixturetype")
+            .add(
+                FileDataPart(
+                    exampleGdtfFile, name=partname, filename=filename
+                )
+            )
+            .responseString()
     }
 }
 
