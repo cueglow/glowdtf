@@ -2,6 +2,7 @@ package org.cueglow.server.gdtf
 
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import org.awaitility.Awaitility.await
+import org.cueglow.server.WsClient
 import org.cueglow.server.api.GlowDataError
 import org.cueglow.server.api.GlowDataFixtureTypeAdded
 import org.cueglow.server.api.GlowEvent
@@ -38,7 +39,40 @@ fun gdtfUploadTest(uploadGdtfFile: (String) -> ResponseResultOf<String>, patch: 
     // TODO check error response when uploading fixture
 }
 
-fun gdtfDeleteTest(wsClient: WebSocketClient, patch: Patch) {
+fun deleteInvalidFixtureTypesTest(wsClient: WsClient, patch: Patch) {
+    val uuid1 = UUID.randomUUID()
+    val uuid2 = UUID.randomUUID()
+
+    // delete Fixture again via WebSocket
+    val deleteJSONMsg =
+        """
+        {
+            "event": "deleteFixtureTypes",
+            "data": {
+            "fixtureTypeIds": ["$uuid1", "$uuid2"]
+        },
+            "messageId": 42
+        }
+        """
+
+    wsClient.send(deleteJSONMsg)
+
+    val msg1 = parseGlowMessage(wsClient.receiveOneMessageBlocking())
+    val msg2 = parseGlowMessage(wsClient.receiveOneMessageBlocking())
+
+    // still one fixture type in patch
+    assertEquals(1, patch.getFixtureTypes().size)
+
+    assertEquals(GlowEvent.ERROR, msg1.event)
+    assertEquals("UnknownFixtureTypeIdError", (msg1.data as GlowDataError).errorName)
+    Assertions.assertTrue((msg1.data as GlowDataError).errorDescription.contains(uuid1.toString()))
+
+    assertEquals(GlowEvent.ERROR, msg2.event)
+    assertEquals("UnknownFixtureTypeIdError", (msg2.data as GlowDataError).errorName)
+    Assertions.assertTrue((msg2.data as GlowDataError).errorDescription.contains(uuid2.toString()))
+}
+
+fun gdtfDeleteTest(wsClient: WsClient, patch: Patch) {
     // delete Fixture again via WebSocket
     val deleteJSONMsg =
         """
@@ -57,8 +91,6 @@ fun gdtfDeleteTest(wsClient: WebSocketClient, patch: Patch) {
         assertEquals(0, patch.getFixtureTypes().size)
     }
     assertEquals(0, patch.getFixtures().size)
-
-    // TODO check error response when deleting fixture
 }
 
 fun invalidGdtfUploadTest(uploadGdtfFile: (String) -> ResponseResultOf<String>, patch: Patch) {

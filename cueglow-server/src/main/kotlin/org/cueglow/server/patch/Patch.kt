@@ -66,7 +66,7 @@ class Patch {
     fun removeFixtureType(fixtureTypeId: UUID) {
         // remove associated fixtures
         fixtures.filter { it.value.fixtureType.fixtureTypeId == fixtureTypeId }.keys.forEach {fixtures.remove(it)}
-        // remove fixure type
+        // remove fixture type
         fixtureTypes.remove(fixtureTypeId)
         // TODO notify patch stream handler
     }

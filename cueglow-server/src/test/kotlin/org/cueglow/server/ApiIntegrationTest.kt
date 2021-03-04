@@ -93,6 +93,10 @@ internal class ApiIntegrationTest {
 
     @Test
     @Order(100)
+    fun deleteInvalidFixtureTypes() = deleteInvalidFixtureTypesTest(wsClient, patch)
+
+    @Test
+    @Order(150)
     fun deleteGdtfFixtureType() = gdtfDeleteTest(wsClient, patch)
 
     //-----------------------------------------------------

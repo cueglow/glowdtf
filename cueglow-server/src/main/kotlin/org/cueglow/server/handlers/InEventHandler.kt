@@ -31,18 +31,23 @@ class InEventHandler(private val state: StateProvider) {
             GlowEvent.UPDATE_FIXTURE -> handleUpdateFixture(glowRequest)
             GlowEvent.DELETE_FIXTURES -> handleDeleteFixtures(glowRequest)
             GlowEvent.FIXTURE_TYPE_ADDED -> TODO()
-            GlowEvent.DELETE_FIXTURE_TYPES ->
-                (glowRequest.glowMessage.data as GlowDataDeleteFixtureTypes)
-                    .fixtureTypeIds.forEach{state.patch.removeFixtureType(it)}
+            GlowEvent.DELETE_FIXTURE_TYPES -> handleDeleteFixtureTypes(glowRequest)
         }
+    }
+
+    private fun handleDeleteFixtureTypes(glowRequest: GlowRequest) {
+        (glowRequest.glowMessage.data as GlowDataDeleteFixtureTypes)
+            .fixtureTypeIds.forEach single@{
+                state.patch.getFixtureTypes()[it] ?: run {glowRequest.answer(UnknownFixtureTypeIdError(it)); return@single}
+                state.patch.removeFixtureType(it)
+            }
     }
 
     private fun handleDeleteFixtures(glowRequest: GlowRequest) {
         (glowRequest.glowMessage.data as GlowDataDeleteFixtures)
             .uuids.forEach single@{
-                val uuidToRemove = state.patch.getFixtures()[it]?.uuid ?:
-                run{glowRequest.answer(UnknownFixtureUuidError(it)); return@single}
-                state.patch.removeFixture(uuidToRemove)
+                state.patch.getFixtures()[it]?.uuid ?: run{glowRequest.answer(UnknownFixtureUuidError(it)); return@single}
+                state.patch.removeFixture(it)
             }
     }
 
