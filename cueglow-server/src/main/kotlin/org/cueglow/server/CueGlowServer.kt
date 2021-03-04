@@ -11,6 +11,11 @@ fun main(args: Array<String>) {
     CueGlowServer()
 }
 
+/**
+ * The main class of CueGlow Server.
+ *
+ * Starts the Javalin server, associates frontend handlers and initiates state.
+ */
 class CueGlowServer(port: Int = 7000) : Logging {
     init {
         logger.info("Starting CueGlow Server")

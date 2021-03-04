@@ -24,8 +24,6 @@ enum class GlowEvent(val eventDescriptor: String, val eventType: GlowEventType, 
         return eventDescriptor
     }
 
-
-
     companion object {
         // Provide methode to lookup event enum by eventDescriptor string
         private val map = values().associateBy(GlowEvent::eventDescriptor)
@@ -49,7 +47,6 @@ enum class GlowEvent(val eventDescriptor: String, val eventType: GlowEventType, 
  */
 @Target(AnnotationTarget.FIELD)
 annotation class KlaxonGlowEvent
-
 
 
 enum class GlowEventType {

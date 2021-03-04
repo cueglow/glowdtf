@@ -15,6 +15,9 @@ import java.util.*
 
 /**
  * Network-Agnostic Handler for Incoming Events
+ *
+ * It is passed to different network handlers to provide access to the state. InEventHandler gets access to the state
+ * through its constructor.
  */
 class InEventHandler(private val state: StateProvider) {
     fun handleInRequest(glowRequest: GlowRequest) {
@@ -93,9 +96,10 @@ class InEventHandler(private val state: StateProvider) {
     }
 
     /**
-     * Handler for new GDTF
+     * Parses new GDTF and adds it to the Patch.
      *
-     * Parses it and adds it to the Patch
+     * In comparison to other events, it does not get wrapped in a [GlowRequest]. Instead, it is called directly
+     * from the corresponding handler.
      */
     fun handleNewGdtf(inputStream: InputStream): Result<UUID, GlowError> {
         val parseResult = parseGdtf(inputStream)

@@ -6,12 +6,15 @@ import org.cueglow.server.api.GlowMessage
 import java.util.*
 
 /**
- * List of all custom Error types for CueGlow Server
+ * Custom Error Type for CueGlow Server
+ *
+ * The inheritors of GlowError are meant to be instantiated with the corresponding error information and
+ * can then be converted to [GlowMessage] or serialized to JSON directly.
  */
 sealed class GlowError(val description: String = "") {
     val name: String = this::class.simpleName ?: "Unnamed GlowError"
 
-    fun toJsonString(): String = this.toGlowMessage().toJsonString()
+    fun toJsonString(messageId: Int? = null): String = this.toGlowMessage(messageId).toJsonString()
 
     fun toGlowMessage(messageId: Int? = null): GlowMessage = GlowMessage(
         GlowEvent.ERROR,

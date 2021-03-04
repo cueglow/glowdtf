@@ -6,16 +6,19 @@ import org.cueglow.server.api.GlowRequest
 import org.cueglow.server.api.parseGlowMessage
 import org.cueglow.server.objects.WebSocketGlowClient
 
+/** Handles WebSocket events and keeps a list of all connected clients */
 class WebSocketHandler() : Logging {
 
+    // TODO keep List<WebSocketGlowClient> instead?
     private val websocketList: MutableList<WsContext> = mutableListOf()
 
     fun handleMessage(ctx: WsMessageContext, handler: InEventHandler) {
         logger.info("Received \"${ctx.message()}\" from websocket")
 
         val glowMessage = parseGlowMessage(ctx.message())
+        val glowRequest = GlowRequest(glowMessage, WebSocketGlowClient(ctx))
 
-        handler.handleInRequest(GlowRequest(glowMessage, WebSocketGlowClient(ctx)))
+        handler.handleInRequest(glowRequest)
     }
 
     fun broadcastMessage(message: String) {
@@ -32,6 +35,7 @@ class WebSocketHandler() : Logging {
 
     fun handleClose(ctx: WsCloseContext, handler: InEventHandler) {
         TODO("Not yet implemented")
+        // TODO remove from websocketList
     }
 
     fun handleError(ctx: WsErrorContext, handler: InEventHandler) {

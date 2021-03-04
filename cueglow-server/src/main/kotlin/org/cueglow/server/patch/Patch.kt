@@ -10,7 +10,9 @@ import java.util.*
 import kotlin.collections.HashMap
 
 /**
- * Singleton that holds Patch Data and notifies Stream Handler on Changes
+ * Holds Patch Data
+ *
+ * The data is isolated such that it can only be modified by methods that notify the StreamHandler on change.
  */
 class Patch {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
