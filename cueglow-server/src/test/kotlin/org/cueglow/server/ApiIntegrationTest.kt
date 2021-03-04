@@ -80,12 +80,16 @@ internal class ApiIntegrationTest {
     fun updateUniverse() = updateUniverseTest(wsClient, patch)
 
     @Test
-    @Order(98)
+    @Order(97)
     fun updateNameAndFid() = updateNameAndFidTest(wsClient, patch)
 
-//    @Test
-//    @Order(99)
-//    fun deleteFixture() = deleteFixtureTest(wsClient, patch)
+    @Test
+    @Order(98)
+    fun deleteInvalidFixture() = deleteInvalidFixtureTest(wsClient, patch)
+
+    @Test
+    @Order(99)
+    fun deleteFixture() = deleteFixtureTest(wsClient, patch)
 
     @Test
     @Order(100)

@@ -126,7 +126,6 @@ fun addFixtureInvalidDmxModeTest(wsClient: WsClient, patch: Patch) {
 fun updateUnknownFixtureTest(wsClient: WsClient, patch: Patch) {
     val uuidToModify = UUID.randomUUID()
 
-    // change address
     val jsonToSend =
         """{
             "event": "updateFixture",
@@ -152,7 +151,6 @@ fun updateAddressTest(wsClient: WsClient, patch: Patch) {
 
     val prev = patch.getFixtures()[uuidToModify]!!
 
-    // change address
     val jsonToSend =
         """{
             "event": "updateFixture",
@@ -183,7 +181,6 @@ fun updateUniverseTest(wsClient: WsClient, patch: Patch) {
 
     val prev = patch.getFixtures()[uuidToModify]!!
 
-    // change address
     val jsonToSend =
         """{
             "event": "updateFixture",
@@ -214,7 +211,6 @@ fun updateNameAndFidTest(wsClient: WsClient, patch: Patch) {
 
     val prev = patch.getFixtures()[uuidToModify]!!
 
-    // change address
     val jsonToSend =
         """{
             "event": "updateFixture",
@@ -244,38 +240,52 @@ fun updateNameAndFidTest(wsClient: WsClient, patch: Patch) {
     assertEquals(prev.universe, post.universe)
 }
 
-//fun deleteFixtureTest(wsClient: WsClient, patch: Patch) {
-//    val uuidToModify = patch.getFixtures().keys.first()
-//
-//    val prev = patch.getFixtures()[uuidToModify]!!
-//
-//    // change address
-//    val jsonToSend =
-//        """{
-//            "event": "updateFixture",
-//            "data": {
-//                "uuid": "$uuidToModify",
-//                "name": "newName",
-//                "fid": 523
-//            },
-//            "messageId": 89
-//        }""".trimIndent()
-//
-//    wsClient.send(jsonToSend)
-//
-//    await().untilAsserted {
-//        assertEquals(523, patch.getFixtures()[uuidToModify]?.fid)
-//    }
-//
-//    await().untilAsserted {
-//        assertEquals("newName", patch.getFixtures()[uuidToModify]?.name)
-//    }
-//
-//    val post = patch.getFixtures()[uuidToModify]!!
-//
-//    assertEquals(prev.fixtureType, post.fixtureType)
-//    assertEquals(prev.dmxMode, post.dmxMode)
-//    assertEquals(prev.address?.value, post.address?.value)
-//    assertEquals(prev.universe, post.universe)
-//}
+fun deleteInvalidFixtureTest(wsClient: WsClient, patch: Patch) {
+    val uuid1 = UUID.randomUUID()
+    val uuid2 = UUID.randomUUID()
+
+    val jsonToSend =
+        """{
+            "event": "deleteFixtures",
+            "data": {
+                "uuids": ["$uuid1", "$uuid2"]
+            },
+            "messageId": 729
+        }""".trimIndent()
+
+    wsClient.send(jsonToSend)
+
+    val msg1 = parseGlowMessage(wsClient.receiveOneMessageBlocking())
+    val msg2 = parseGlowMessage(wsClient.receiveOneMessageBlocking())
+
+    // still one fixture in patch
+    assertEquals(1, patch.getFixtures().size)
+
+    assertEquals(GlowEvent.ERROR, msg1.event)
+    assertEquals("UnknownFixtureUuidError", (msg1.data as GlowDataError).errorName)
+    assertTrue((msg1.data as GlowDataError).errorDescription.contains(uuid1.toString()))
+
+    assertEquals(GlowEvent.ERROR, msg2.event)
+    assertEquals("UnknownFixtureUuidError", (msg2.data as GlowDataError).errorName)
+    assertTrue((msg2.data as GlowDataError).errorDescription.contains(uuid2.toString()))
+}
+
+fun deleteFixtureTest(wsClient: WsClient, patch: Patch) {
+    val uuidToModify = patch.getFixtures().keys.first()
+
+    val jsonToSend =
+        """{
+            "event": "deleteFixtures",
+            "data": {
+                "uuids": ["$uuidToModify"]
+            },
+            "messageId": 729
+        }""".trimIndent()
+
+    wsClient.send(jsonToSend)
+
+    await().untilAsserted {
+        assertEquals(0, patch.getFixtures().size)
+    }
+}
 

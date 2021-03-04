@@ -28,23 +28,34 @@ class InEventHandler(private val state: StateProvider) {
             GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> handleAddFixtures(glowRequest)
             GlowEvent.FIXTURES_ADDED -> TODO()
-            GlowEvent.UPDATE_FIXTURE -> {
-                val data = (glowRequest.glowMessage.data as GlowDataUpdateFixture)
-                val fixture = state.patch.getFixtures()[data.uuid] ?: run {
-                    glowRequest.returnError(UnknownFixtureUuidError(data.uuid))
-                    return
-                    }
-                data.fid?.let {fixture.fid = it}
-                data.name?.let {fixture.name = it}
-                if (data.universe is Ok) {fixture.universe = data.universe.unwrap()}
-                if (data.address is Ok) {fixture.address = data.address.unwrap()}
-            }
-            GlowEvent.DELETE_FIXTURES -> TODO()
+            GlowEvent.UPDATE_FIXTURE -> handleUpdateFixture(glowRequest)
+            GlowEvent.DELETE_FIXTURES -> handleDeleteFixtures(glowRequest)
             GlowEvent.FIXTURE_TYPE_ADDED -> TODO()
             GlowEvent.DELETE_FIXTURE_TYPES ->
                 (glowRequest.glowMessage.data as GlowDataDeleteFixtureTypes)
                     .fixtureTypeIds.forEach{state.patch.removeFixtureType(it)}
         }
+    }
+
+    private fun handleDeleteFixtures(glowRequest: GlowRequest) {
+        (glowRequest.glowMessage.data as GlowDataDeleteFixtures)
+            .uuids.forEach single@{
+                val uuidToRemove = state.patch.getFixtures()[it]?.uuid ?:
+                run{glowRequest.answer(UnknownFixtureUuidError(it)); return@single}
+                state.patch.removeFixture(uuidToRemove)
+            }
+    }
+
+    private fun handleUpdateFixture(glowRequest: GlowRequest) {
+        val data = (glowRequest.glowMessage.data as GlowDataUpdateFixture)
+        val fixture = state.patch.getFixtures()[data.uuid] ?: run {
+            glowRequest.answer(UnknownFixtureUuidError(data.uuid))
+            return
+        }
+        data.fid?.let {fixture.fid = it}
+        data.name?.let {fixture.name = it}
+        if (data.universe is Ok) {fixture.universe = data.universe.unwrap()}
+        if (data.address is Ok) {fixture.address = data.address.unwrap()}
     }
 
     private fun handleAddFixtures(glowRequest: GlowRequest) {
@@ -53,12 +64,12 @@ class InEventHandler(private val state: StateProvider) {
         data.fixtures.forEach { fixture ->
             // validate fixtureTypeId is in Patch
             val fixtureType: GdtfWrapper = state.patch.getFixtureTypes()[fixture.fixtureTypeId] ?: run {
-                glowRequest.returnError(UnknownFixtureTypeIdError(fixture.fixtureTypeId))
+                glowRequest.answer(UnknownFixtureTypeIdError(fixture.fixtureTypeId))
                 return
             }
             // validate dmxMode exists in fixtureType
             fixtureType.modes.find { it.name == fixture.dmxMode } ?: run {
-                glowRequest.returnError(UnknownDmxModeError(fixture.dmxMode))
+                glowRequest.answer(UnknownDmxModeError(fixture.dmxMode))
                 return
             }
             val patchFixture =
@@ -67,7 +78,7 @@ class InEventHandler(private val state: StateProvider) {
             state.patch.putFixture(patchFixture)
             uuidList.add(patchFixture.uuid)
         }
-        glowRequest.answerRequest(
+        glowRequest.answer(
             GlowMessage(
                 GlowEvent.FIXTURES_ADDED,
                 GlowDataFixturesAdded(uuidList),
