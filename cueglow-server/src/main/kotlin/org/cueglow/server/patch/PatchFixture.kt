@@ -117,15 +117,6 @@ class PatchFixture private constructor(
     }
 }
 
-data class PatchFixtureData(
-    val fid: Int,
-    val name: String,
-    val fixtureTypeId: UUID,
-    val dmxMode: String,
-    val universe: ArtNetAddress?,
-    val address: DmxAddress?,
-)
-
 
 
 

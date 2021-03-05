@@ -7,7 +7,6 @@ import com.beust.klaxon.TypeAdapter
 import com.github.michaelbull.result.*
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
-import org.cueglow.server.patch.PatchFixtureData
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -25,7 +24,7 @@ data class JsonDataStreamUpdate(val stream: String, val streamUpdateId: Int) : J
 data class JsonDataRequestStreamData(val stream: String) : JsonData()
 data class JsonDataError(@Json(index=0) val errorName: String, @Json(index=1) val errorDescription: String): JsonData()
 
-data class JsonDataAddFixtures(val fixtures: List<PatchFixtureData>): JsonData()
+data class JsonDataAddFixtures(val fixtures: List<AddFixtureData>): JsonData()
 data class JsonDataFixturesAdded(val uuids : List<UUID>): JsonData()
 data class JsonDataUpdateFixture(
     val uuid: UUID,
@@ -39,6 +38,15 @@ data class JsonDataUpdateFixture(
 data class JsonDataDeleteFixtures(val uuids : List<UUID>): JsonData()
 data class JsonDataFixtureTypeAdded(val fixtureTypeId : UUID): JsonData()
 data class JsonDataDeleteFixtureTypes(val fixtureTypeIds : List<UUID>): JsonData()
+
+data class AddFixtureData(
+    val fid: Int,
+    val name: String,
+    val fixtureTypeId: UUID,
+    val dmxMode: String,
+    val universe: ArtNetAddress?,
+    val address: DmxAddress?,
+)
 
 class JsonDataTypeAdapter: TypeAdapter<JsonData> {
     override fun classFor(type: Any): KClass<out JsonData> =
