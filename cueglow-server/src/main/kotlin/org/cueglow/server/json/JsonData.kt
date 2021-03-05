@@ -1,4 +1,4 @@
-package org.cueglow.server.api
+package org.cueglow.server.json
 
 import com.beust.klaxon.Converter
 import com.beust.klaxon.Json
@@ -11,18 +11,23 @@ import org.cueglow.server.patch.PatchFixtureData
 import java.util.*
 import kotlin.reflect.KClass
 
-sealed class GlowData
+/**
+ * Internal representation of the "data" field in the JSON message
+ *
+ * Has have different concrete type based on "event" field.
+ */
+sealed class JsonData
 
-data class GlowDataSubscribe(val stream: String) : GlowData()
-data class GlowDataUnsubscribe(val stream: String) : GlowData()
-data class GlowDataStreamInitialState(val stream: String, val streamUpdateId: Int) : GlowData() // TODO Add Stream Content classes
-data class GlowDataStreamUpdate(val stream: String, val streamUpdateId: Int) : GlowData() // TODO Add Stream Content classes
-data class GlowDataRequestStreamData(val stream: String) : GlowData()
-data class GlowDataError(@Json(index=0) val errorName: String, @Json(index=1) val errorDescription: String): GlowData()
+data class JsonDataSubscribe(val stream: String) : JsonData()
+data class JsonDataUnsubscribe(val stream: String) : JsonData()
+data class JsonDataStreamInitialState(val stream: String, val streamUpdateId: Int) : JsonData() // TODO Add Stream Content classes
+data class JsonDataStreamUpdate(val stream: String, val streamUpdateId: Int) : JsonData() // TODO Add Stream Content classes
+data class JsonDataRequestStreamData(val stream: String) : JsonData()
+data class JsonDataError(@Json(index=0) val errorName: String, @Json(index=1) val errorDescription: String): JsonData()
 
-data class GlowDataAddFixtures(val fixtures: List<PatchFixtureData>): GlowData()
-data class GlowDataFixturesAdded(val uuids : List<UUID>): GlowData()
-data class GlowDataUpdateFixture(
+data class JsonDataAddFixtures(val fixtures: List<PatchFixtureData>): JsonData()
+data class JsonDataFixturesAdded(val uuids : List<UUID>): JsonData()
+data class JsonDataUpdateFixture(
     val uuid: UUID,
     val fid: Int? = null,
     val name: String? = null,
@@ -30,14 +35,14 @@ data class GlowDataUpdateFixture(
     val universe: Result<ArtNetAddress?, Unit> = Err(Unit),
     @DmxAddressResult
     val address: Result<DmxAddress?, Unit> = Err(Unit)
-): GlowData()
-data class GlowDataDeleteFixtures(val uuids : List<UUID>): GlowData()
-data class GlowDataFixtureTypeAdded(val fixtureTypeId : UUID): GlowData()
-data class GlowDataDeleteFixtureTypes(val fixtureTypeIds : List<UUID>): GlowData()
+): JsonData()
+data class JsonDataDeleteFixtures(val uuids : List<UUID>): JsonData()
+data class JsonDataFixtureTypeAdded(val fixtureTypeId : UUID): JsonData()
+data class JsonDataDeleteFixtureTypes(val fixtureTypeIds : List<UUID>): JsonData()
 
-class GlowDataTypeAdapter: TypeAdapter<GlowData> {
-    override fun classFor(type: Any): KClass<out GlowData> =
-        GlowEvent.fromDescriptor(type as String)?.eventDataClass ?:
+class JsonDataTypeAdapter: TypeAdapter<JsonData> {
+    override fun classFor(type: Any): KClass<out JsonData> =
+        JsonEvent.fromDescriptor(type as String)?.eventDataClass ?:
         throw IllegalArgumentException("Unknown JSON event: $type")
 }
 
@@ -60,7 +65,7 @@ val UUIDArrayConverter = object: Converter {
         .map { it.toString() }.joinToString(",", "[", "]") { "\"" + it + "\"" }
 
     override fun fromJson(jv: JsonValue): Array<UUID>
-            = jv.array?.map{UUID.fromString(it as String)}?.toTypedArray() ?: throw Error("Parsing UUID Arry failed")
+            = jv.array?.map{UUID.fromString(it as String)}?.toTypedArray() ?: throw Error("Parsing UUID Array failed")
 }
 
 val ArtNetAddressConverter = object: Converter {
@@ -89,7 +94,7 @@ val ArtNetAddressResultConverter = object: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == Result::class.java
 
-    override fun toJson(value: Any): String = (value as Result<ArtNetAddress?, Unit>).map{it?.value.toString()}
+    override fun toJson(value: Any): String = (value as Result<*, *>).map{(it as ArtNetAddress?)?.value.toString()}
         .unwrap() // throwing when Err because then we'd have to not serialize the field at all which I don't think we can control from the converter
 
     override fun fromJson(jv: JsonValue): Result<ArtNetAddress?, Unit> {
@@ -105,7 +110,7 @@ val DmxAddressResultConverter = object: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == Result::class.java
 
-    override fun toJson(value: Any): String = (value as Result<DmxAddress?, Unit>).map {it?.value.toString()}
+    override fun toJson(value: Any): String = (value as Result<*, *>).map{(it as DmxAddress?)?.value.toString()}
         .unwrap() // throwing when Err because then we'd have to not serialize the field at all which I don't think we can control from the converter
 
     override fun fromJson(jv: JsonValue): Result<DmxAddress?, Unit> {

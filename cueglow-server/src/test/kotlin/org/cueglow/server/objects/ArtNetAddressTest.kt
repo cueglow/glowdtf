@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 
 class ArtNetAddressTest {
-    //  Short Intialization
+    //  Short Initialization
 
     @ParameterizedTest
     @ValueSource(shorts = [0.toShort(), 32_767.toShort()])

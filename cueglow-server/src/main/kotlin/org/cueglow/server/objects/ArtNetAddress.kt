@@ -63,7 +63,7 @@ class ArtNetAddress private constructor(val value: Short) {
      * This works because all bits of higher significance than the "Net"-bits are ensured to be zero (ArtNetAddress is
      * positive and in range). When shifting right, the leftmost bits are filled with copies of the sign bit, here 0
      * because the ArtNetAddress is positive. Therefore, after shifting, all bits but the lowest 7 bits (that form
-     * the "Net" address) are zero. No bitmasking is needed.
+     * the "Net" address) are zero. No bitmask is needed.
      */
     fun getNet() = value.toInt() shr 8
 

@@ -10,7 +10,7 @@ import org.cueglow.server.objects.DmxAddress.Factory.tryFrom
  *
  * Can only be instantiated with [tryFrom].
  *
- * DMX referts to DMX512-A specified in ANSI E1.11.
+ * DMX refers to DMX512-A specified in ANSI E1.11.
  * The DMX Address refers to DMX slots 1 to 512.
  *
  * @property[value] A Short representing the DMX Address.

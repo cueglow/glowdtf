@@ -1,7 +1,8 @@
 package org.cueglow.server.patch
 
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.unwrap
-import org.cueglow.server.gdtf.GdtfWrapper
+import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
@@ -9,86 +10,71 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.InputStream
+import java.util.*
 
 internal class PatchTest {
+
     private val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
     private val inputStream: InputStream = javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?:
-    throw Error("inputStream is Null")
+        throw Error("inputStream is Null")
     private val parsedGdtf = parseGdtf(inputStream).unwrap()
-    private val exampleFixtureType = GdtfWrapper(parsedGdtf)
+    private val exampleFixtureType = FixtureType(parsedGdtf)
 
-    val exampleFixture = PatchFixture(1, "", exampleFixtureType,
-        "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
-
-    @Test
-    fun patchFixtureList() {
-        val patch = Patch()
-        assertTrue(patch.getFixtures().isEmpty())
-
-        // TODO should be impossible to add fixtures where the fixtureType is not part of the Patch
-
-        patch.putFixture(exampleFixture)
-
-        assertEquals(1, patch.getFixtures().size)
-        assertEquals(exampleFixture, patch.getFixtures()[exampleFixture.uuid])
-
-        patch.removeFixture(exampleFixture.uuid)
-
-        assertTrue(patch.getFixtures().isEmpty())
-    }
+    private val exampleFixture = PatchFixture.tryFrom(1, "", exampleFixtureType,
+        "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap()).unwrap()
+    private val exampleFixture2 = PatchFixture.tryFrom(2, "", exampleFixtureType,
+        "mode1", ArtNetAddress.tryFrom(2).unwrap(), DmxAddress.tryFrom(1).unwrap()).unwrap()
 
     @Test
-    fun patchFixtureTypeList() {
+    fun patchList() {
+        // instantiate
         val patch = Patch()
+        assertTrue(patch.getFixtures().isEmpty())
         assertTrue(patch.getFixtureTypes().isEmpty())
 
-        patch.putFixtureType(exampleFixtureType)
+        // without fixture type in patch, fixture cannot be added
+        assertTrue(patch.putFixture(exampleFixture) is Err)
+        assertTrue(patch.getFixtures().isEmpty())
 
+        // add fixture type
+        patch.putFixtureType(exampleFixtureType).unwrap()
         assertEquals(1, patch.getFixtureTypes().size)
         assertEquals(exampleFixtureType, patch.getFixtureTypes()[exampleFixtureType.fixtureTypeId])
 
-        patch.putFixture(exampleFixture)
+        // adding fixture type again does not work
+        assertTrue(patch.putFixtureType(exampleFixtureType) is Err)
+        assertEquals(1, patch.getFixtureTypes().size)
+
+        // add fixture
+        patch.putFixture(exampleFixture).unwrap()
+        assertEquals(1, patch.getFixtures().size)
+        assertEquals(exampleFixture, patch.getFixtures()[exampleFixture.uuid])
+
+        // removing unknown fixture type does not work
+        val randomUuid = UUID.fromString("8eff8f2b-c818-4a3e-87a3-ba5b43f8fd0c")
+        assertTrue(patch.removeFixtureType(randomUuid) is Err)
+        assertEquals(1, patch.getFixtureTypes().size)
+
+        // removing unknown fixture does not work
+        assertTrue(patch.removeFixture(randomUuid) is Err)
         assertEquals(1, patch.getFixtures().size)
 
-        patch.removeFixtureType(exampleFixtureType.fixtureTypeId)
+        // remove fixture
+        patch.removeFixture(exampleFixture.uuid)
+        assertEquals(0, patch.getFixtures().size)
 
-        assertTrue(patch.getFixtureTypes().isEmpty())
-
-        // associated fixture should also be deleted
+        // test that when removing fixture type, the associated fixtures are also deleted
+        // first add two fixtures
+        patch.putFixture(exampleFixture).unwrap()
+        patch.putFixture(exampleFixture2).unwrap()
+        assertEquals(2, patch.getFixtures().size)
+        // now delete fixture type
+        patch.removeFixtureType(exampleFixtureType.fixtureTypeId).unwrap()
         assertTrue(patch.getFixtures().isEmpty())
+        assertTrue(patch.getFixtureTypes().isEmpty())
     }
 
-    @Test
-    fun testNextFreeFid() {
-        val patch = Patch()
-
-        patch.putFixtureType(exampleFixtureType)
-
-        val fidList = arrayOf(10,11,12,20,21,23)
-        fidList.shuffle(kotlin.random.Random(42))
-
-        fidList.forEach { patch.putFixture(
-            PatchFixture(
-            fid = it,
-            name = "a_name",
-            fixtureType = exampleFixtureType,
-            dmxMode = "mode1",
-            universe = ArtNetAddress.tryFrom(1).unwrap(),
-            address = DmxAddress.tryFrom(1).unwrap()
-        ))}
-
-        assertEquals(1, patch.nextFreeFid())
-        assertEquals(3, patch.nextFreeFid(3))
-        assertEquals(13, patch.nextFreeFid(10))
-        assertEquals(13, patch.nextFreeFid(12))
-        assertEquals(19, patch.nextFreeFid(19))
-        assertEquals(22, patch.nextFreeFid(20))
-        assertEquals(22, patch.nextFreeFid(21))
-        assertEquals(22, patch.nextFreeFid(22))
-        assertEquals(24, patch.nextFreeFid(23))
-        assertEquals(24, patch.nextFreeFid(24))
-    }
-
+    // TODO logic (and test) will be moved to client
     @Test
     fun testFindGapAtOrAfter() {
         val exampleArray = arrayOf(10,11,12,20,21,23)
@@ -117,7 +103,4 @@ internal class PatchTest {
         assertEquals(24, nextGap(exampleList, 23, 9))
         assertEquals(24, nextGap(exampleList, 24, 9))
     }
-
-    // TODO
-    // test that stream updates are called
 }

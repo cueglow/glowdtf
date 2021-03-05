@@ -1,4 +1,4 @@
-package org.cueglow.server
+package org.cueglow.server.integration
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
@@ -8,7 +8,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.awaitility.Awaitility
 import org.awaitility.Awaitility.await
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
-import org.cueglow.server.api.*
+import org.cueglow.server.CueGlowServer
 import org.cueglow.server.gdtf.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -19,17 +19,28 @@ import java.io.InputStream
 import java.net.URI
 import java.time.Duration
 
+/**
+ * Tests the WebSocket and RESt API in one stateful sweep.
+ *
+ * Provides the environment as well as ordering and listing the run tests.
+ * However the individual tests are placed in other files as top-level functions.
+ *
+ * To wait for the right response, we use Awaitility.
+ *
+ * When debugging the tests, I'd recommended to look at the whole standard output, not just the one from the failing
+ * test. The individual tests tend to break each other.
+ */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(OrderAnnotation::class)
 internal class ApiIntegrationTest {
     //-----------------------------------------------------
     // Initialization
     //-----------------------------------------------------
-    val server = CueGlowServer()
+    private val server = CueGlowServer()
 
-    val patch = server.state.patch
+    private val patch = server.state.patch
 
-    val wsClient = WsClient(URI("ws://localhost:7000/ws"))
+    private val wsClient = WsClient(URI("ws://localhost:7000/ws"))
 
     init {
         wsClient.connectBlocking()
@@ -42,7 +53,7 @@ internal class ApiIntegrationTest {
     private val inputStream: InputStream = javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?:
     throw Error("inputStream is Null")
     private val parsedGdtf = parseGdtf(inputStream).unwrap()
-    private val exampleFixtureType = GdtfWrapper(parsedGdtf)
+    private val exampleFixtureType = FixtureType(parsedGdtf)
 
     //----------------------------
     // Test Series 1
@@ -69,7 +80,7 @@ internal class ApiIntegrationTest {
     // Update Fixture
     @Test
     @Order(90)
-    fun updateUnknownFixture() = updateUnknownFixtureTest(wsClient, patch)
+    fun updateUnknownFixture() = updateUnknownFixtureTest(wsClient)
 
     @Test
     @Order(93)
@@ -109,11 +120,11 @@ internal class ApiIntegrationTest {
 
     @Test
     @Order(300)
-    fun noFilePartInGdtfUpload() = noFilePartInGdtfUploadErrors(::uploadGdtfFile, patch)
+    fun noFilePartInGdtfUpload() = noFilePartInGdtfUploadErrors(::uploadGdtfFile)
 
     @Test
     @Order(400)
-    fun gdtfWithoutDescriptionXml() = noDescriptionXmlUploadError(::uploadGdtfFile, patch)
+    fun gdtfWithoutDescriptionXml() = noDescriptionXmlUploadError(::uploadGdtfFile)
 
     //-----------------------------------------------------
     // Teardown
@@ -139,7 +150,7 @@ internal class ApiIntegrationTest {
 
 // Barebones WebSocket client for sending test messages
 class WsClient(uri: URI): WebSocketClient(uri), Logging {
-    val receivedMessages = ArrayDeque<String>()
+    private val receivedMessages = ArrayDeque<String>()
 
     override fun onOpen(handshakedata: ServerHandshake?) {
         logger.info("WsClient opened")

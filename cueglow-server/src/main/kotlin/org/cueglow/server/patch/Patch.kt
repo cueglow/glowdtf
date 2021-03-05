@@ -1,11 +1,10 @@
 package org.cueglow.server.patch
 
-import com.github.michaelbull.result.getOr
-import com.github.michaelbull.result.unwrap
-import org.cueglow.server.gdtf.GdtfWrapper
-import org.cueglow.server.objects.ArtNetAddress
-import org.cueglow.server.objects.DmxAddress
-import org.cueglow.server.objects.ImmutableMap
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import org.cueglow.server.gdtf.FixtureType
+import org.cueglow.server.objects.*
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -16,7 +15,7 @@ import kotlin.collections.HashMap
  */
 class Patch {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
-    private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
+    private val fixtureTypes: HashMap<UUID, FixtureType> = HashMap()
 
     fun getFixtures() = ImmutableMap(this.fixtures)
 
@@ -25,52 +24,43 @@ class Patch {
     // -------------------
     // Modify Fixture List
     // -------------------
-    fun putFixture(new: PatchFixture) {
+    fun putFixture(new: PatchFixture): Result<Unit, UnpatchedFixtureTypeIdError> {
+        val fixtureTypeId = new.fixtureType.fixtureTypeId
+
+        // ensure fixtureType is in Patch
+        if (!fixtureTypes.containsKey(fixtureTypeId)) {return Err(UnpatchedFixtureTypeIdError(fixtureTypeId))}
+
         fixtures[new.uuid] = new
+
         // TODO notify patch stream handler
-        // TODO how do we know the added fixture type is currently in the patch and not just an object in memory?
+
+        return Ok(Unit)
     }
 
-    fun removeFixture(uuid: UUID) {
-        fixtures.remove(uuid)
+    fun removeFixture(uuid: UUID): Result<Unit, UnknownFixtureUuidError> {
+        fixtures.remove(uuid) ?: return Err(UnknownFixtureUuidError(uuid))
         // TODO notify patch stream handler
+        return Ok(Unit)
     }
-
-    // TODO logic will be moved to the client
-    fun nextFreeFid(targetFid: Int = 1): Int =
-        nextGap(fixtures.values.map{it.fid}, targetFid)
-
-    // TODO logic will be moved to the client
-    /**
-     * Tries to find the next free address at or after [target] in [universe] where there is a gap of [channelCount].
-     * If no space is found in this universe, null is returned.
-     */
-    fun nextFreeAddress(universe: ArtNetAddress, target: DmxAddress = DmxAddress.tryFrom(1).unwrap(), channelCount: Int): ArtNetAddress? {
-        // TODO write unit test
-        val list = fixtures.values.filter {it.universe == universe}.map{it.address?.value?.toInt()}.filterNotNull()
-        val candidate = nextGap(list, target.value.toInt(), channelCount)
-        if (candidate + channelCount - 1 > 512) {
-            return null
-        } else {
-            return ArtNetAddress.tryFrom(candidate).getOr(null)
-        }
-    }
-
 
     // ------------------------
     // Modify Fixture Type List
     // ------------------------
-    fun putFixtureType(new: GdtfWrapper) {
+    fun putFixtureType(new: FixtureType): Result<Unit, FixtureTypeAlreadyExistsError> {
+        // ensure fixture type is not patched already
+        if (fixtureTypes.containsKey(new.fixtureTypeId)) {return Err(FixtureTypeAlreadyExistsError(new.fixtureTypeId))}
         fixtureTypes[new.fixtureTypeId] = new
         // TODO notify patch stream handler
+        return Ok(Unit)
     }
 
-    fun removeFixtureType(fixtureTypeId: UUID) {
+    fun removeFixtureType(fixtureTypeId: UUID): Result<Unit, UnpatchedFixtureTypeIdError> {
+        // remove fixture type
+        fixtureTypes.remove(fixtureTypeId) ?: return Err(UnpatchedFixtureTypeIdError(fixtureTypeId))
         // remove associated fixtures
         fixtures.filter { it.value.fixtureType.fixtureTypeId == fixtureTypeId }.keys.forEach {fixtures.remove(it)}
-        // remove fixture type
-        fixtureTypes.remove(fixtureTypeId)
         // TODO notify patch stream handler
+        return Ok(Unit)
     }
 }
 

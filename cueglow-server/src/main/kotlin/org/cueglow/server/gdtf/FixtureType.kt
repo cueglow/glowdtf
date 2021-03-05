@@ -9,7 +9,7 @@ import java.util.*
  *
  * Currently only provides the most basic properties (dmxMode channelCount is also wrong, see comments).
  */
-class GdtfWrapper(private val gdtf: GDTF) {
+class FixtureType(private val gdtf: GDTF) {
     val name: String = gdtf.fixtureType.name
     val manufacturer: String = gdtf.fixtureType.manufacturer
     val fixtureTypeId: UUID = UUID.fromString(gdtf.fixtureType.fixtureTypeID)

@@ -2,9 +2,10 @@ package org.cueglow.server
 
 import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
-import org.cueglow.server.handlers.InEventHandler
-import org.cueglow.server.handlers.WebSocketHandler
-import org.cueglow.server.handlers.handleNewFixtureType
+import org.cueglow.server.gdtf.GdtfHandler
+import org.cueglow.server.json.JsonHandler
+import org.cueglow.server.rest.handleGdtfUpload
+import org.cueglow.server.websocket.WebSocketHandler
 
 
 fun main(args: Array<String>) {
@@ -14,7 +15,7 @@ fun main(args: Array<String>) {
 /**
  * The main class of CueGlow Server.
  *
- * Starts the Javalin server, associates frontend handlers and initiates state.
+ * Starts the Javalin server, associates network handlers and initiates state.
  */
 class CueGlowServer(port: Int = 7000) : Logging {
     init {
@@ -23,11 +24,12 @@ class CueGlowServer(port: Int = 7000) : Logging {
 
     val state = StateProvider()
 
-    val inEventHandler = InEventHandler(state)
+    val jsonHandler = JsonHandler(state)
+    val gdtfHandler = GdtfHandler(state.patch)
 
     val webSocketHandler = WebSocketHandler()
 
-    val app = Javalin.create { config ->
+    val app: Javalin = Javalin.create { config ->
         config.requestLogger { ctx, executionTimeMs ->
             logger.info("HTTP Request (${executionTimeMs}ms) \"${ctx.req.pathInfo}\"")
         }
@@ -36,25 +38,28 @@ class CueGlowServer(port: Int = 7000) : Logging {
     }.apply {
         ws("/ws") { ws ->
             ws.onConnect { ctx ->
-                webSocketHandler.handleConnect(ctx, inEventHandler)
+                webSocketHandler.handleConnect(ctx)
             }
             ws.onMessage { ctx ->
-                webSocketHandler.handleMessage(ctx, inEventHandler)
+                webSocketHandler.handleMessage(ctx, jsonHandler)
             }
             ws.onClose { ctx ->
-                webSocketHandler.handleClose(ctx, inEventHandler)
+                webSocketHandler.handleClose(ctx)
             }
             ws.onError { ctx ->
-                webSocketHandler.handleError(ctx, inEventHandler)
+                webSocketHandler.handleError(ctx)
             }
         }
     }.apply {
-        post("/api/fixturetype") { ctx -> handleNewFixtureType(ctx, inEventHandler) }
+        post("/api/fixturetype") { ctx -> handleGdtfUpload(ctx, gdtfHandler) }
     }.start(port)
 
     init {
         logger.info("Serving frontend at http://localhost:$port")
     }
 
-    fun stop() = app.stop()
+    fun stop() {
+        app.stop()
+        logger.info("Server stopped")
+    }
 }

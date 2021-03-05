@@ -1,15 +1,14 @@
-package org.cueglow.server.objects
+package org.cueglow.server.json
 
-import org.cueglow.server.api.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class GlowMessageTest {
+class JsonMessageTest {
 
     @Test
-    fun parseGlowMessageFromJsonStringWithMessageId() {
+    fun parseJsonMessageFromJsonStringWithMessageId() {
         val jsonString = """
             {
                 "event": "subscribe",
@@ -20,20 +19,20 @@ class GlowMessageTest {
             }
         """.trimIndent()
 
-        val message = parseGlowMessage(jsonString)
+        val message = parseJsonMessage(jsonString)
 
-        Assertions.assertEquals(GlowEvent.SUBSCRIBE, message.event)
-        Assertions.assertEquals(GlowDataSubscribe("patch"), message.data)
+        Assertions.assertEquals(JsonEvent.SUBSCRIBE, message.event)
+        Assertions.assertEquals(JsonDataSubscribe("patch"), message.data)
         Assertions.assertEquals(1, message.messageId)
 
     }
 
     @Test
-    fun serializeGlowMessageToJsonString() {
-        val dataObject = GlowDataStreamUpdate("patch", 0)
+    fun serializeJsonMessageToJsonString() {
+        val dataObject = JsonDataStreamUpdate("patch", 0)
         // TODO rest of the fields omitted for simplification of test
 
-        val message = GlowMessage(GlowEvent.STREAM_INITIAL_STATE, dataObject, 42)
+        val message = JsonMessage(JsonEvent.STREAM_INITIAL_STATE, dataObject, 42)
 
         val jsonMessage = message.toJsonString()
 

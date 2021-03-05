@@ -1,8 +1,12 @@
 package org.cueglow.server.patch
 
-import org.cueglow.server.gdtf.GdtfWrapper
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
+import org.cueglow.server.objects.UnknownDmxModeError
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -12,7 +16,7 @@ import kotlin.properties.Delegates
  * @property[uuid] The UUID of the Fixture, assigned by the Server upon creation
  * @property[fid] The **F**ixture **ID**, an Int arbitrarily assigned by the user (negative FIDs are allowed but questionable)
  * @property[name] The Fixture Name, assigned by the user
- * @property[fixtureTypeId] The UUID of the Fixture Type as specified in the corresponding GDTF file
+ * @property[fixtureType] The fixture type of the fixture (as defined by a GDTF file)
  * @property[dmxMode] The DMX Mode, chosen by the user from the ones supplied in the GDTF file
  * @property[universe] The Art-Net Port-Address of the Universe in which the Fixture operates, assigned by the user
  * @property[address] The DMX Address in the specified Universe, assigned by the user
@@ -20,13 +24,13 @@ import kotlin.properties.Delegates
  * The properties [universe] and [address] are nullable.
  * If at least one of [universe] or [address] is null, no Art-Net output should be sent for this fixture.
  *
- * [fixtureTypeId] and [dmxMode] are immutable to avoid conversion issues when changing fixture type.
+ * [fixtureType] and [dmxMode] are immutable to avoid conversion issues when changing fixture type.
  */
-class PatchFixture(
+class PatchFixture private constructor(
     fid: Int,
     name: String,
-    val fixtureType: GdtfWrapper,
-    val dmxMode: String, // TODO how do we ensure this mode exists in the fixtureType?
+    val fixtureType: FixtureType,
+    val dmxMode: String,
     universe: ArtNetAddress?,
     address: DmxAddress?,
 ) {
@@ -88,6 +92,28 @@ class PatchFixture(
         if (universe?.value != other.universe?.value) return false
         if (address?.value != other.address?.value) return false
         return true
+    }
+
+    companion object Factory {
+        /**
+         * Allows creating the PatchFixture in a type-safe way while ensuring the dmxMode is part of the specified
+         * fixtureType. Returns a Result to indicate whether the instantiation was successful.
+         */
+        fun tryFrom(
+            fid: Int,
+            name: String,
+            fixtureType: FixtureType,
+            dmxMode: String,
+            universe: ArtNetAddress?,
+            address: DmxAddress?,
+        ): Result<PatchFixture, UnknownDmxModeError> {
+
+            // check that dmxMode exists in fixtureType
+            fixtureType.modes.find { it.name == dmxMode } ?:
+                return Err(UnknownDmxModeError(dmxMode, fixtureType.fixtureTypeId))
+
+            return Ok(PatchFixture(fid, name, fixtureType, dmxMode, universe, address))
+        }
     }
 }
 
