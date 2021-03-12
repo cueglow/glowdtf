@@ -6,25 +6,30 @@ import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.InputStream
+import java.util.*
 
 internal class PatchFixtureTest {
-    private val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
-    private val inputStream: InputStream = javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?:
-    throw Error("inputStream is Null")
-    private val parsedGdtf = parseGdtf(inputStream).unwrap()
-    private val exampleFixtureType = FixtureType(parsedGdtf)
-
-    private val exampleArtNetAddress =  ArtNetAddress.tryFrom(1).unwrap()
-    private val exampleDmxAddress = DmxAddress.tryFrom(1).unwrap()
 
     @Test
-    fun constructorBlocksInvalidDmxMode() {
-        assertTrue(
-        PatchFixture.tryFrom(1, "", exampleFixtureType, "not_a_mode", exampleArtNetAddress, exampleDmxAddress)
-            is Err
-        )
+    fun instantiateAndClonePatchFixture() {
+        val fixtureId = UUID.randomUUID()
+        val fid = 1
+        val name = "Lamp"
+        val fixtureTypeId = UUID.randomUUID()
+        val dmxMode = "mode1"
+        val universe = ArtNetAddress.tryFrom(1).unwrap()
+        val address = DmxAddress.tryFrom(1).unwrap()
+
+        val fixture = PatchFixture(fixtureId, fid, name, fixtureTypeId, dmxMode, universe, address)
+
+        val fixture2 = fixture.copy(fid=2)
+
+        assertEquals(fid, fixture.fid)
+        assertEquals(2, fixture2.fid)
+        assertEquals(fixtureId, fixture2.uuid)
     }
 }

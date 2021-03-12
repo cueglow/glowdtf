@@ -43,14 +43,15 @@ fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: Fixture
     assertEquals(1, (message.data as JsonDataFixturesAdded).uuids.size)
     assertEquals(42, message.messageId)
 
-    val expectedPatchFixture = PatchFixture.tryFrom(
+    val expectedPatchFixture = PatchFixture(
+        UUID.randomUUID(),
         1,
         "exampleFixture",
-        exampleFixtureType,
+        exampleFixtureType.fixtureTypeId,
         "mode1",
         ArtNetAddress.tryFrom(1).unwrap(),
         DmxAddress.tryFrom(1).unwrap(),
-    ).unwrap()
+    )
 
     assertEquals(1, patch.getFixtures().size)
 
@@ -174,7 +175,7 @@ fun updateAddressTest(wsClient: WsClient, patch: Patch) {
 
     assertEquals(prev.fid, post.fid)
     assertEquals(prev.name, post.name)
-    assertEquals(prev.fixtureType, post.fixtureType)
+    assertEquals(prev.fixtureTypeId, post.fixtureTypeId)
     assertEquals(prev.dmxMode, post.dmxMode)
     assertEquals(prev.universe, post.universe)
 }
@@ -204,7 +205,7 @@ fun updateUniverseTest(wsClient: WsClient, patch: Patch) {
 
     assertEquals(prev.fid, post.fid)
     assertEquals(prev.name, post.name)
-    assertEquals(prev.fixtureType, post.fixtureType)
+    assertEquals(prev.fixtureTypeId, post.fixtureTypeId)
     assertEquals(prev.dmxMode, post.dmxMode)
     assertEquals(prev.address?.value, post.address?.value)
 }
@@ -237,7 +238,7 @@ fun updateNameAndFidTest(wsClient: WsClient, patch: Patch) {
 
     val post = patch.getFixtures()[uuidToModify]!!
 
-    assertEquals(prev.fixtureType, post.fixtureType)
+    assertEquals(prev.fixtureTypeId, post.fixtureTypeId)
     assertEquals(prev.dmxMode, post.dmxMode)
     assertEquals(prev.address?.value, post.address?.value)
     assertEquals(prev.universe, post.universe)

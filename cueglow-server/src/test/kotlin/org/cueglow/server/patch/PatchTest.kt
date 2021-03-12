@@ -20,10 +20,10 @@ internal class PatchTest {
     private val parsedGdtf = parseGdtf(inputStream).unwrap()
     private val exampleFixtureType = FixtureType(parsedGdtf)
 
-    private val exampleFixture = PatchFixture.tryFrom(1, "", exampleFixtureType,
-        "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap()).unwrap()
-    private val exampleFixture2 = PatchFixture.tryFrom(2, "", exampleFixtureType,
-        "mode1", ArtNetAddress.tryFrom(2).unwrap(), DmxAddress.tryFrom(1).unwrap()).unwrap()
+    private val exampleFixture = PatchFixture(UUID.randomUUID(),1, "", exampleFixtureType.fixtureTypeId,
+        "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
+    private val exampleFixture2 = PatchFixture(UUID.randomUUID(),2, "", exampleFixtureType.fixtureTypeId,
+        "mode1", ArtNetAddress.tryFrom(2).unwrap(), DmxAddress.tryFrom(1).unwrap())
 
     @Test
     fun patchList() {
@@ -72,35 +72,5 @@ internal class PatchTest {
         patch.removeFixtureType(exampleFixtureType.fixtureTypeId).unwrap()
         assertTrue(patch.getFixtures().isEmpty())
         assertTrue(patch.getFixtureTypes().isEmpty())
-    }
-
-    // TODO logic (and test) will be moved to client
-    @Test
-    fun testFindGapAtOrAfter() {
-        val exampleArray = arrayOf(10,11,12,20,21,23)
-        exampleArray.shuffle(kotlin.random.Random(42))
-        val exampleList = exampleArray.asList()
-
-        // gapSize 1
-        assertEquals(1, nextGap(exampleList, 1))
-        assertEquals(3, nextGap(exampleList, 3))
-        assertEquals(13, nextGap(exampleList, 10))
-        assertEquals(13, nextGap(exampleList, 12))
-        assertEquals(19, nextGap(exampleList, 19))
-        assertEquals(22, nextGap(exampleList, 20))
-        assertEquals(22, nextGap(exampleList, 21))
-        assertEquals(22, nextGap(exampleList, 22))
-        assertEquals(24, nextGap(exampleList, 23))
-        assertEquals(24, nextGap(exampleList, 24))
-
-        // bigger gapSize
-        assertEquals(1, nextGap(exampleList, 1, 9))
-        assertEquals(24, nextGap(exampleList, 1, 10))
-        assertEquals(13, nextGap(exampleList, 12, 7))
-        assertEquals(24, nextGap(exampleList, 12, 8))
-        assertEquals(18, nextGap(exampleList, 18, 2))
-        assertEquals(24, nextGap(exampleList, 18, 3))
-        assertEquals(24, nextGap(exampleList, 23, 9))
-        assertEquals(24, nextGap(exampleList, 24, 9))
     }
 }

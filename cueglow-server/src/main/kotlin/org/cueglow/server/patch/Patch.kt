@@ -24,11 +24,13 @@ class Patch {
     // -------------------
     // Modify Fixture List
     // -------------------
-    fun putFixture(new: PatchFixture): Result<Unit, UnpatchedFixtureTypeIdError> {
-        val fixtureTypeId = new.fixtureType.fixtureTypeId
-
-        // ensure fixtureType is in Patch
-        if (!fixtureTypes.containsKey(fixtureTypeId)) {return Err(UnpatchedFixtureTypeIdError(fixtureTypeId))}
+    fun putFixture(new: PatchFixture): Result<Unit, GlowError> {
+        val fixtureTypeModes = fixtureTypes[new.fixtureTypeId]?.modes ?:
+            return Err(UnpatchedFixtureTypeIdError(new.fixtureTypeId))
+        
+        if (!fixtureTypeModes.map { it.name }.contains(new.dmxMode)) {
+            return Err(UnknownDmxModeError(new.dmxMode, new.fixtureTypeId))
+        }
 
         fixtures[new.uuid] = new
 
@@ -58,37 +60,8 @@ class Patch {
         // remove fixture type
         fixtureTypes.remove(fixtureTypeId) ?: return Err(UnpatchedFixtureTypeIdError(fixtureTypeId))
         // remove associated fixtures
-        fixtures.filter { it.value.fixtureType.fixtureTypeId == fixtureTypeId }.keys.forEach {fixtures.remove(it)}
+        fixtures.filter { it.value.fixtureTypeId == fixtureTypeId }.keys.forEach {fixtures.remove(it)}
         // TODO notify patch stream handler
         return Ok(Unit)
     }
-}
-
-// TODO logic will be moved to the client
-/**
- * Finds the first gap in [inputList] at or after [target]. The minimum size of the gap can be specified by [gapSize].
- *
- * [inputList] does not have to be sorted.
- */
-fun nextGap(inputList: List<Int>, target: Int, gapSize: Int = 1): Int {
-    val list = inputList.sorted()
-    var firstCandidate = list.binarySearch(target)
-
-    if (firstCandidate < 0) {
-        // negative returned index means the targetFid does not exist in Patch yet
-        firstCandidate = -firstCandidate-1
-    }
-
-    var last: Int = target-1
-    var current: Int
-
-    for (i in firstCandidate..list.lastIndex) {
-        current = list[i]
-        if (current > last + gapSize) {
-            return last + 1
-        }
-        last = current
-    }
-
-    return last + 1
 }

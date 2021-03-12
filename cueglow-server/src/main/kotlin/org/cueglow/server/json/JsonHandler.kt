@@ -1,6 +1,7 @@
 package org.cueglow.server.json
 
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.getOr
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.unwrap
 import org.cueglow.server.StateProvider
@@ -44,12 +45,9 @@ class JsonHandler(private val state: StateProvider): AsyncStringReceiver {
         val uuidList: MutableList<UUID> = emptyList<UUID>().toMutableList()
         data.fixtures.forEach singleFixture@{ fixture ->
             val fixtureTypeId = fixture.fixtureTypeId
-            val fixtureType = state.patch.getFixtureTypes()[fixtureTypeId] ?: run {
-                request.answer(UnpatchedFixtureTypeIdError(fixtureTypeId)); return@singleFixture}
-            val patchFixture =
-                PatchFixture.tryFrom(
-                    fixture.fid, fixture.name, fixtureType, fixture.dmxMode, fixture.universe, fixture.address
-                ).getOrElse { request.answer(it); return@singleFixture }
+            val patchFixture = PatchFixture(
+                    UUID.randomUUID(), fixture.fid, fixture.name, fixture.fixtureTypeId, fixture.dmxMode, fixture.universe, fixture.address
+                )
 
             state.patch.putFixture(patchFixture).getOrElse { request.answer(it); return@singleFixture }
             uuidList.add(patchFixture.uuid)
@@ -79,9 +77,11 @@ class JsonHandler(private val state: StateProvider): AsyncStringReceiver {
             jsonRequest.answer(UnknownFixtureUuidError(data.uuid))
             return
         }
-        data.fid?.let {fixture.fid = it}
-        data.name?.let {fixture.name = it}
-        if (data.universe is Ok) {fixture.universe = data.universe.unwrap()}
-        if (data.address is Ok) {fixture.address = data.address.unwrap()}
+        state.patch.putFixture(fixture.copy(
+            fid = data.fid ?: fixture.fid,
+            name = data.name ?: fixture.name,
+            universe = data.universe.getOr(fixture.universe),
+            address = data.address.getOr(fixture.address),
+        ))
     }
 }
