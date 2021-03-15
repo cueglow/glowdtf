@@ -1,6 +1,6 @@
 package org.cueglow.server.websocket
 
-import io.javalin.websocket.WsMessageContext
+import org.eclipse.jetty.websocket.api.Session
 
 /**
  * Represents a Client of the Server that can be sent a String message asynchronously
@@ -9,8 +9,8 @@ interface AsyncClient {
     fun send(message: String)
 }
 
-class WebSocketAsyncClient(private val websocket: WsMessageContext) : AsyncClient {
+class WebSocketAsyncClient(private val session: Session) : AsyncClient {
     override fun send(message: String) {
-        websocket.send(message)
+        session.remote.sendStringByFuture(message)
     }
 }

@@ -3,9 +3,9 @@ package org.cueglow.server
 import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.gdtf.GdtfHandler
-import org.cueglow.server.json.JsonHandler
 import org.cueglow.server.rest.handleGdtfUpload
 import org.cueglow.server.websocket.WebSocketHandler
+import org.eclipse.jetty.server.Server
 
 
 fun main(args: Array<String>) {
@@ -24,35 +24,25 @@ class CueGlowServer(port: Int = 7000) : Logging {
 
     val state = StateProvider()
 
-    val jsonHandler = JsonHandler(state)
-    val gdtfHandler = GdtfHandler(state.patch)
-
-    val webSocketHandler = WebSocketHandler()
+    private val gdtfHandler = GdtfHandler(state.patch)
 
     val app: Javalin = Javalin.create { config ->
+        // add our own WebSocket Handler
+        config.server {
+            val server = Server()
+            server.handler = WebSocketHandler(state)
+            return@server server
+        }
         config.requestLogger { ctx, executionTimeMs ->
             logger.info("HTTP Request (${executionTimeMs}ms) \"${ctx.req.pathInfo}\"")
         }
         config.addStaticFiles("/webui")
         config.addSinglePageRoot("/", "/webui/index.html")
     }.apply {
-        ws("/ws") { ws ->
-            ws.onConnect { ctx ->
-                webSocketHandler.handleConnect(ctx)
-            }
-            ws.onMessage { ctx ->
-                webSocketHandler.handleMessage(ctx, jsonHandler)
-            }
-            ws.onClose { ctx ->
-                webSocketHandler.handleClose(ctx)
-            }
-            ws.onError { ctx ->
-                webSocketHandler.handleError(ctx)
-            }
-        }
-    }.apply {
         post("/api/fixturetype") { ctx -> handleGdtfUpload(ctx, gdtfHandler) }
-    }.start(port)
+    }.apply {
+        start(port)
+    }
 
     init {
         logger.info("Serving frontend at http://localhost:$port")

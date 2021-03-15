@@ -8,15 +8,17 @@ import org.cueglow.server.websocket.AsyncClient
 import java.util.*
 
 /** Represents a Receiver that takes a message string and can answer asynchronously with the provided GlowClient */
-interface AsyncStringReceiver {
-    fun receive(message: String, client: AsyncClient)
+interface StringReceiver {
+    fun receive(message: String)
 }
 
-/** Receives JSON messages, parses them, dispatches based on event and
+/**
+ * A stateful handler, created for each JSON Connection.
+ * It receives JSON messages, parses them, dispatches based on event and
  * executes the requested event on the state, which is passed in during construction.
  */
-class JsonHandler(private val state: StateProvider): AsyncStringReceiver {
-    override fun receive(message: String, client: AsyncClient) {
+class JsonHandler(private val client: AsyncClient, private val state: StateProvider): StringReceiver {
+    override fun receive(message: String) {
         val jsonMessage = parseJsonMessage(message)
         val request = JsonRequest(jsonMessage, client)
         when (jsonMessage.event) {
