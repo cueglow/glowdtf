@@ -33,43 +33,50 @@ internal class PatchTest {
         assertTrue(patch.getFixtureTypes().isEmpty())
 
         // without fixture type in patch, fixture cannot be added
-        assertTrue(patch.putFixture(exampleFixture) is Err)
+        assertTrue(patch.addFixtures(listOf(exampleFixture)) is Err)
         assertTrue(patch.getFixtures().isEmpty())
 
         // add fixture type
-        patch.putFixtureType(exampleFixtureType).unwrap()
+        patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
         assertEquals(1, patch.getFixtureTypes().size)
         assertEquals(exampleFixtureType, patch.getFixtureTypes()[exampleFixtureType.fixtureTypeId])
 
         // adding fixture type again does not work
-        assertTrue(patch.putFixtureType(exampleFixtureType) is Err)
+        assertTrue(patch.addFixtureTypes(listOf(exampleFixtureType)) is Err)
         assertEquals(1, patch.getFixtureTypes().size)
 
         // add fixture
-        patch.putFixture(exampleFixture).unwrap()
+        patch.addFixtures(listOf(exampleFixture)).unwrap()
         assertEquals(1, patch.getFixtures().size)
         assertEquals(exampleFixture, patch.getFixtures()[exampleFixture.uuid])
 
+        // update fixture
+        patch.updateFixtures(listOf(PatchFixtureUpdate(exampleFixture.uuid, fid = 100)))
+        assertEquals(100, patch.getFixtures()[exampleFixture.uuid]?.fid)
+
+        // updating unpatched fixture does not work
+        val aRandomUuid = UUID.fromString("59fa8699-8478-45ca-91e7-b72eec895954")
+        assertTrue(patch.updateFixtures(listOf(PatchFixtureUpdate(aRandomUuid, name="a name"))) is Err)
+
         // removing unknown fixture type does not work
         val randomUuid = UUID.fromString("8eff8f2b-c818-4a3e-87a3-ba5b43f8fd0c")
-        assertTrue(patch.removeFixtureType(randomUuid) is Err)
+        assertTrue(patch.removeFixtureTypes(listOf(randomUuid)) is Err)
         assertEquals(1, patch.getFixtureTypes().size)
 
         // removing unknown fixture does not work
-        assertTrue(patch.removeFixture(randomUuid) is Err)
+        assertTrue(patch.removeFixtures(listOf(randomUuid)) is Err)
         assertEquals(1, patch.getFixtures().size)
 
         // remove fixture
-        patch.removeFixture(exampleFixture.uuid)
+        patch.removeFixtures(listOf(exampleFixture.uuid))
         assertEquals(0, patch.getFixtures().size)
 
         // test that when removing fixture type, the associated fixtures are also deleted
         // first add two fixtures
-        patch.putFixture(exampleFixture).unwrap()
-        patch.putFixture(exampleFixture2).unwrap()
+        patch.addFixtures(listOf(exampleFixture, exampleFixture2)).unwrap()
         assertEquals(2, patch.getFixtures().size)
         // now delete fixture type
-        patch.removeFixtureType(exampleFixtureType.fixtureTypeId).unwrap()
+        patch.removeFixtureTypes(listOf(exampleFixtureType.fixtureTypeId)).unwrap()
         assertTrue(patch.getFixtures().isEmpty())
         assertTrue(patch.getFixtureTypes().isEmpty())
     }

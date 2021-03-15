@@ -1,13 +1,9 @@
 package org.cueglow.server.json
 
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.getOr
 import com.github.michaelbull.result.getOrElse
-import com.github.michaelbull.result.unwrap
 import org.cueglow.server.StateProvider
-import org.cueglow.server.objects.UnknownFixtureUuidError
-import org.cueglow.server.objects.UnpatchedFixtureTypeIdError
 import org.cueglow.server.patch.PatchFixture
+import org.cueglow.server.patch.PatchFixtureUpdate
 import org.cueglow.server.websocket.AsyncClient
 import java.util.*
 
@@ -42,46 +38,54 @@ class JsonHandler(private val state: StateProvider): AsyncStringReceiver {
 
     private fun handleAddFixtures(request: JsonRequest) {
         val data = (request.originalMessage.data as JsonDataAddFixtures)
-        val uuidList: MutableList<UUID> = emptyList<UUID>().toMutableList()
-        data.fixtures.forEach singleFixture@{ fixture ->
-            val fixtureTypeId = fixture.fixtureTypeId
-            val patchFixture = PatchFixture(
-                    UUID.randomUUID(), fixture.fid, fixture.name, fixture.fixtureTypeId, fixture.dmxMode, fixture.universe, fixture.address
-                )
-
-            state.patch.putFixture(patchFixture).getOrElse { request.answer(it); return@singleFixture }
-            uuidList.add(patchFixture.uuid)
+        val fixtures: List<PatchFixture> = data.fixtures.map {
+            PatchFixture(
+                uuid = UUID.randomUUID(),
+                fid = it.fid,
+                name = it.name,
+                fixtureTypeId = it.fixtureTypeId,
+                dmxMode = it.dmxMode,
+                universe = it.universe,
+                address = it.address,
+            )
         }
-        if (uuidList.isNotEmpty()) { request.answer(JsonEvent.FIXTURES_ADDED, JsonDataFixturesAdded(uuidList)) }
+
+        state.patch.addFixtures(fixtures).getOrElse { errorList ->
+            errorList.forEach {
+            request.answer(it)
+            return
+        } }
+
+        // note: will not answer if only some fixtures were added
+        // reason: future API will remove this response
+        request.answer(JsonEvent.FIXTURES_ADDED, JsonDataFixturesAdded(fixtures.map{it.uuid}))
     }
 
     private fun handleDeleteFixtureTypes(jsonRequest: JsonRequest) {
-        (jsonRequest.originalMessage.data as JsonDataDeleteFixtureTypes)
-            .fixtureTypeIds.forEach singleFixture@{
-                state.patch.getFixtureTypes()[it] ?: run {jsonRequest.answer(UnpatchedFixtureTypeIdError(it)); return@singleFixture}
-                state.patch.removeFixtureType(it)
-            }
+        val idsToDelete = (jsonRequest.originalMessage.data as JsonDataDeleteFixtureTypes).fixtureTypeIds
+        state.patch.removeFixtureTypes(idsToDelete).getOrElse { errorList ->
+            errorList.forEach { jsonRequest.answer(it) }
+        }
     }
 
     private fun handleDeleteFixtures(jsonRequest: JsonRequest) {
-        (jsonRequest.originalMessage.data as JsonDataDeleteFixtures)
-            .uuids.forEach singleFixture@{
-                state.patch.getFixtures()[it]?.uuid ?: run{jsonRequest.answer(UnknownFixtureUuidError(it)); return@singleFixture}
-                state.patch.removeFixture(it)
-            }
+        val uuidsToDelete = (jsonRequest.originalMessage.data as JsonDataDeleteFixtures).uuids
+        state.patch.removeFixtures(uuidsToDelete).getOrElse { errorList ->
+            errorList.forEach {jsonRequest.answer(it)}
+        }
     }
 
     private fun handleUpdateFixture(jsonRequest: JsonRequest) {
         val data = (jsonRequest.originalMessage.data as JsonDataUpdateFixture)
-        val fixture = state.patch.getFixtures()[data.uuid] ?: run {
-            jsonRequest.answer(UnknownFixtureUuidError(data.uuid))
-            return
-        }
-        state.patch.putFixture(fixture.copy(
-            fid = data.fid ?: fixture.fid,
-            name = data.name ?: fixture.name,
-            universe = data.universe.getOr(fixture.universe),
-            address = data.address.getOr(fixture.address),
-        ))
+
+        val update = PatchFixtureUpdate(
+            uuid = data.uuid,
+            fid = data.fid,
+            name = data.name,
+            universe = data.universe,
+            address = data.address,
+        )
+
+        state.patch.updateFixtures(listOf(update)).getOrElse { jsonRequest.answer(it[0]) }
     }
 }

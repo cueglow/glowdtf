@@ -22,7 +22,7 @@ class GdtfHandler(val patch: Patch): SyncGdtfReceiver {
         val parsedGdtf = parseGdtf(file).getOrElse { return Err(it) }
         val fixtureType = FixtureType(parsedGdtf)
 
-        patch.putFixtureType(fixtureType).getOrElse { return Err(it) }
+        patch.addFixtureTypes(listOf(fixtureType)).getOrElse { return Err(it[0]) }
 
         return Ok(fixtureType.fixtureTypeId)
     }

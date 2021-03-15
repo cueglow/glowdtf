@@ -1,15 +1,10 @@
 package org.cueglow.server.patch
 
-import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.unwrap
-import org.cueglow.server.gdtf.FixtureType
-import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.io.InputStream
 import java.util.*
 
 internal class PatchFixtureTest {

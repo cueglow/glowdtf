@@ -44,3 +44,4 @@ class MissingFilePartError: GlowError("The GDTF upload request should include th
 class UnpatchedFixtureTypeIdError(fixtureTypeId: UUID): GlowError("The specified fixtureTypeId '${fixtureTypeId}' was not found in the Patch. ")
 class UnknownDmxModeError(dmxMode: String, fixtureTypeId: UUID): GlowError("The specified DMX Mode '${dmxMode}' was not found in the Fixture Type with fixtureTypeId '$fixtureTypeId'. ")
 class UnknownFixtureUuidError(uuid: UUID): GlowError("The specified fixture uuid '$uuid' was not found in the Patch. ")
+class FixtureUuidAlreadyExistsError(uuid: UUID): GlowError("A fixture with the uuid '$uuid' already exists in the Patch. ")

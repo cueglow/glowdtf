@@ -9,7 +9,8 @@ import org.awaitility.Awaitility
 import org.awaitility.Awaitility.await
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.CueGlowServer
-import org.cueglow.server.gdtf.*
+import org.cueglow.server.gdtf.FixtureType
+import org.cueglow.server.gdtf.parseGdtf
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.junit.jupiter.api.*

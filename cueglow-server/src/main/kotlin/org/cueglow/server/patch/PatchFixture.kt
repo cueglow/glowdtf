@@ -1,14 +1,8 @@
 package org.cueglow.server.patch
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
-import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
-import org.cueglow.server.objects.UnknownDmxModeError
 import java.util.*
-import kotlin.properties.Delegates
 
 /**
  * A single Fixture in the Patch
