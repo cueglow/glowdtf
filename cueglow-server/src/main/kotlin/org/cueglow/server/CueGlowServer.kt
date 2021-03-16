@@ -4,7 +4,7 @@ import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.gdtf.GdtfHandler
 import org.cueglow.server.rest.handleGdtfUpload
-import org.cueglow.server.websocket.WebSocketHandler
+import org.cueglow.server.websocket.GlowWebSocketHandler
 import org.eclipse.jetty.server.Server
 
 
@@ -30,7 +30,7 @@ class CueGlowServer(port: Int = 7000) : Logging {
         // add our own WebSocket Handler
         config.server {
             val server = Server()
-            server.handler = WebSocketHandler(state)
+            server.handler = GlowWebSocketHandler(state)
             return@server server
         }
         config.requestLogger { ctx, executionTimeMs ->
