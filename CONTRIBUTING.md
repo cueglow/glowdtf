@@ -1,3 +1,21 @@
+# CueGlow Contribution Guide
+
+You can help to improve CueGlow in many different ways: 
+
+- Reporting Bugs
+- Suggesting New Features
+- Triaging Issues
+- Programming
+- UX and Design Work
+- Telling Other People about CueGlow
+
+If you are not sure how you can contribute, don't hesitate to [open 
+an issue](https://github.com/cueglow/cueglow/issues/new). We'd love to hear from 
+you!
+
+The following sections will help you to build CueGlow and to contribute 
+code. 
+
 ## How to Build
 
 ### Linux/macOS
@@ -95,7 +113,15 @@ We try to adhere to OneFlow Branching as described in https://www.endoflineblog.
 git checkout -b feature/my-feature main
 ```
 
-and then once you want a review, open a pull request in GitHub. 
+Once you want a review of your code or want to discuss some open questions, open 
+a Pull Request on GitHub. 
+
+## Code Style
+
+All code should be well tested to ensure our goal of reliability. 
+
+Server or API features should be tested server-side in JUnit 5. 
+The client is then tested against the server during end-to-end testing in Cypress. 
 
 ## Possible Issues
 
