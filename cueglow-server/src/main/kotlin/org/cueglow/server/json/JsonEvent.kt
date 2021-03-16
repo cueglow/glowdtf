@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 /**
  * Internal representation of the "event" field in the JSON message
  */
-enum class JsonEvent(val eventDescriptor: String, val eventType: JsonEventType, val eventDataClass: KClass<out JsonData>) {
+enum class JsonEvent(val eventDescriptor: String, val eventType: JsonEventType, val eventDataClass: KClass<out JsonData>?) {
 
     SUBSCRIBE("subscribe", JsonEventType.CLIENT, JsonDataSubscribe::class),
     UNSUBSCRIBE("unsubscribe", JsonEventType.CLIENT, JsonDataUnsubscribe::class),

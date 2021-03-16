@@ -21,6 +21,15 @@ class JsonMessage @JvmOverloads constructor(
     val messageId: Int? = null
 ) {
 
+    init {
+        // validate data type matches event
+        val dataClass = data?.let {it::class}
+        if (event.eventDataClass != dataClass) {
+            throw IllegalArgumentException("Event ${event.name} should be accompanied by data type " +
+                    "${event.eventDataClass?.simpleName} but was ${dataClass?.simpleName ?: "null"}")
+        }
+    }
+
     fun toJsonString(): String {
         return Klaxon()
             .fieldConverter(KlaxonJsonEvent::class, JsonEvent.jsonEventConverter)
