@@ -5,10 +5,12 @@ import org.cueglow.server.StateProvider
 import org.cueglow.server.json.AsyncClient
 import org.cueglow.server.json.JsonHandler
 import org.eclipse.jetty.websocket.api.Session
-import org.eclipse.jetty.websocket.api.WebSocketAdapter
+import org.eclipse.jetty.websocket.api.WebSocketListener
 
-// TODO move from WebSocketAdapter to own implementation for WebSocketListener to improve null safety
-class WebSocketConnection(val state: StateProvider): WebSocketAdapter(), AsyncClient, Logging {
+class WebSocketConnection(val state: StateProvider): WebSocketListener, AsyncClient, Logging {
+
+    @Volatile
+    var session: Session? = null
 
     lateinit var jsonHandler: JsonHandler
 
@@ -18,10 +20,10 @@ class WebSocketConnection(val state: StateProvider): WebSocketAdapter(), AsyncCl
 
     /**
      * Sends a message to the WebSocket client.
-     * @throws NullPointerException when the WebSocket is disconnected
+     * If the client is disconnected, nothing will be done.
      */
     override fun send(message: String) {
-        session.remote.sendStringByFuture(message)
+        session?.remote?.sendStringByFuture(message)
     }
 
     //-------------------------------
@@ -29,30 +31,27 @@ class WebSocketConnection(val state: StateProvider): WebSocketAdapter(), AsyncCl
     //-------------------------------
 
     override fun onWebSocketConnect(newSession: Session) {
-        super.onWebSocketConnect(newSession)
+        session = newSession
         logger.info("WebSocket connection with ${newSession.remoteAddress} established")
         jsonHandler = JsonHandler(this, state)
     }
 
     override fun onWebSocketText(message: String?) {
-        super.onWebSocketText(message)
         logger.info("Received \"$message\" from websocket")
         jsonHandler.receive(message ?: "")
     }
 
     override fun onWebSocketBinary(payload: ByteArray?, offset: Int, len: Int) {
-        super.onWebSocketBinary(payload, offset, len)
         logger.info("Received binary message from WebSocket: \"$payload\"")
     }
 
     override fun onWebSocketError(cause: Throwable?) {
-        super.onWebSocketError(cause)
-        logger.warn("WebSocket connection to ${session.remoteAddress} experienced an error. Cause: $cause")
+        logger.warn("WebSocket connection to ${session?.remoteAddress} experienced an error. Cause: $cause")
     }
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
-        super.onWebSocketClose(statusCode, reason)
-        logger.info("WebSocket connection to ${session.remoteAddress} closed. Status: $statusCode. Reason: $reason. ")
-        // TODO pass close event to jsonHandler (unsubscribe, etc.)
+        logger.info("WebSocket connection to ${session?.remoteAddress} closed. Status: $statusCode. Reason: $reason. ")
+        session = null
+        // TODO pass close event to jsonHandler (unsubscribe, etc.) (must still be added in StringReceiver interface)
     }
 }
