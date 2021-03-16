@@ -5,11 +5,12 @@ import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.unwrap
 import io.javalin.http.Context
 import org.cueglow.server.gdtf.SyncGdtfReceiver
-import org.cueglow.server.json.JsonDataFixtureTypeAdded
-import org.cueglow.server.json.JsonEvent
-import org.cueglow.server.json.JsonMessage
+import org.cueglow.server.json.toJsonString
 import org.cueglow.server.objects.MissingDescriptionXmlInGdtfError
 import org.cueglow.server.objects.MissingFilePartError
+import org.cueglow.server.objects.messages.GlowData
+import org.cueglow.server.objects.messages.GlowEvent
+import org.cueglow.server.objects.messages.GlowMessage
 
 /**
  * REST Network Handler for New Fixture Types via GDTF Upload
@@ -25,11 +26,10 @@ fun handleGdtfUpload(ctx: Context, gdtfHandler: SyncGdtfReceiver) {
     when {
         result is Ok -> {
             // return 200 with FixtureTypeId in JSON Message
-            val responseJsonMessage = JsonMessage(
-                JsonEvent.FIXTURE_TYPE_ADDED,
-                JsonDataFixtureTypeAdded(result.unwrap())
-            )
-            val jsonResponse = responseJsonMessage.toJsonString()
+            val jsonResponse = GlowMessage(
+                GlowEvent.FIXTURE_TYPE_ADDED,
+                GlowData.FixtureTypeAdded(result.unwrap())
+            ).toJsonString()
             ctx.result(jsonResponse)
             ctx.status(200)
             ctx.contentType("application/json")

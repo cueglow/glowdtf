@@ -1,60 +1,74 @@
 package org.cueglow.server.json
 
 import com.beust.klaxon.Converter
-import com.beust.klaxon.Json
 import com.beust.klaxon.JsonValue
+import com.beust.klaxon.Klaxon
 import com.beust.klaxon.TypeAdapter
-import com.github.michaelbull.result.*
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.unwrap
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
+import org.cueglow.server.objects.messages.*
+import java.io.StringReader
 import java.util.*
 import kotlin.reflect.KClass
 
+//--------------------------
+// Serialization and Parsing
+//--------------------------
+
+/** Convert GlowMessage to JSON String by Extension Function */
+fun GlowMessage.toJsonString(): String {
+    return Klaxon()
+        .fieldConverter(KlaxonGlowEvent::class, KlaxonGlowEventConverter)
+        .converter(UUIDConverter)
+        .converter(UUIDArrayConverter)
+        .toJsonString(this)
+}
+
 /**
- * Internal representation of the "data" field in the JSON message
- *
- * Has have different concrete type based on "event" field.
+ * Parse JSON to the internal representation [GlowMessage]
  */
-sealed class JsonData
+fun GlowMessage.Companion.fromJsonString(input: String): GlowMessage = Klaxon()
+    .fieldConverter(KlaxonGlowEvent::class, KlaxonGlowEventConverter)
+    .fieldConverter(KlaxonArtNetAddressResult::class, ArtNetAddressResultConverter)
+    .fieldConverter(KlaxonDmxAddressResult::class, DmxAddressResultConverter)
+    .converter(UUIDConverter)
+    .converter(UUIDArrayConverter)
+    .converter(DmxAddressConverter)
+    .converter(ArtNetAddressConverter)
+    .parse<GlowMessage>(StringReader(input))
+    ?: TODO("Error Handling is WIP")
 
-data class JsonDataSubscribe(val stream: String) : JsonData()
-data class JsonDataUnsubscribe(val stream: String) : JsonData()
-data class JsonDataStreamInitialState(val stream: String, val streamUpdateId: Int) : JsonData() // TODO Add Stream Content classes
-data class JsonDataStreamUpdate(val stream: String, val streamUpdateId: Int) : JsonData() // TODO Add Stream Content classes
-data class JsonDataRequestStreamData(val stream: String) : JsonData()
-data class JsonDataError(@Json(index=0) val errorName: String, @Json(index=1) val errorDescription: String): JsonData()
+//-------------------------------
+// Klaxon Adapters and Converters
+//-------------------------------
 
-data class JsonDataAddFixtures(val fixtures: List<AddFixtureData>): JsonData()
-data class JsonDataFixturesAdded(val uuids : List<UUID>): JsonData()
-data class JsonDataUpdateFixture(
-    val uuid: UUID,
-    val fid: Int? = null,
-    val name: String? = null,
-    @ArtNetAddressResult
-    val universe: Result<ArtNetAddress?, Unit> = Err(Unit),
-    @DmxAddressResult
-    val address: Result<DmxAddress?, Unit> = Err(Unit)
-): JsonData()
-data class JsonDataDeleteFixtures(val uuids : List<UUID>): JsonData()
-data class JsonDataFixtureTypeAdded(val fixtureTypeId : UUID): JsonData()
-data class JsonDataDeleteFixtureTypes(val fixtureTypeIds : List<UUID>): JsonData()
-
-data class AddFixtureData(
-    val fid: Int,
-    val name: String,
-    val fixtureTypeId: UUID,
-    val dmxMode: String,
-    val universe: ArtNetAddress?,
-    val address: DmxAddress?,
-)
-
-class JsonDataTypeAdapter: TypeAdapter<JsonData> {
-    override fun classFor(type: Any): KClass<out JsonData> =
-        JsonEvent.fromDescriptor(type as String)?.eventDataClass ?:
+class KlaxonGlowDataTypeAdapter: TypeAdapter<GlowData> {
+    override fun classFor(type: Any): KClass<out GlowData> =
+        GlowEvent.fromString(type as String)?.dataClass ?:
         throw IllegalArgumentException("Unknown JSON event: $type")
 }
 
-val UUIDConverter = object: Converter {
+/**
+ * Provide a Annotation to mark fields and allow Klaxon to use a special converter on all marked fields
+ * See [KlaxonGlowEventConverter] for the special converter and [GlowMessage.event] for the marked field
+ * A Klaxon instance with the linked Annotation and Converter ist used in [GlowMessage.toJsonString]
+ */
+@Target(AnnotationTarget.FIELD)
+annotation class KlaxonGlowEvent
+
+object KlaxonGlowEventConverter: Converter {
+    override fun canConvert(cls: Class<*>): Boolean = cls == GlowEvent::class.java
+
+    override fun toJson(value: Any): String = "\"$value\""
+
+    override fun fromJson(jv: JsonValue): GlowEvent? = GlowEvent.fromString(jv.inside.toString())
+}
+
+object UUIDConverter: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == UUID::class.java
 
@@ -65,7 +79,7 @@ val UUIDConverter = object: Converter {
             = UUID.fromString(jv.string)
 }
 
-val UUIDArrayConverter = object: Converter {
+object UUIDArrayConverter: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == Array<UUID>::class.java
 
@@ -73,10 +87,10 @@ val UUIDArrayConverter = object: Converter {
         .map { it.toString() }.joinToString(",", "[", "]") { "\"" + it + "\"" }
 
     override fun fromJson(jv: JsonValue): Array<UUID>
-            = jv.array?.map{UUID.fromString(it as String)}?.toTypedArray() ?: throw Error("Parsing UUID Array failed")
+            = jv.array?.map{ UUID.fromString(it as String)}?.toTypedArray() ?: throw Error("Parsing UUID Array failed")
 }
 
-val ArtNetAddressConverter = object: Converter {
+object ArtNetAddressConverter: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == ArtNetAddress::class.java
 
@@ -86,7 +100,7 @@ val ArtNetAddressConverter = object: Converter {
             = ArtNetAddress.tryFrom(jv.int ?: throw Error("No Int provided for ArtNetAddress")).unwrap()
 }
 
-val DmxAddressConverter = object: Converter {
+object DmxAddressConverter: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == DmxAddress::class.java
 
@@ -97,8 +111,9 @@ val DmxAddressConverter = object: Converter {
 }
 
 @Target(AnnotationTarget.FIELD)
-annotation class ArtNetAddressResult
-val ArtNetAddressResultConverter = object: Converter {
+annotation class KlaxonArtNetAddressResult
+
+object ArtNetAddressResultConverter: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == Result::class.java
 
@@ -113,8 +128,9 @@ val ArtNetAddressResultConverter = object: Converter {
 
 
 @Target(AnnotationTarget.FIELD)
-annotation class DmxAddressResult
-val DmxAddressResultConverter = object: Converter {
+annotation class KlaxonDmxAddressResult
+
+object DmxAddressResultConverter: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == Result::class.java
 
@@ -126,8 +142,3 @@ val DmxAddressResultConverter = object: Converter {
         return Ok(DmxAddress.tryFrom(value).unwrap())
     }
 }
-
-
-
-
-

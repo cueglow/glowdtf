@@ -1,26 +1,27 @@
 package org.cueglow.server.objects
 
-import org.cueglow.server.json.JsonDataError
-import org.cueglow.server.json.JsonEvent
-import org.cueglow.server.json.JsonMessage
+import org.cueglow.server.json.toJsonString
+import org.cueglow.server.objects.messages.GlowData
+import org.cueglow.server.objects.messages.GlowEvent
+import org.cueglow.server.objects.messages.GlowMessage
 import java.util.*
 
 /**
  * Custom Error Type for CueGlow Server
  *
  * The inheritors of GlowError are meant to be instantiated with the corresponding error information and
- * can then be converted to [JsonMessage] or serialized to JSON directly.
+ * can then be converted to [GlowMessage] or serialized to JSON directly.
  */
 sealed class GlowError(val description: String = "") {
     val name: String = this::class.simpleName ?: "Unnamed GlowError"
 
 
     // TODO move these things into json package -> they don't belong into GlowError because GlowError is API independent
-    fun toJsonString(messageId: Int? = null): String = this.toJsonMessage(messageId).toJsonString()
+    fun toJsonString(messageId: Int? = null): String = this.toGlowMessage(messageId).toJsonString()
 
-    fun toJsonMessage(messageId: Int? = null): JsonMessage = JsonMessage(
-        JsonEvent.ERROR,
-        JsonDataError(name, description),
+    fun toGlowMessage(messageId: Int? = null): GlowMessage = GlowMessage(
+        GlowEvent.ERROR,
+        GlowData.Error(name, description),
         messageId
     )
 }

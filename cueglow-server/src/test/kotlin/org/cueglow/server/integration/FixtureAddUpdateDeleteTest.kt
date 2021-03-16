@@ -3,12 +3,12 @@ package org.cueglow.server.integration
 import com.github.michaelbull.result.unwrap
 import org.awaitility.Awaitility.await
 import org.cueglow.server.gdtf.FixtureType
-import org.cueglow.server.json.JsonDataError
-import org.cueglow.server.json.JsonDataFixturesAdded
-import org.cueglow.server.json.JsonEvent
-import org.cueglow.server.json.parseJsonMessage
+import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
+import org.cueglow.server.objects.messages.GlowData
+import org.cueglow.server.objects.messages.GlowEvent
+import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.patch.Patch
 import org.cueglow.server.patch.PatchFixture
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -37,10 +37,10 @@ fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: Fixture
     wsClient.send(jsonToSend)
 
     val received = wsClient.receiveOneMessageBlocking()
-    val message = parseJsonMessage(received)
+    val message = GlowMessage.fromJsonString(received)
 
-    assertEquals(JsonEvent.FIXTURES_ADDED, message.event)
-    assertEquals(1, (message.data as JsonDataFixturesAdded).uuids.size)
+    assertEquals(GlowEvent.FIXTURES_ADDED, message.event)
+    assertEquals(1, (message.data as GlowData.FixturesAdded).uuids.size)
     assertEquals(42, message.messageId)
 
     val expectedPatchFixture = PatchFixture(
@@ -84,10 +84,10 @@ fun addFixtureInvalidFixtureTypeIdTest(wsClient: WsClient, patch: Patch) {
     wsClient.send(jsonToSend)
 
     val received = wsClient.receiveOneMessageBlocking()
-    val message = parseJsonMessage(received)
+    val message = GlowMessage.fromJsonString(received)
 
-    assertEquals(JsonEvent.ERROR, message.event)
-    assertEquals("UnpatchedFixtureTypeIdError", (message.data as JsonDataError).errorName)
+    assertEquals(GlowEvent.ERROR, message.event)
+    assertEquals("UnpatchedFixtureTypeIdError", (message.data as GlowData.Error).errorName)
     assertEquals(42, message.messageId)
 
     assertEquals(initialFixtureCount, patch.getFixtures().size)
@@ -118,10 +118,10 @@ fun addFixtureInvalidDmxModeTest(wsClient: WsClient, patch: Patch) {
     wsClient.send(jsonToSend)
 
     val received = wsClient.receiveOneMessageBlocking()
-    val message = parseJsonMessage(received)
+    val message = GlowMessage.fromJsonString(received)
 
-    assertEquals(JsonEvent.ERROR, message.event)
-    assertEquals("UnknownDmxModeError", (message.data as JsonDataError).errorName)
+    assertEquals(GlowEvent.ERROR, message.event)
+    assertEquals("UnknownDmxModeError", (message.data as GlowData.Error).errorName)
     assertEquals(42, message.messageId)
 
     assertEquals(initialFixtureCount, patch.getFixtures().size)
@@ -143,10 +143,10 @@ fun updateUnknownFixtureTest(wsClient: WsClient) {
     wsClient.send(jsonToSend)
 
     val received = wsClient.receiveOneMessageBlocking()
-    val message = parseJsonMessage(received)
+    val message = GlowMessage.fromJsonString(received)
 
-    assertEquals(JsonEvent.ERROR, message.event)
-    assertEquals("UnknownFixtureUuidError", (message.data as JsonDataError).errorName)
+    assertEquals(GlowEvent.ERROR, message.event)
+    assertEquals("UnknownFixtureUuidError", (message.data as GlowData.Error).errorName)
     assertEquals(90, message.messageId)
 }
 
@@ -259,19 +259,19 @@ fun deleteInvalidFixtureTest(wsClient: WsClient, patch: Patch) {
 
     wsClient.send(jsonToSend)
 
-    val msg1 = parseJsonMessage(wsClient.receiveOneMessageBlocking())
-    val msg2 = parseJsonMessage(wsClient.receiveOneMessageBlocking())
+    val msg1 = GlowMessage.fromJsonString(wsClient.receiveOneMessageBlocking())
+    val msg2 = GlowMessage.fromJsonString(wsClient.receiveOneMessageBlocking())
 
     // still one fixture in patch
     assertEquals(1, patch.getFixtures().size)
 
-    assertEquals(JsonEvent.ERROR, msg1.event)
-    assertEquals("UnknownFixtureUuidError", (msg1.data as JsonDataError).errorName)
-    assertTrue((msg1.data as JsonDataError).errorDescription.contains(uuid1.toString()))
+    assertEquals(GlowEvent.ERROR, msg1.event)
+    assertEquals("UnknownFixtureUuidError", (msg1.data as GlowData.Error).errorName)
+    assertTrue((msg1.data as GlowData.Error).errorDescription.contains(uuid1.toString()))
 
-    assertEquals(JsonEvent.ERROR, msg2.event)
-    assertEquals("UnknownFixtureUuidError", (msg2.data as JsonDataError).errorName)
-    assertTrue((msg2.data as JsonDataError).errorDescription.contains(uuid2.toString()))
+    assertEquals(GlowEvent.ERROR, msg2.event)
+    assertEquals("UnknownFixtureUuidError", (msg2.data as GlowData.Error).errorName)
+    assertTrue((msg2.data as GlowData.Error).errorDescription.contains(uuid2.toString()))
 }
 
 fun deleteFixtureTest(wsClient: WsClient, patch: Patch) {
