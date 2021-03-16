@@ -2,19 +2,36 @@ package org.cueglow.server.websocket
 
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.StateProvider
+import org.cueglow.server.json.AsyncClient
 import org.cueglow.server.json.JsonHandler
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 
-class WebSocketConnection(val state: StateProvider): WebSocketAdapter(), Logging {
+// TODO move from WebSocketAdapter to own implementation for WebSocketListener to improve null safety
+class WebSocketConnection(val state: StateProvider): WebSocketAdapter(), AsyncClient, Logging {
 
     lateinit var jsonHandler: JsonHandler
 
-    override fun onWebSocketConnect(session: Session) {
-        super.onWebSocketConnect(session)
-        logger.info("WebSocket connection with ${session.remoteAddress} established")
-        val client = WebSocketAsyncClient(session)
-        jsonHandler = JsonHandler(client, state)
+    //--------------------------
+    // AsyncClient functionality
+    //--------------------------
+
+    /**
+     * Sends a message to the WebSocket client.
+     * @throws NullPointerException when the WebSocket is disconnected
+     */
+    override fun send(message: String) {
+        session.remote.sendStringByFuture(message)
+    }
+
+    //-------------------------------
+    // WebSocketAdapter functionality
+    //-------------------------------
+
+    override fun onWebSocketConnect(newSession: Session) {
+        super.onWebSocketConnect(newSession)
+        logger.info("WebSocket connection with ${newSession.remoteAddress} established")
+        jsonHandler = JsonHandler(this, state)
     }
 
     override fun onWebSocketText(message: String?) {

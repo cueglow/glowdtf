@@ -4,7 +4,6 @@ import com.github.michaelbull.result.getOrElse
 import org.cueglow.server.StateProvider
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
-import org.cueglow.server.websocket.AsyncClient
 import java.util.*
 
 /** Represents a Receiver that takes a message string and can answer asynchronously with the provided GlowClient */
