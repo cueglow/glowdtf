@@ -6,6 +6,7 @@ import com.github.michaelbull.result.unwrap
 import io.javalin.http.Context
 import org.cueglow.server.gdtf.SyncGdtfReceiver
 import org.cueglow.server.json.toJsonString
+import org.cueglow.server.objects.GdtfUnmarshalError
 import org.cueglow.server.objects.MissingDescriptionXmlInGdtfError
 import org.cueglow.server.objects.MissingFilePartError
 import org.cueglow.server.objects.messages.GlowData
@@ -34,7 +35,7 @@ fun handleGdtfUpload(ctx: Context, gdtfHandler: SyncGdtfReceiver) {
             ctx.status(200)
             ctx.contentType("application/json")
         }
-        result.getError() is MissingDescriptionXmlInGdtfError -> {
+        result.getError().let {it is MissingDescriptionXmlInGdtfError || it is GdtfUnmarshalError} -> {
             // result is Err
             ctx.status(400)
                 .result(result.getError()?.toJsonString() ?: "")

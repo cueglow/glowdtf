@@ -93,7 +93,7 @@ fun gdtfDeleteTest(wsClient: WsClient, patch: Patch) {
 fun invalidGdtfUploadTest(uploadGdtfFile: (String) -> ResponseResultOf<String>, patch: Patch) {
     val (_, response, _) = uploadGdtfFile("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf.broken")
 
-    assertEquals(500, response.statusCode)
+    assertEquals(400, response.statusCode)
     assertTrue(response.body().asString("text/plain").contains(
         "Duplicate unique value [PanTilt] declared for identity constraint"
     ))
