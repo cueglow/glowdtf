@@ -1,8 +1,10 @@
 package org.cueglow.server.json
 
+import org.cueglow.server.objects.messages.GlowMessage
+
 /**
- * Represents a Client of the Server that can be sent a String message asynchronously (i.e. at any time)
+ * Represents a Client of the Server that can be sent a [GlowMessage] asynchronously (i.e. at any time)
  */
 interface AsyncClient {
-    fun send(message: String)
+    fun send(message: GlowMessage)
 }

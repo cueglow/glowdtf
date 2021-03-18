@@ -4,6 +4,8 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.StateProvider
 import org.cueglow.server.json.AsyncClient
 import org.cueglow.server.json.JsonHandler
+import org.cueglow.server.json.toJsonString
+import org.cueglow.server.objects.messages.GlowMessage
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.WebSocketListener
 
@@ -22,8 +24,12 @@ class WebSocketConnection(val state: StateProvider): WebSocketListener, AsyncCli
      * Sends a message to the WebSocket client.
      * If the client is disconnected, nothing will be done.
      */
-    override fun send(message: String) {
+    fun send(message: String) {
         session?.remote?.sendStringByFuture(message)
+    }
+
+    override fun send(message: GlowMessage) {
+        send(message.toJsonString())
     }
 
     //-------------------------------
