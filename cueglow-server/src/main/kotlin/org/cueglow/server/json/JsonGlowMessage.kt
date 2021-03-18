@@ -19,6 +19,7 @@ import kotlin.reflect.KClass
 // Serialization and Parsing
 //--------------------------
 
+// TODO check if this works with the new GlowMessage design
 /** Convert GlowMessage to JSON String by Extension Function */
 fun GlowMessage.toJsonString(): String {
     return Klaxon()
@@ -28,6 +29,7 @@ fun GlowMessage.toJsonString(): String {
         .toJsonString(this)
 }
 
+// TODO check if this works with the new GlowMessage design
 /**
  * Parse JSON to the internal representation [GlowMessage]
  */

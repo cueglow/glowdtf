@@ -60,7 +60,7 @@ internal class ApiIntegrationTest {
     private val exampleFixtureType = FixtureType(parsedExampleGdtf)
 
     private val examplePatchFixture = PatchFixture(
-        UUID.randomUUID(),
+        UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
         1,
         "exampleFixture",
         exampleFixtureType.fixtureTypeId,
@@ -144,7 +144,13 @@ internal class ApiIntegrationTest {
     @Test
     fun addFixture() {
         setupExampleFixtureType()
-        addFixtureTest(wsClient, patch, exampleFixtureType, examplePatchFixture)
+        addFixtureTest(wsClient, patch, examplePatchFixture)
+    }
+
+    @Test
+    fun addFixtureDuplicateUuid() {
+        setupExampleFixture()
+        addFixtureDuplicateUuidTest(wsClient, patch)
     }
 
     @Test

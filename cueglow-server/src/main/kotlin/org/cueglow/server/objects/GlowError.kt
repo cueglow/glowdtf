@@ -19,8 +19,7 @@ sealed class GlowError(val description: String = "") {
     // TODO move these things into json package -> they don't belong into GlowError because GlowError is API independent
     fun toJsonString(messageId: Int? = null): String = this.toGlowMessage(messageId).toJsonString()
 
-    fun toGlowMessage(messageId: Int? = null): GlowMessage = GlowMessage(
-        GlowEvent.ERROR,
+    fun toGlowMessage(messageId: Int? = null): GlowMessage = GlowMessage.Error(
         GlowData.Error(name, description),
         messageId
     )

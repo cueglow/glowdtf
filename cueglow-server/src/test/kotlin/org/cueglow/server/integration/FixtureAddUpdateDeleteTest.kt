@@ -6,7 +6,6 @@ import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
-import org.cueglow.server.objects.messages.GlowData
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.patch.Patch
@@ -15,61 +14,64 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.util.*
 
-fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: FixtureType, examplePatchFixture: PatchFixture) {
-    val jsonToSend =
-            """{
-                "event": "addFixtures",
-                "data": {
-                    "fixtures": [
-                        {
-                            "fid": 1,
-                            "name": "exampleFixture",
-                            "fixtureTypeId": "7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE",
-                            "dmxMode": "mode1",
-                            "universe": 1,
-                            "address": 1
-                        }
-                    ]
-                },
-                "messageId": 42
-            }""".trimIndent()
+val addFixtureJsonMessage =
+    """{
+        "event": "addFixtures",
+        "data": [
+            {
+                "uuid": "91faaa61-624b-477a-a6c2-de00c717b3e6",
+                "fid": 1,
+                "name": "exampleFixture",
+                "fixtureTypeId": "7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE",
+                "dmxMode": "mode1",
+                "universe": 1,
+                "address": 1
+            }
+        ],
+        "messageId": 42
+    }""".trimIndent()
 
-    wsClient.send(jsonToSend)
+fun addFixtureTest(wsClient: WsClient, patch: Patch, examplePatchFixture: PatchFixture) {
+    wsClient.send(addFixtureJsonMessage)  
 
-    val received = wsClient.receiveOneMessageBlocking()
-    val message = GlowMessage.fromJsonString(received)
+    await().untilAsserted{ assertEquals(1, patch.getFixtures().size) }
 
-    assertEquals(GlowEvent.FIXTURES_ADDED, message.event)
-    assertEquals(1, (message.data as GlowData.FixturesAdded).uuids.size)
+    assertTrue(examplePatchFixture.isSimilar(patch.getFixtures().asSequence().first().value))
+}
+
+fun addFixtureDuplicateUuidTest(wsClient: WsClient, patch: Patch) {
+    wsClient.send(addFixtureJsonMessage)
+
+    val receivedString = wsClient.receiveOneMessageBlocking()
+    val message = GlowMessage.fromJsonString(receivedString)
+
+    assertEquals(GlowEvent.ERROR, message.event)
+    assertEquals("FixtureUuidAlreadyExistsError", (message as GlowMessage.Error).data.errorName)
     assertEquals(42, message.messageId)
 
     assertEquals(1, patch.getFixtures().size)
-
-    assertTrue(examplePatchFixture.isSimilar(patch.getFixtures().asSequence().first().value))
-    // TODO test error responses
 }
 
 fun addFixtureInvalidFixtureTypeIdTest(wsClient: WsClient, patch: Patch) {
     val initialFixtureCount = patch.getFixtures().size
 
-    // changed fixtureTypeId
+    // fixtureTypeId has "3be" at end instead of "4be"
     val jsonToSend =
-        """{
-                "event": "addFixtures",
-                "data": {
-                    "fixtures": [
-                        {
-                            "fid": 1,
-                            "name": "exampleFixture",
-                            "fixtureTypeId": "7FB33577-09C9-4BF0-BE3B-EF0DC3BEF3BE",
-                            "dmxMode": "mode1",
-                            "universe": 1,
-                            "address": 1
-                        }
-                    ]
-                },
-                "messageId": 42
-            }""".trimIndent()
+    """{
+        "event": "addFixtures",
+        "data": [
+            {
+                "uuid": "d81644b3-43e0-4b6d-8df4-e1e8dffaddeb",
+                "fid": 2,
+                "name": "exampleFixture2",
+                "fixtureTypeId": "7FB33577-09C9-4BF0-BE3B-EF0DC3BEF3BE",
+                "dmxMode": "mode1",
+                "universe": 1,
+                "address": 100
+            }
+        ],
+        "messageId": 42
+    }""".trimIndent()
 
     wsClient.send(jsonToSend)
 
@@ -77,7 +79,7 @@ fun addFixtureInvalidFixtureTypeIdTest(wsClient: WsClient, patch: Patch) {
     val message = GlowMessage.fromJsonString(received)
 
     assertEquals(GlowEvent.ERROR, message.event)
-    assertEquals("UnpatchedFixtureTypeIdError", (message.data as GlowData.Error).errorName)
+    assertEquals("UnpatchedFixtureTypeIdError", (message as GlowMessage.Error).data.errorName)
     assertEquals(42, message.messageId)
 
     assertEquals(initialFixtureCount, patch.getFixtures().size)
@@ -89,21 +91,20 @@ fun addFixtureInvalidDmxModeTest(wsClient: WsClient, patch: Patch) {
     // changed dmx mode
     val jsonToSend =
         """{
-                "event": "addFixtures",
-                "data": {
-                    "fixtures": [
-                        {
-                            "fid": 1,
-                            "name": "exampleFixture",
-                            "fixtureTypeId": "7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE",
-                            "dmxMode": "not_a_mode",
-                            "universe": 1,
-                            "address": 1
-                        }
-                    ]
-                },
-                "messageId": 42
-            }""".trimIndent()
+        "event": "addFixtures",
+        "data": [
+            {
+                "uuid": "d81644b3-43e0-4b6d-8df4-e1e8dffaddeb",
+                "fid": 2,
+                "name": "exampleFixture2",
+                "fixtureTypeId": "7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE",
+                "dmxMode": "not_a_mode",
+                "universe": 1,
+                "address": 100
+            }
+        ],
+        "messageId": 42
+    }""".trimIndent()
 
     wsClient.send(jsonToSend)
 
@@ -111,7 +112,7 @@ fun addFixtureInvalidDmxModeTest(wsClient: WsClient, patch: Patch) {
     val message = GlowMessage.fromJsonString(received)
 
     assertEquals(GlowEvent.ERROR, message.event)
-    assertEquals("UnknownDmxModeError", (message.data as GlowData.Error).errorName)
+    assertEquals("UnknownDmxModeError", (message as GlowMessage.Error).data.errorName)
     assertEquals(42, message.messageId)
 
     assertEquals(initialFixtureCount, patch.getFixtures().size)
@@ -136,7 +137,7 @@ fun updateUnknownFixtureTest(wsClient: WsClient) {
     val message = GlowMessage.fromJsonString(received)
 
     assertEquals(GlowEvent.ERROR, message.event)
-    assertEquals("UnknownFixtureUuidError", (message.data as GlowData.Error).errorName)
+    assertEquals("UnknownFixtureUuidError", (message as GlowMessage.Error).data.errorName)
     assertEquals(90, message.messageId)
 }
 
@@ -256,12 +257,12 @@ fun deleteInvalidFixtureTest(wsClient: WsClient, patch: Patch) {
     assertEquals(1, patch.getFixtures().size)
 
     assertEquals(GlowEvent.ERROR, msg1.event)
-    assertEquals("UnknownFixtureUuidError", (msg1.data as GlowData.Error).errorName)
-    assertTrue((msg1.data as GlowData.Error).errorDescription.contains(uuid1.toString()))
+    assertEquals("UnknownFixtureUuidError", (msg1 as GlowMessage.Error).data.errorName)
+    assertTrue(msg1.data.errorDescription.contains(uuid1.toString()))
 
     assertEquals(GlowEvent.ERROR, msg2.event)
-    assertEquals("UnknownFixtureUuidError", (msg2.data as GlowData.Error).errorName)
-    assertTrue((msg2.data as GlowData.Error).errorDescription.contains(uuid2.toString()))
+    assertEquals("UnknownFixtureUuidError", (msg2 as GlowMessage.Error).data.errorName)
+    assertTrue(msg2.data.errorDescription.contains(uuid2.toString()))
 }
 
 fun deleteFixtureTest(wsClient: WsClient, patch: Patch) {

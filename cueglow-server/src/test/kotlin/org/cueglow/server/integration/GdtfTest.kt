@@ -3,7 +3,6 @@ package org.cueglow.server.integration
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import org.awaitility.Awaitility.await
 import org.cueglow.server.json.fromJsonString
-import org.cueglow.server.objects.messages.GlowData
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.patch.Patch
@@ -24,7 +23,7 @@ fun gdtfUploadTest(uploadGdtfFile: (String) -> ResponseResultOf<String>, patch: 
     assertEquals(GlowEvent.FIXTURE_TYPE_ADDED, jsonMessage.event)
 
     val expectedUUID = UUID.fromString("7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE")
-    val returnedUUID = (jsonMessage.data as GlowData.FixtureTypeAdded).fixtureTypeId
+    val returnedUUID = (jsonMessage as GlowMessage.FixtureTypeAdded).data.fixtureTypeId
     assertEquals(expectedUUID, returnedUUID)
 
     // check that fixture is added to Patch
@@ -32,8 +31,6 @@ fun gdtfUploadTest(uploadGdtfFile: (String) -> ResponseResultOf<String>, patch: 
     assertEquals("Robin Esprite", patch.getFixtureTypes()[expectedUUID]?.name)
 
     // TODO check that streamUpdate is delivered (once streams are working)
-
-    // TODO check error response when uploading fixture
 }
 
 fun deleteInvalidFixtureTypesTest(wsClient: WsClient, patch: Patch) {
@@ -61,12 +58,12 @@ fun deleteInvalidFixtureTypesTest(wsClient: WsClient, patch: Patch) {
     assertEquals(1, patch.getFixtureTypes().size)
 
     assertEquals(GlowEvent.ERROR, msg1.event)
-    assertEquals("UnpatchedFixtureTypeIdError", (msg1.data as GlowData.Error).errorName)
-    assertTrue((msg1.data as GlowData.Error).errorDescription.contains(uuid1.toString()))
+    assertEquals("UnpatchedFixtureTypeIdError", (msg1 as GlowMessage.Error).data.errorName)
+    assertTrue(msg1.data.errorDescription.contains(uuid1.toString()))
 
     assertEquals(GlowEvent.ERROR, msg2.event)
-    assertEquals("UnpatchedFixtureTypeIdError", (msg2.data as GlowData.Error).errorName)
-    assertTrue((msg2.data as GlowData.Error).errorDescription.contains(uuid2.toString()))
+    assertEquals("UnpatchedFixtureTypeIdError", (msg2 as GlowMessage.Error).data.errorName)
+    assertTrue(msg2.data.errorDescription.contains(uuid2.toString()))
 }
 
 fun gdtfDeleteTest(wsClient: WsClient, patch: Patch) {
@@ -114,7 +111,7 @@ fun noFilePartInGdtfUploadErrors(uploadGdtfFile: (String, String) -> ResponseRes
 
     val responseJSON = response.body().asString("text/plain")
     val jsonMessage = GlowMessage.fromJsonString(responseJSON)
-    val data = jsonMessage.data as GlowData.Error
+    val data = (jsonMessage as GlowMessage.Error).data
     assertEquals("MissingFilePartError", data.errorName)
     assertNotEquals("", data.errorDescription)
 }
@@ -126,7 +123,7 @@ fun noDescriptionXmlUploadError(uploadGdtfFile: (String) -> ResponseResultOf<Str
 
     val responseJSON = response.body().asString("text/plain")
     val jsonMessage = GlowMessage.fromJsonString(responseJSON)
-    val data = jsonMessage.data as GlowData.Error
+    val data =(jsonMessage as GlowMessage.Error).data
     assertEquals("MissingDescriptionXmlInGdtfError", data.errorName)
     assertNotEquals("", data.errorDescription)
 }

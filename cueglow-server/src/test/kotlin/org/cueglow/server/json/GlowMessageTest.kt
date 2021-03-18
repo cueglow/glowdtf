@@ -23,7 +23,7 @@ class GlowMessageTest {
             }
         """.trimIndent()
 
-        val message = GlowMessage.fromJsonString(jsonString)
+        val message = (GlowMessage.fromJsonString(jsonString) as GlowMessage.Subscribe)
 
         Assertions.assertEquals(GlowEvent.SUBSCRIBE, message.event)
         Assertions.assertEquals(GlowData.Subscribe("patch"), message.data)
@@ -36,12 +36,12 @@ class GlowMessageTest {
         val uuid = UUID.fromString("a5e98b9a-95db-4ab1-92ec-c4b72f1d546c")
         val dataObject = GlowData.FixturesAdded(listOf(uuid))
 
-        val message = GlowMessage(GlowEvent.FIXTURES_ADDED, dataObject, 42)
+        val message = GlowMessage.DeleteFixtures(GlowData.DeleteFixtures(listOf(uuid)), 42)
 
         val jsonString = message.toJsonString()
 
         Assertions.assertEquals(
-            """{"event" : "fixturesAdded", "data" : {"uuids" : ["a5e98b9a-95db-4ab1-92ec-c4b72f1d546c"]}, "messageId" : 42}""".trimIndent(),
+            """{"event" : "deleteFixtures", "data" : {"uuids" : ["a5e98b9a-95db-4ab1-92ec-c4b72f1d546c"]}, "messageId" : 42}""".trimIndent(),
             jsonString
         )
     }

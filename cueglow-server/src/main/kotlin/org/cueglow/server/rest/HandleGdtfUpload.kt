@@ -27,8 +27,7 @@ fun handleGdtfUpload(ctx: Context, gdtfHandler: SyncGdtfReceiver) {
     when {
         result is Ok -> {
             // return 200 with FixtureTypeId in JSON Message
-            val jsonResponse = GlowMessage(
-                GlowEvent.FIXTURE_TYPE_ADDED,
+            val jsonResponse = GlowMessage.FixtureTypeAdded(
                 GlowData.FixtureTypeAdded(result.unwrap())
             ).toJsonString()
             ctx.result(jsonResponse)

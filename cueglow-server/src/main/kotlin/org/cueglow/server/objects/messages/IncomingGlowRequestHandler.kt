@@ -1,12 +1,13 @@
 package org.cueglow.server.objects.messages
 
 import com.github.michaelbull.result.getOrElse
+import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.StateProvider
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
 import java.util.*
 
-abstract class IncomingGlowRequestHandler(private val state: StateProvider) {
+abstract class IncomingGlowRequestHandler(private val state: StateProvider): Logging {
     fun handle(request: GlowRequest) {
         when (request.originalMessage.event) {
             // TODO remove events that shouldn't come from outside and handle them with Error in else clause
@@ -26,46 +27,32 @@ abstract class IncomingGlowRequestHandler(private val state: StateProvider) {
     }
 
     private fun handleAddFixtures(request: GlowRequest) {
-        val data = (request.originalMessage.data as GlowData.AddFixtures)
-        val fixtures: List<PatchFixture> = data.fixtures.map {
-            PatchFixture(
-                uuid = UUID.randomUUID(),
-                fid = it.fid,
-                name = it.name,
-                fixtureTypeId = it.fixtureTypeId,
-                dmxMode = it.dmxMode,
-                universe = it.universe,
-                address = it.address,
-            )
-        }
+        val fixtures = (request.originalMessage as GlowMessage.AddFixtures).data
 
         state.patch.addFixtures(fixtures).getOrElse { errorList ->
             errorList.forEach {
                 request.answer(it)
-                return
-            } }
-
-        // note: will not answer if only some fixtures were added
-        // reason: future API will remove this response
-        request.answer(GlowData.FixturesAdded(fixtures.map{it.uuid}))
+                logger.warn("Adding fixture to the Patch failed. ${it.description}")
+            }
+        }
     }
 
     private fun handleDeleteFixtureTypes(glowRequest: GlowRequest) {
-        val idsToDelete = (glowRequest.originalMessage.data as GlowData.DeleteFixtureTypes).fixtureTypeIds
+        val idsToDelete = (glowRequest.originalMessage as GlowMessage.DeleteFixtureTypes).data.fixtureTypeIds
         state.patch.removeFixtureTypes(idsToDelete).getOrElse { errorList ->
             errorList.forEach { glowRequest.answer(it) }
         }
     }
 
     private fun handleDeleteFixtures(glowRequest: GlowRequest) {
-        val uuidsToDelete = (glowRequest.originalMessage.data as GlowData.DeleteFixtures).uuids
+        val uuidsToDelete = (glowRequest.originalMessage as GlowMessage.DeleteFixtures).data.uuids
         state.patch.removeFixtures(uuidsToDelete).getOrElse { errorList ->
             errorList.forEach {glowRequest.answer(it)}
         }
     }
 
     private fun handleUpdateFixture(glowRequest: GlowRequest) {
-        val data = (glowRequest.originalMessage.data as GlowData.UpdateFixture)
+        val data = (glowRequest.originalMessage as GlowMessage.UpdateFixture).data
 
         val update = PatchFixtureUpdate(
             uuid = data.uuid,
