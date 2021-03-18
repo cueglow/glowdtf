@@ -2,7 +2,6 @@ package org.cueglow.server.objects
 
 import org.cueglow.server.json.toJsonString
 import org.cueglow.server.objects.messages.GlowData
-import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
 import java.util.*
 

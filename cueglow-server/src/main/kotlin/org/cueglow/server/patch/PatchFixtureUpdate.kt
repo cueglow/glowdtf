@@ -2,6 +2,8 @@ package org.cueglow.server.patch
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
+import org.cueglow.server.json.KlaxonArtNetAddressUpdate
+import org.cueglow.server.json.KlaxonDmxAddressUpdate
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import java.util.*
@@ -16,6 +18,8 @@ data class PatchFixtureUpdate(
     val uuid: UUID,
     val fid: Int? = null,
     val name: String? = null,
+    @KlaxonArtNetAddressUpdate
     val universe: Result<ArtNetAddress?, Unit> = Err(Unit),
+    @KlaxonDmxAddressUpdate
     val address: Result<DmxAddress?, Unit> = Err(Unit),
 )

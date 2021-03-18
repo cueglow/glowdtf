@@ -34,7 +34,6 @@ class GlowMessageTest {
     @Test
     fun serializeGlowMessageToJsonString() {
         val uuid = UUID.fromString("a5e98b9a-95db-4ab1-92ec-c4b72f1d546c")
-        val dataObject = GlowData.FixturesAdded(listOf(uuid))
 
         val message = GlowMessage.DeleteFixtures(GlowData.DeleteFixtures(listOf(uuid)), 42)
 

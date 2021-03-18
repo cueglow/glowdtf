@@ -10,7 +10,6 @@ import org.cueglow.server.objects.GdtfUnmarshalError
 import org.cueglow.server.objects.MissingDescriptionXmlInGdtfError
 import org.cueglow.server.objects.MissingFilePartError
 import org.cueglow.server.objects.messages.GlowData
-import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
 
 /**
