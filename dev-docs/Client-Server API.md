@@ -426,8 +426,8 @@ POST /api/fixturetype/
 where a GDTF file according to GDTF 1.1 (DIN 15800:2020-07) must be sent in the
 field `file`. 
 
-The server then responds via HTTP with an error (see JSON API) or an
-acknowledgement of the form: 
+If everything went well, the server responds with a status code 200 and a JSON
+payload of the form: 
 
 ```json
 {
@@ -437,3 +437,7 @@ acknowledgement of the form:
     }
 }
 ```
+
+If the server encountered an error while processing the request, he will answer
+with an appropriate HTTP error status code and a JSON `error` event (see JSON
+API) as payload. 
