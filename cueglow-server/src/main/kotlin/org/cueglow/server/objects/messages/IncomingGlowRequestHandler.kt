@@ -6,7 +6,7 @@ import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
 import java.util.*
 
-abstract class IncomingGlowMessageHandler(private val state: StateProvider) {
+abstract class IncomingGlowRequestHandler(private val state: StateProvider) {
     fun handle(request: GlowRequest) {
         when (request.originalMessage.event) {
             // TODO remove events that shouldn't come from outside and handle them with Error in else clause
