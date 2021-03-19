@@ -37,6 +37,13 @@ internal class ApiIntegrationTest {
     //-----------------------------------------------------
     // Initialization
     //-----------------------------------------------------
+    private val startTime = System.nanoTime()
+
+    fun printElapsed() {
+        val elapsed = (System.nanoTime() - startTime)/1e6
+        println("$elapsed ms elapsed")
+    }
+
     private val server = CueGlowServer()
 
     private val patch = server.state.patch
@@ -135,6 +142,7 @@ internal class ApiIntegrationTest {
     fun teardown() {
         wsClient.closeBlocking()
         server.stop()
+        printElapsed()
     }
 
     private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
