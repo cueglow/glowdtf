@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.util.*
 
-fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: FixtureType) {
+fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: FixtureType, examplePatchFixture: PatchFixture) {
     val jsonToSend =
             """{
                 "event": "addFixtures",
@@ -43,19 +43,9 @@ fun addFixtureTest(wsClient: WsClient, patch: Patch, exampleFixtureType: Fixture
     assertEquals(1, (message.data as GlowData.FixturesAdded).uuids.size)
     assertEquals(42, message.messageId)
 
-    val expectedPatchFixture = PatchFixture(
-        UUID.randomUUID(),
-        1,
-        "exampleFixture",
-        exampleFixtureType.fixtureTypeId,
-        "mode1",
-        ArtNetAddress.tryFrom(1).unwrap(),
-        DmxAddress.tryFrom(1).unwrap(),
-    )
-
     assertEquals(1, patch.getFixtures().size)
 
-    assertTrue(expectedPatchFixture.isSimilar(patch.getFixtures().asSequence().first().value))
+    assertTrue(examplePatchFixture.isSimilar(patch.getFixtures().asSequence().first().value))
     // TODO test error responses
 }
 

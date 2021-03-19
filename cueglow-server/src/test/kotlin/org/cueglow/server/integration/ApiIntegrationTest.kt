@@ -11,6 +11,10 @@ import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.CueGlowServer
 import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.gdtf.parseGdtf
+import org.cueglow.server.objects.ArtNetAddress
+import org.cueglow.server.objects.DmxAddress
+import org.cueglow.server.patch.Patch
+import org.cueglow.server.patch.PatchFixture
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.junit.jupiter.api.*
@@ -19,6 +23,8 @@ import java.io.File
 import java.io.InputStream
 import java.net.URI
 import java.time.Duration
+import java.util.*
+import kotlin.collections.ArrayDeque
 
 /**
  * Tests the WebSocket and RESt API in one stateful sweep.
@@ -44,15 +50,13 @@ internal class ApiIntegrationTest {
         println("$elapsed ms elapsed")
     }
 
-    private val server = CueGlowServer()
+    private lateinit var server: CueGlowServer
 
-    private val patch = server.state.patch
+    private lateinit var patch: Patch
 
-    private val wsClient = WsClient(URI("ws://localhost:7000/ws"))
+    private lateinit var wsClient: WsClient
 
     init {
-        wsClient.connectBlocking()
-
         Awaitility.setDefaultPollInterval(fibonacci())
         Awaitility.setDefaultTimeout(Duration.ofSeconds(2))
     }
@@ -62,6 +66,30 @@ internal class ApiIntegrationTest {
     throw Error("inputStream is Null")
     private val parsedGdtf = parseGdtf(inputStream).unwrap()
     private val exampleFixtureType = FixtureType(parsedGdtf)
+
+    val examplePatchFixture = PatchFixture(
+        UUID.randomUUID(),
+        1,
+        "exampleFixture",
+        exampleFixtureType.fixtureTypeId,
+        "mode1",
+        ArtNetAddress.tryFrom(1).unwrap(),
+        DmxAddress.tryFrom(1).unwrap(),
+    )
+
+    @BeforeEach
+    fun setup() {
+        server = CueGlowServer()
+        patch = server.state.patch
+        wsClient = WsClient(URI("ws://localhost:7000/ws"))
+        wsClient.connectBlocking()
+    }
+
+    @AfterEach
+    fun teardown() {
+        wsClient.closeBlocking()
+        server.stop()
+    }
 
     //----------------------------
     // Test Series 1
@@ -75,48 +103,87 @@ internal class ApiIntegrationTest {
 
     @Test
     @Order(50)
-    fun addFixture() = addFixtureTest(wsClient, patch, exampleFixtureType)
+    fun addFixture() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        addFixtureTest(wsClient, patch, exampleFixtureType, examplePatchFixture)
+    }
 
     @Test
     @Order(75)
-    fun addFixtureInvalidFixtureTypeId() = addFixtureInvalidFixtureTypeIdTest(wsClient, patch)
+    fun addFixtureInvalidFixtureTypeId() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        addFixtureInvalidFixtureTypeIdTest(wsClient, patch)
+    }
 
     @Test
     @Order(87)
-    fun addFixtureInvalidDmxMode() = addFixtureInvalidDmxModeTest(wsClient, patch)
+    fun addFixtureInvalidDmxMode() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        addFixtureInvalidDmxModeTest(wsClient, patch)
+    }
 
     // Update Fixture
     @Test
     @Order(90)
-    fun updateUnknownFixture() = updateUnknownFixtureTest(wsClient)
+    fun updateUnknownFixture() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        patch.addFixtures(listOf(examplePatchFixture))
+        updateUnknownFixtureTest(wsClient)
+    }
 
     @Test
     @Order(93)
-    fun updateAddress() = updateAddressTest(wsClient, patch)
+    fun updateAddress() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        patch.addFixtures(listOf(examplePatchFixture))
+        updateAddressTest(wsClient, patch)
+    }
 
     @Test
     @Order(96)
-    fun updateUniverse() = updateUniverseTest(wsClient, patch)
+    fun updateUniverse() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        patch.addFixtures(listOf(examplePatchFixture))
+        updateUniverseTest(wsClient, patch)
+    }
 
     @Test
     @Order(97)
-    fun updateNameAndFid() = updateNameAndFidTest(wsClient, patch)
+    fun updateNameAndFid() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        patch.addFixtures(listOf(examplePatchFixture))
+        updateNameAndFidTest(wsClient, patch)
+    }
 
     @Test
     @Order(98)
-    fun deleteInvalidFixture() = deleteInvalidFixtureTest(wsClient, patch)
+    fun deleteInvalidFixture() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        patch.addFixtures(listOf(examplePatchFixture))
+        deleteInvalidFixtureTest(wsClient, patch)
+    }
 
     @Test
     @Order(99)
-    fun deleteFixture() = deleteFixtureTest(wsClient, patch)
+    fun deleteFixture() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        patch.addFixtures(listOf(examplePatchFixture))
+        deleteFixtureTest(wsClient, patch)
+    }
 
     @Test
     @Order(100)
-    fun deleteInvalidFixtureTypes() = deleteInvalidFixtureTypesTest(wsClient, patch)
+    fun deleteInvalidFixtureTypes() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        deleteInvalidFixtureTypesTest(wsClient, patch)
+    }
 
     @Test
     @Order(150)
-    fun deleteGdtfFixtureType() = gdtfDeleteTest(wsClient, patch)
+    fun deleteGdtfFixtureType() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        gdtfDeleteTest(wsClient, patch)
+    }
 
     //-----------------------------------------------------
     // Invalid GDTF Upload Tests (don't change state)
@@ -139,9 +206,7 @@ internal class ApiIntegrationTest {
     //-----------------------------------------------------
 
     @AfterAll
-    fun teardown() {
-        wsClient.closeBlocking()
-        server.stop()
+    fun shutdown() {
         printElapsed()
     }
 
