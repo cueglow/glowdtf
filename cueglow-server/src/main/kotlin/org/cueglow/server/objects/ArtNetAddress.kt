@@ -13,7 +13,7 @@ import org.cueglow.server.objects.messages.*
  *
  * @property[value] A Short representing the 15-bit Port-Address.
  */
-class ArtNetAddress private constructor(val value: Short) {
+data class ArtNetAddress constructor(val value: Short) {
 
     companion object Factory {
         /**

@@ -16,7 +16,7 @@ import org.cueglow.server.objects.messages.InvalidDmxAddress
  *
  * @property[value] A Short representing the DMX Address.
  */
-class DmxAddress private constructor(val value: Short) {
+data class DmxAddress constructor(val value: Short) {
     companion object Factory {
         /**
          * Instantiate DmxAddress from Short.
