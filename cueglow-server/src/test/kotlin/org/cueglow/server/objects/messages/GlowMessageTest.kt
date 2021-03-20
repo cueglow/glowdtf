@@ -37,6 +37,9 @@ class GlowMessageTest {
 
         assertEquals(expectedJson, glowMessage.toJsonString())
 
-        assertEquals(glowMessage, GlowMessage.fromJsonString(expectedJson))
+        val parsed = GlowMessage.fromJsonString(expectedJson)
+
+        assertEquals(glowMessage.event, parsed.event)
+        assertEquals(glowMessage.messageId, parsed.messageId)
     }
 }

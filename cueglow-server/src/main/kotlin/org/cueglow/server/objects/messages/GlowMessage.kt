@@ -18,7 +18,7 @@ import java.util.*
 sealed class GlowMessage constructor(
     @Json(index = 0)
     val event: GlowEvent,
-    @Json(index = 2)
+    @Json(index = 2, serializeNull = false)
     val messageId: Int?,
 ) {
     class PatchSubscribe(): GlowMessage(GlowEvent.PATCH_SUBSCRIBE, null)
