@@ -9,6 +9,7 @@ abstract class IncomingGlowRequestHandler(private val state: StateProvider): Log
         when (request.originalMessage.event) {
             // TODO remove events that shouldn't come from outside and handle them with Error in else clause
             GlowEvent.PATCH_SUBSCRIBE -> TODO()
+            GlowEvent.PATCH_UNSUBSCRIBE -> TODO()
             GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> handleAddFixtures(request)
             GlowEvent.UPDATE_FIXTURES -> handleUpdateFixture(request)

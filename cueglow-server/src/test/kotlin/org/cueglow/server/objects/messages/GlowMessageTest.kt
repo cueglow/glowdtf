@@ -49,6 +49,21 @@ class GlowMessageTest {
     }
 
     @Test
+    fun testPatchUnsubscribe() {
+        val glowMessage = GlowMessage.PatchUnsubscribe()
+
+        val expectedJson =
+            """{"event" : "patchUnsubscribe"}""".trimIndent()
+
+        assertEquals(expectedJson, glowMessage.toJsonString())
+
+        val parsed = GlowMessage.fromJsonString(expectedJson)
+
+        assertEquals(glowMessage.event, parsed.event)
+        assertEquals(glowMessage.messageId, parsed.messageId)
+    }
+
+    @Test
     fun testPatchFixtureUpdate() {
         val uuid = UUID.fromString("132a4794-e7fe-4e19-9e26-ce0f09663625")
         val update = PatchFixtureUpdate(

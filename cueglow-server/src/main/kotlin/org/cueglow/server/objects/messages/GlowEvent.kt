@@ -7,16 +7,22 @@ import kotlin.reflect.KClass
  * The different events in the [GlowMessage]
  */
 enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessage>?) {
-
-    PATCH_SUBSCRIBE("patchSubscribe", GlowMessage.PatchSubscribe::class),
+    // Generic
 
     ERROR("error", GlowMessage.Error::class),
+
+    // Patch-specific
+
+    PATCH_SUBSCRIBE("patchSubscribe", GlowMessage.PatchSubscribe::class),
+    PATCH_UNSUBSCRIBE("patchUnsubscribe", GlowMessage.PatchUnsubscribe::class),
 
     ADD_FIXTURES("addFixtures", GlowMessage.AddFixtures::class),
     UPDATE_FIXTURES("updateFixtures", GlowMessage.UpdateFixtures::class),
     REMOVE_FIXTURES("removeFixtures", GlowMessage.RemoveFixtures::class),
-    FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowMessage.FixtureTypeAdded::class),
-    REMOVE_FIXTURE_TYPES("removeFixtureTypes", GlowMessage.RemoveFixtureTypes::class),;
+
+    REMOVE_FIXTURE_TYPES("removeFixtureTypes", GlowMessage.RemoveFixtureTypes::class),
+
+    FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowMessage.FixtureTypeAdded::class),;
 
     override fun toString(): String {
         return string
