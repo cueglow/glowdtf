@@ -2,6 +2,8 @@ package org.cueglow.server.objects.messages
 
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
+import org.cueglow.server.gdtf.FixtureType
+import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.json.toJsonString
 import org.cueglow.server.objects.DmxAddress
@@ -10,6 +12,7 @@ import org.cueglow.server.patch.PatchFixtureUpdate
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.io.InputStream
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -102,5 +105,23 @@ class GlowMessageTest {
         val serialized = glowMessage.toJsonString()
         assertFalse(serialized.contains("address"))
         assertFalse(serialized.contains("universe"))
+    }
+
+    private val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
+    private val exampleGdtfInputStream: InputStream =
+        javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?: throw Error("inputStream is Null")
+    private val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream).unwrap()
+    private val exampleFixtureType = FixtureType(parsedExampleGdtf)
+
+    @Test
+    fun addFixtureTypesSnapshotTest() {
+        val glowMessage = GlowMessage.AddFixtureTypes(listOf(exampleFixtureType))
+        val serialized = glowMessage.toJsonString()
+        println(serialized)
+        // this is just a snapshot test! Will break in the future.
+        assertEquals(
+            """{"event" : "addFixtureTypes", "data" : [{"fixtureTypeId" : "7fb33577-09c9-4bf0-be3b-ef0dc3bef4be", "manufacturer" : "Robe lighting", "modes" : [{"channelCount" : 49, "name" : "mode1"}, {"channelCount" : 42, "name" : "mode 2"}], "name" : "Robin Esprite"}]}""",
+            serialized
+        )
     }
 }

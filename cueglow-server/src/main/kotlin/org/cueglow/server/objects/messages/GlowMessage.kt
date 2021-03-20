@@ -2,6 +2,7 @@ package org.cueglow.server.objects.messages
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.TypeFor
+import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.json.KlaxonGlowMessageAdapter
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
@@ -34,6 +35,7 @@ sealed class GlowMessage constructor(
     class UpdateFixtures(@Json(index=1) val data: List<PatchFixtureUpdate>, messageId: Int? = null): GlowMessage(GlowEvent.UPDATE_FIXTURES, messageId)
     class RemoveFixtures(@Json(index=1) val data: List<UUID>, messageId: Int? = null): GlowMessage(GlowEvent.REMOVE_FIXTURES, messageId)
 
+    class AddFixtureTypes(@Json(index=1) val data: List<FixtureType>, messageId: Int? = null): GlowMessage(GlowEvent.ADD_FIXTURE_TYPES, messageId)
     class RemoveFixtureTypes(@Json(index=1) val data: List<UUID>, messageId: Int? = null): GlowMessage(GlowEvent.REMOVE_FIXTURE_TYPES, messageId)
 
     class FixtureTypeAdded(@Json(index=1) val data: UUID, messageId: Int? = null): GlowMessage(GlowEvent.FIXTURE_TYPE_ADDED, messageId)
