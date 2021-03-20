@@ -10,7 +10,6 @@ import java.util.*
 sealed class GlowData {
     data class Subscribe(val stream: String) : GlowData()
 
-    data class DeleteFixtures(val uuids : List<UUID>): GlowData()
     data class FixtureTypeAdded(val fixtureTypeId : UUID): GlowData()
     data class DeleteFixtureTypes(val fixtureTypeIds : List<UUID>): GlowData()
 }

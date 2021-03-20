@@ -5,6 +5,7 @@ import com.beust.klaxon.TypeFor
 import org.cueglow.server.json.KlaxonGlowMessageAdapter
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
+import java.util.*
 
 /**
  * Represents a message inside CueGlow that may be parsed from or serialized to different formats like JSON
@@ -24,7 +25,7 @@ sealed class GlowMessage constructor(
 
     class AddFixtures(@Json(index=1) val data: List<PatchFixture>, messageId: Int? = null): GlowMessage(GlowEvent.ADD_FIXTURES, messageId)
     class UpdateFixtures(@Json(index=1) val data: List<PatchFixtureUpdate>, messageId: Int? = null): GlowMessage(GlowEvent.UPDATE_FIXTURES, messageId)
-    class DeleteFixtures(@Json(index=1) val data: GlowData.DeleteFixtures, messageId: Int? = null): GlowMessage(GlowEvent.DELETE_FIXTURES, messageId)
+    class RemoveFixtures(@Json(index=1) val data: List<UUID>, messageId: Int? = null): GlowMessage(GlowEvent.REMOVE_FIXTURES, messageId)
 
     class Error(@Json(index=1) val data: GlowError, messageId: Int? = null): GlowMessage(GlowEvent.ERROR, messageId)
 

@@ -9,16 +9,14 @@ import org.junit.jupiter.api.Assertions
 import java.util.*
 
 
-fun deleteInvalidFixtureTest(wsClient: WsClient, patch: Patch) {
+fun removeInvalidFixtureTest(wsClient: WsClient, patch: Patch) {
     val uuid1 = UUID.fromString("753eca6f-f5a8-4e0d-8907-16074534e08f")
     val uuid2 = UUID.fromString("9cf0450d-cef1-47e6-b467-631c4cfe45e7")
 
     val jsonToSend =
         """{
-            "event": "deleteFixtures",
-            "data": {
-                "uuids": ["$uuid1", "$uuid2"]
-            },
+            "event": "removeFixtures",
+            "data": ["$uuid1", "$uuid2"],
             "messageId": 729
         }""".trimIndent()
 
@@ -39,16 +37,14 @@ fun deleteInvalidFixtureTest(wsClient: WsClient, patch: Patch) {
     Assertions.assertTrue(msg2.data.description.contains(uuid2.toString()))
 }
 
-fun deleteFixtureTest(wsClient: WsClient, patch: Patch) {
+fun removeFixtureTest(wsClient: WsClient, patch: Patch) {
     val uuidToModify = patch.getFixtures().keys.first()
 
     val jsonToSend =
         """{
-            "event": "deleteFixtures",
-            "data": {
-                "uuids": ["$uuidToModify"]
-            },
-            "messageId": 729
+            "event": "removeFixtures",
+            "data": ["$uuidToModify"],
+            "messageId": 730
         }""".trimIndent()
 
     wsClient.send(jsonToSend)

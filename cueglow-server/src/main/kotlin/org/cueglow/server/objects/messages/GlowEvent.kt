@@ -14,7 +14,7 @@ enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessag
 
     ADD_FIXTURES("addFixtures", GlowMessage.AddFixtures::class),
     UPDATE_FIXTURES("updateFixtures", GlowMessage.UpdateFixtures::class),
-    DELETE_FIXTURES("deleteFixtures", GlowMessage.DeleteFixtures::class),
+    REMOVE_FIXTURES("removeFixtures", GlowMessage.RemoveFixtures::class),
     FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowMessage.FixtureTypeAdded::class),
     DELETE_FIXTURE_TYPES("deleteFixtureTypes", GlowMessage.DeleteFixtureTypes::class),;
 

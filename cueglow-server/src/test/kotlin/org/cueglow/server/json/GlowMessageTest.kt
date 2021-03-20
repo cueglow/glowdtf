@@ -35,12 +35,12 @@ class GlowMessageTest {
     fun serializeGlowMessageToJsonString() {
         val uuid = UUID.fromString("a5e98b9a-95db-4ab1-92ec-c4b72f1d546c")
 
-        val message = GlowMessage.DeleteFixtures(GlowData.DeleteFixtures(listOf(uuid)), 42)
+        val message = GlowMessage.RemoveFixtures(listOf(uuid), 42)
 
         val jsonString = message.toJsonString()
 
         Assertions.assertEquals(
-            """{"event" : "deleteFixtures", "data" : {"uuids" : ["a5e98b9a-95db-4ab1-92ec-c4b72f1d546c"]}, "messageId" : 42}""".trimIndent(),
+            """{"event" : "removeFixtures", "data" : ["a5e98b9a-95db-4ab1-92ec-c4b72f1d546c"], "messageId" : 42}""".trimIndent(),
             jsonString
         )
     }

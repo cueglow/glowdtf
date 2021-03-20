@@ -191,17 +191,17 @@ internal class ApiIntegrationTest {
         updateNameAndFidTest(wsClient, patch)
     }
 
-    // Delete Fixture Tests
+    // Remove Fixture Tests
 
     @Test
-    fun deleteInvalidFixture() {
+    fun removeInvalidFixture() {
         setupExampleFixture()
-        deleteInvalidFixtureTest(wsClient, patch)
+        removeInvalidFixtureTest(wsClient, patch)
     }
 
     @Test
-    fun deleteFixture() {
+    fun removeFixture() {
         setupExampleFixture()
-        deleteFixtureTest(wsClient, patch)
+        removeFixtureTest(wsClient, patch)
     }
 }
