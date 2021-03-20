@@ -80,4 +80,16 @@ internal class PatchTest {
         assertTrue(patch.getFixtures().isEmpty())
         assertTrue(patch.getFixtureTypes().isEmpty())
     }
+
+    @Test
+    fun getGlowPatchIsImmutable() {
+        val patch = Patch()
+        patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
+        patch.addFixtures(listOf(exampleFixture)).unwrap()
+        val glowPatch = patch.getGlowPatch()
+        assertEquals(1, glowPatch.fixtures.size)
+        patch.addFixtures(listOf(exampleFixture2)).unwrap()
+        assertEquals(2, patch.getFixtures().size)
+        assertEquals(1, glowPatch.fixtures.size)
+    }
 }

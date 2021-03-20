@@ -29,6 +29,7 @@ sealed class GlowMessage constructor(
     // Patch-specific
 
     class PatchSubscribe(): GlowMessage(GlowEvent.PATCH_SUBSCRIBE, null)
+    class PatchInitialState(@Json(index=1) val data: GlowPatch): GlowMessage(GlowEvent.PATCH_INITIAL_STATE, null)
     class PatchUnsubscribe(): GlowMessage(GlowEvent.PATCH_UNSUBSCRIBE, null)
 
     class AddFixtures(@Json(index=1) val data: List<PatchFixture>, messageId: Int? = null): GlowMessage(GlowEvent.ADD_FIXTURES, messageId)

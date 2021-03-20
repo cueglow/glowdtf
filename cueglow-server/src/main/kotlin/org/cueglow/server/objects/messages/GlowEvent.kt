@@ -14,6 +14,7 @@ enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessag
     // Patch-specific
 
     PATCH_SUBSCRIBE("patchSubscribe", GlowMessage.PatchSubscribe::class),
+    PATCH_INITIAL_STATE("patchInitialState", GlowMessage.PatchInitialState::class),
     PATCH_UNSUBSCRIBE("patchUnsubscribe", GlowMessage.PatchUnsubscribe::class),
 
     ADD_FIXTURES("addFixtures", GlowMessage.AddFixtures::class),

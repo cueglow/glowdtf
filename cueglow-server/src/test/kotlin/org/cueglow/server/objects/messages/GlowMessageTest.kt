@@ -6,6 +6,7 @@ import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.json.toJsonString
+import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
@@ -113,6 +114,16 @@ class GlowMessageTest {
     private val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream).unwrap()
     private val exampleFixtureType = FixtureType(parsedExampleGdtf)
 
+    private val examplePatchFixture = PatchFixture(
+        UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
+        1,
+        "exampleFixture",
+        exampleFixtureType.fixtureTypeId,
+        "mode1",
+        ArtNetAddress.tryFrom(1).unwrap(),
+        DmxAddress.tryFrom(1).unwrap(),
+    )
+
     @Test
     fun addFixtureTypesSnapshotTest() {
         val glowMessage = GlowMessage.AddFixtureTypes(listOf(exampleFixtureType))
@@ -121,6 +132,20 @@ class GlowMessageTest {
         // this is just a snapshot test! Will break in the future.
         assertEquals(
             """{"event" : "addFixtureTypes", "data" : [{"fixtureTypeId" : "7fb33577-09c9-4bf0-be3b-ef0dc3bef4be", "manufacturer" : "Robe lighting", "modes" : [{"channelCount" : 49, "name" : "mode1"}, {"channelCount" : 42, "name" : "mode 2"}], "name" : "Robin Esprite"}]}""",
+
+            serialized
+        )
+    }
+
+    @Test
+    fun patchInitialStateSnapshotTest() {
+        val glowPatch = GlowPatch(listOf(examplePatchFixture), listOf(exampleFixtureType))
+        val glowMessage = GlowMessage.PatchInitialState(glowPatch)
+        val serialized = glowMessage.toJsonString()
+        println(serialized)
+        // this is just a snapshot test! Will break in the future.
+        assertEquals(
+            """{"event" : "patchInitialState", "data" : {"fixtures" : [{"address" : 1, "dmxMode" : "mode1", "fid" : 1, "fixtureTypeId" : "7fb33577-09c9-4bf0-be3b-ef0dc3bef4be", "name" : "exampleFixture", "universe" : 1, "uuid" : "91faaa61-624b-477a-a6c2-de00c717b3e6"}], "fixtureTypes" : [{"fixtureTypeId" : "7fb33577-09c9-4bf0-be3b-ef0dc3bef4be", "manufacturer" : "Robe lighting", "modes" : [{"channelCount" : 49, "name" : "mode1"}, {"channelCount" : 42, "name" : "mode 2"}], "name" : "Robin Esprite"}]}}""",
             serialized
         )
     }

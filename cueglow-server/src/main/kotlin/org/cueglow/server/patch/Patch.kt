@@ -20,6 +20,9 @@ class Patch {
 
     fun getFixtureTypes() = ImmutableMap(this.fixtureTypes)
 
+    /** Returns an immutable copy of the Patch */
+    fun getGlowPatch(): GlowPatch = GlowPatch(fixtures.values.toList(), fixtureTypes.values.toList())
+
     // -------------------
     // Modify Fixture List
     // -------------------
