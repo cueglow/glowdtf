@@ -1,18 +1,13 @@
 package org.cueglow.server.integration
 
-import com.github.michaelbull.result.unwrap
 import org.awaitility.Awaitility.await
-import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.json.fromJsonString
-import org.cueglow.server.objects.ArtNetAddress
-import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.patch.Patch
 import org.cueglow.server.patch.PatchFixture
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import java.util.*
 
 val addFixtureJsonMessage =
     """{
@@ -32,7 +27,7 @@ val addFixtureJsonMessage =
     }""".trimIndent()
 
 fun addFixtureTest(wsClient: WsClient, patch: Patch, examplePatchFixture: PatchFixture) {
-    wsClient.send(addFixtureJsonMessage)  
+    wsClient.send(addFixtureJsonMessage)
 
     await().untilAsserted{ assertEquals(1, patch.getFixtures().size) }
 
@@ -46,7 +41,7 @@ fun addFixtureDuplicateUuidTest(wsClient: WsClient, patch: Patch) {
     val message = GlowMessage.fromJsonString(receivedString)
 
     assertEquals(GlowEvent.ERROR, message.event)
-    assertEquals("FixtureUuidAlreadyExistsError", (message as GlowMessage.Error).data.errorName)
+    assertEquals("FixtureUuidAlreadyExistsError", (message as GlowMessage.Error).data.name)
     assertEquals(42, message.messageId)
 
     assertEquals(1, patch.getFixtures().size)
@@ -79,7 +74,7 @@ fun addFixtureInvalidFixtureTypeIdTest(wsClient: WsClient, patch: Patch) {
     val message = GlowMessage.fromJsonString(received)
 
     assertEquals(GlowEvent.ERROR, message.event)
-    assertEquals("UnpatchedFixtureTypeIdError", (message as GlowMessage.Error).data.errorName)
+    assertEquals("UnpatchedFixtureTypeIdError", (message as GlowMessage.Error).data.name)
     assertEquals(42, message.messageId)
 
     assertEquals(initialFixtureCount, patch.getFixtures().size)
@@ -112,7 +107,7 @@ fun addFixtureInvalidDmxModeTest(wsClient: WsClient, patch: Patch) {
     val message = GlowMessage.fromJsonString(received)
 
     assertEquals(GlowEvent.ERROR, message.event)
-    assertEquals("UnknownDmxModeError", (message as GlowMessage.Error).data.errorName)
+    assertEquals("UnknownDmxModeError", (message as GlowMessage.Error).data.name)
     assertEquals(42, message.messageId)
 
     assertEquals(initialFixtureCount, patch.getFixtures().size)

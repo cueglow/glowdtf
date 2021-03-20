@@ -26,7 +26,7 @@ sealed class GlowMessage constructor(
     class UpdateFixtures(@Json(index=1) val data: List<PatchFixtureUpdate>, messageId: Int? = null): GlowMessage(GlowEvent.UPDATE_FIXTURES, messageId)
     class DeleteFixtures(@Json(index=1) val data: GlowData.DeleteFixtures, messageId: Int? = null): GlowMessage(GlowEvent.DELETE_FIXTURES, messageId)
 
-    class Error(@Json(index=1) val data: GlowData.Error, messageId: Int? = null): GlowMessage(GlowEvent.ERROR, messageId)
+    class Error(@Json(index=1) val data: GlowError, messageId: Int? = null): GlowMessage(GlowEvent.ERROR, messageId)
 
     class FixtureTypeAdded(@Json(index=1) val data: GlowData.FixtureTypeAdded, messageId: Int? = null): GlowMessage(GlowEvent.FIXTURE_TYPE_ADDED, messageId)
     class DeleteFixtureTypes(@Json(index=1) val data: GlowData.DeleteFixtureTypes, messageId: Int? = null): GlowMessage(GlowEvent.DELETE_FIXTURE_TYPES, messageId)

@@ -31,12 +31,12 @@ fun deleteInvalidFixtureTest(wsClient: WsClient, patch: Patch) {
     Assertions.assertEquals(1, patch.getFixtures().size)
 
     Assertions.assertEquals(GlowEvent.ERROR, msg1.event)
-    Assertions.assertEquals("UnknownFixtureUuidError", (msg1 as GlowMessage.Error).data.errorName)
-    Assertions.assertTrue(msg1.data.errorDescription.contains(uuid1.toString()))
+    Assertions.assertEquals("UnknownFixtureUuidError", (msg1 as GlowMessage.Error).data.name)
+    Assertions.assertTrue(msg1.data.description.contains(uuid1.toString()))
 
     Assertions.assertEquals(GlowEvent.ERROR, msg2.event)
-    Assertions.assertEquals("UnknownFixtureUuidError", (msg2 as GlowMessage.Error).data.errorName)
-    Assertions.assertTrue(msg2.data.errorDescription.contains(uuid2.toString()))
+    Assertions.assertEquals("UnknownFixtureUuidError", (msg2 as GlowMessage.Error).data.name)
+    Assertions.assertTrue(msg2.data.description.contains(uuid2.toString()))
 }
 
 fun deleteFixtureTest(wsClient: WsClient, patch: Patch) {

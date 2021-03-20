@@ -58,12 +58,12 @@ fun deleteInvalidFixtureTypesTest(wsClient: WsClient, patch: Patch) {
     assertEquals(1, patch.getFixtureTypes().size)
 
     assertEquals(GlowEvent.ERROR, msg1.event)
-    assertEquals("UnpatchedFixtureTypeIdError", (msg1 as GlowMessage.Error).data.errorName)
-    assertTrue(msg1.data.errorDescription.contains(uuid1.toString()))
+    assertEquals("UnpatchedFixtureTypeIdError", (msg1 as GlowMessage.Error).data.name)
+    assertTrue(msg1.data.description.contains(uuid1.toString()))
 
     assertEquals(GlowEvent.ERROR, msg2.event)
-    assertEquals("UnpatchedFixtureTypeIdError", (msg2 as GlowMessage.Error).data.errorName)
-    assertTrue(msg2.data.errorDescription.contains(uuid2.toString()))
+    assertEquals("UnpatchedFixtureTypeIdError", (msg2 as GlowMessage.Error).data.name)
+    assertTrue(msg2.data.description.contains(uuid2.toString()))
 }
 
 fun gdtfDeleteTest(wsClient: WsClient, patch: Patch) {
@@ -112,8 +112,8 @@ fun noFilePartInGdtfUploadErrors(uploadGdtfFile: (String, String) -> ResponseRes
     val responseJSON = response.body().asString("text/plain")
     val jsonMessage = GlowMessage.fromJsonString(responseJSON)
     val data = (jsonMessage as GlowMessage.Error).data
-    assertEquals("MissingFilePartError", data.errorName)
-    assertNotEquals("", data.errorDescription)
+    assertEquals("MissingFilePartError", data.name)
+    assertNotEquals("", data.description)
 }
 
 fun noDescriptionXmlUploadError(uploadGdtfFile: (String) -> ResponseResultOf<String>) {
@@ -124,6 +124,6 @@ fun noDescriptionXmlUploadError(uploadGdtfFile: (String) -> ResponseResultOf<Str
     val responseJSON = response.body().asString("text/plain")
     val jsonMessage = GlowMessage.fromJsonString(responseJSON)
     val data =(jsonMessage as GlowMessage.Error).data
-    assertEquals("MissingDescriptionXmlInGdtfError", data.errorName)
-    assertNotEquals("", data.errorDescription)
+    assertEquals("MissingDescriptionXmlInGdtfError", data.name)
+    assertNotEquals("", data.description)
 }

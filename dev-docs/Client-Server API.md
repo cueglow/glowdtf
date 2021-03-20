@@ -329,8 +329,8 @@ an error:
 {
     "event": "error",
     "data": {
-        "errorName": "$nameOfTheError",
-        "errorDescription": "$description"
+        "name": "$nameOfTheError",
+        "description": "$description"
     },
     "messageId": 872 // the message with this Id caused the error 
 }

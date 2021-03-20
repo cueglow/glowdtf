@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import org.cueglow.server.objects.DmxAddress.Factory.tryFrom
+import org.cueglow.server.objects.messages.InvalidDmxAddress
 
 /**
  * Represents a DMX Address.

@@ -31,7 +31,7 @@ fun updateUnknownFixtureTest(wsClient: WsClient) {
     val message = GlowMessage.fromJsonString(received)
 
     Assertions.assertEquals(GlowEvent.ERROR, message.event)
-    Assertions.assertEquals("UnknownFixtureUuidError", (message as GlowMessage.Error).data.errorName)
+    Assertions.assertEquals("UnknownFixtureUuidError", (message as GlowMessage.Error).data.name)
     Assertions.assertEquals(90, message.messageId)
 }
 

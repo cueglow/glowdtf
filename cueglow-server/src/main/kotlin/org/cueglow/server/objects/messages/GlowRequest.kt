@@ -1,7 +1,6 @@
 package org.cueglow.server.objects.messages
 
 import org.cueglow.server.json.AsyncClient
-import org.cueglow.server.objects.GlowError
 
 /**
  * Wrapper around [GlowMessage] that provides a convenient way to answer.

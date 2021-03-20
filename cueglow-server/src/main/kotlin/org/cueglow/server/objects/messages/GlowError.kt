@@ -1,8 +1,6 @@
-package org.cueglow.server.objects
+package org.cueglow.server.objects.messages
 
-import org.cueglow.server.json.toJsonString
-import org.cueglow.server.objects.messages.GlowData
-import org.cueglow.server.objects.messages.GlowMessage
+import com.beust.klaxon.Json
 import java.util.*
 
 /**
@@ -10,16 +8,15 @@ import java.util.*
  *
  * The inheritors of GlowError are meant to be instantiated with the corresponding error information and
  * can then be converted to [GlowMessage] or serialized to JSON directly.
+ *
+ * While this used to be a sealed class, it now is open to allow the Klaxon JSON Parser to construct a
+ * GlowError from JSON.
  */
-sealed class GlowError(val description: String = "") {
-    val name: String = this::class.simpleName ?: "Unnamed GlowError"
-
-
-    // TODO move these things into json package -> they don't belong into GlowError because GlowError is API independent
-    fun toJsonString(messageId: Int? = null): String = this.toGlowMessage(messageId).toJsonString()
+open class GlowError(@Json(index=1)val description: String = "") {
+    @Json(index=0)val name: String = this::class.simpleName ?: "Unnamed GlowError"
 
     fun toGlowMessage(messageId: Int? = null): GlowMessage = GlowMessage.Error(
-        GlowData.Error(name, description),
+        this,
         messageId
     )
 }

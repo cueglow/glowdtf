@@ -3,6 +3,7 @@ package org.cueglow.server.patch
 import com.github.michaelbull.result.*
 import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.objects.*
+import org.cueglow.server.objects.messages.*
 import java.util.*
 import kotlin.collections.HashMap
 
