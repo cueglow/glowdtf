@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
  */
 enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessage>?) {
 
-    SUBSCRIBE("subscribe", GlowMessage.Subscribe::class),
+    PATCH_SUBSCRIBE("patchSubscribe", GlowMessage.PatchSubscribe::class),
 
     ERROR("error", GlowMessage.Error::class),
 
