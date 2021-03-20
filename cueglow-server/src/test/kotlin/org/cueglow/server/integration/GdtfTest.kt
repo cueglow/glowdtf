@@ -33,18 +33,15 @@ fun gdtfUploadTest(uploadGdtfFile: (String) -> ResponseResultOf<String>, patch: 
     // TODO check that streamUpdate is delivered (once streams are working)
 }
 
-fun deleteInvalidFixtureTypesTest(wsClient: WsClient, patch: Patch) {
+fun removeInvalidFixtureTypesTest(wsClient: WsClient, patch: Patch) {
     val uuid1 = UUID.fromString("049bbf91-25f4-495f-ae30-9289adb8c2cf")
     val uuid2 = UUID.fromString("37cd9136-58bf-423c-b373-07651940807d")
 
-    // delete Fixture again via WebSocket
     val deleteJSONMsg =
         """
         {
-            "event": "deleteFixtureTypes",
-            "data": {
-            "fixtureTypeIds": ["$uuid1", "$uuid2"]
-        },
+            "event": "removeFixtureTypes",
+            "data": ["$uuid1", "$uuid2"],
             "messageId": 42
         }
         """
@@ -66,15 +63,12 @@ fun deleteInvalidFixtureTypesTest(wsClient: WsClient, patch: Patch) {
     assertTrue(msg2.data.description.contains(uuid2.toString()))
 }
 
-fun gdtfDeleteTest(wsClient: WsClient, patch: Patch) {
-    // delete Fixture again via WebSocket
+fun removeFixtureTypeTest(wsClient: WsClient, patch: Patch) {
     val deleteJSONMsg =
         """
         {
-            "event": "deleteFixtureTypes",
-            "data": {
-            "fixtureTypeIds": ["7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE"]
-        },
+            "event": "removeFixtureTypes",
+            "data": ["7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE"],
             "messageId": 42
         }
         """

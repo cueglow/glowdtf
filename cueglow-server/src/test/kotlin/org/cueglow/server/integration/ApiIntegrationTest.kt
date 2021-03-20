@@ -128,15 +128,15 @@ internal class ApiIntegrationTest {
     fun gdtfWithoutDescriptionXml() = noDescriptionXmlUploadError(::uploadGdtfFile)
 
     @Test
-    fun deleteInvalidFixtureTypes() {
+    fun removeInvalidFixtureTypes() {
         setupExampleFixture()
-        deleteInvalidFixtureTypesTest(wsClient, patch)
+        removeInvalidFixtureTypesTest(wsClient, patch)
     }
 
     @Test
-    fun deleteGdtfFixtureType() {
+    fun removeFixtureType() {
         setupExampleFixture()
-        gdtfDeleteTest(wsClient, patch)
+        removeFixtureTypeTest(wsClient, patch)
     }
 
     // Add Fixture Tests

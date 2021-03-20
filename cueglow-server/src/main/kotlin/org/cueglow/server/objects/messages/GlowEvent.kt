@@ -16,7 +16,7 @@ enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessag
     UPDATE_FIXTURES("updateFixtures", GlowMessage.UpdateFixtures::class),
     REMOVE_FIXTURES("removeFixtures", GlowMessage.RemoveFixtures::class),
     FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowMessage.FixtureTypeAdded::class),
-    DELETE_FIXTURE_TYPES("deleteFixtureTypes", GlowMessage.DeleteFixtureTypes::class),;
+    REMOVE_FIXTURE_TYPES("removeFixtureTypes", GlowMessage.RemoveFixtureTypes::class),;
 
     override fun toString(): String {
         return string

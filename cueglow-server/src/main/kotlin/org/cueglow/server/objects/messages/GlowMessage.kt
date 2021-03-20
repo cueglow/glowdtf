@@ -30,7 +30,7 @@ sealed class GlowMessage constructor(
     class Error(@Json(index=1) val data: GlowError, messageId: Int? = null): GlowMessage(GlowEvent.ERROR, messageId)
 
     class FixtureTypeAdded(@Json(index=1) val data: GlowData.FixtureTypeAdded, messageId: Int? = null): GlowMessage(GlowEvent.FIXTURE_TYPE_ADDED, messageId)
-    class DeleteFixtureTypes(@Json(index=1) val data: GlowData.DeleteFixtureTypes, messageId: Int? = null): GlowMessage(GlowEvent.DELETE_FIXTURE_TYPES, messageId)
+    class RemoveFixtureTypes(@Json(index=1) val data: List<UUID>, messageId: Int? = null): GlowMessage(GlowEvent.REMOVE_FIXTURE_TYPES, messageId)
 
     companion object
 }

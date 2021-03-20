@@ -12,9 +12,9 @@ abstract class IncomingGlowRequestHandler(private val state: StateProvider): Log
             GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> handleAddFixtures(request)
             GlowEvent.UPDATE_FIXTURES -> handleUpdateFixture(request)
-            GlowEvent.REMOVE_FIXTURES -> handleDeleteFixtures(request)
+            GlowEvent.REMOVE_FIXTURES -> handleRemoveFixtures(request)
             GlowEvent.FIXTURE_TYPE_ADDED -> TODO()
-            GlowEvent.DELETE_FIXTURE_TYPES -> handleDeleteFixtureTypes(request)
+            GlowEvent.REMOVE_FIXTURE_TYPES -> handleRemoveFixtureTypes(request)
         }
     }
 
@@ -29,16 +29,16 @@ abstract class IncomingGlowRequestHandler(private val state: StateProvider): Log
         }
     }
 
-    private fun handleDeleteFixtureTypes(glowRequest: GlowRequest) {
-        val idsToDelete = (glowRequest.originalMessage as GlowMessage.DeleteFixtureTypes).data.fixtureTypeIds
-        state.patch.removeFixtureTypes(idsToDelete).getOrElse { errorList ->
+    private fun handleRemoveFixtureTypes(glowRequest: GlowRequest) {
+        val idsToRemove = (glowRequest.originalMessage as GlowMessage.RemoveFixtureTypes).data
+        state.patch.removeFixtureTypes(idsToRemove).getOrElse { errorList ->
             errorList.forEach { glowRequest.answer(it) }
         }
     }
 
-    private fun handleDeleteFixtures(glowRequest: GlowRequest) {
-        val uuidsToDelete = (glowRequest.originalMessage as GlowMessage.RemoveFixtures).data
-        state.patch.removeFixtures(uuidsToDelete).getOrElse { errorList ->
+    private fun handleRemoveFixtures(glowRequest: GlowRequest) {
+        val uuidsToRemove = (glowRequest.originalMessage as GlowMessage.RemoveFixtures).data
+        state.patch.removeFixtures(uuidsToRemove).getOrElse { errorList ->
             errorList.forEach {glowRequest.answer(it)}
         }
     }
