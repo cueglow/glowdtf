@@ -7,10 +7,9 @@ import io.javalin.http.Context
 import org.cueglow.server.gdtf.SyncGdtfReceiver
 import org.cueglow.server.json.toJsonString
 import org.cueglow.server.objects.messages.GdtfUnmarshalError
+import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.objects.messages.MissingDescriptionXmlInGdtfError
 import org.cueglow.server.objects.messages.MissingFilePartError
-import org.cueglow.server.objects.messages.GlowData
-import org.cueglow.server.objects.messages.GlowMessage
 
 /**
  * REST Network Handler for New Fixture Types via GDTF Upload

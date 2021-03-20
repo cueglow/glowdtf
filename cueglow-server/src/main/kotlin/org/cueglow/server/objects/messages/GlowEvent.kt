@@ -27,9 +27,9 @@ enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessag
         private val map = values().associateBy(GlowEvent::string)
         fun fromString(string: String) = map[string]
 
-        // lookup event by GlowData class
+        // lookup event by GlowMessage class
         private val classMap = values().associateBy(GlowEvent::messageClass)
         fun fromMessageClass(cls: KClass<out GlowMessage>) = classMap[cls] ?:
-            throw IllegalArgumentException("GlowData Class $cls does not have an associated GlowEvent. ")
+            throw IllegalArgumentException("GlowMessage Class $cls does not have an associated GlowEvent. ")
     }
 }
