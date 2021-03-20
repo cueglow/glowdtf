@@ -23,7 +23,7 @@ fun gdtfUploadTest(uploadGdtfFile: (String) -> ResponseResultOf<String>, patch: 
     assertEquals(GlowEvent.FIXTURE_TYPE_ADDED, jsonMessage.event)
 
     val expectedUUID = UUID.fromString("7FB33577-09C9-4BF0-BE3B-EF0DC3BEF4BE")
-    val returnedUUID = (jsonMessage as GlowMessage.FixtureTypeAdded).data.fixtureTypeId
+    val returnedUUID = (jsonMessage as GlowMessage.FixtureTypeAdded).data
     assertEquals(expectedUUID, returnedUUID)
 
     // check that fixture is added to Patch

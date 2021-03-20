@@ -9,8 +9,6 @@ import java.util.*
  */
 sealed class GlowData {
     data class Subscribe(val stream: String) : GlowData()
-
-    data class FixtureTypeAdded(val fixtureTypeId : UUID): GlowData()
 }
 
 

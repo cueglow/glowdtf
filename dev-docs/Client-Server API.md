@@ -432,9 +432,7 @@ payload of the form:
 ```json
 {
     "event": "fixtureTypeAdded",
-    "data": {
-        "fixtureTypeId": $fixtureTypeIdOfNewFixtureType
-    }
+    "data": $fixtureTypeIdOfNewFixtureType
 }
 ```
 
