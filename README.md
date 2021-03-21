@@ -75,7 +75,7 @@ the moment.
 Sometimes, I tried a new software and was able to crash it in minutes. Such
 software cannot be relied upon to drive a show. 
 
-We though we should be able to do better. We set out to make a software that would be
+We thought we should be able to do better. We set out to make a software that would be
 - Open Source 
 - Built for commodity PCs 
 - Built for theater, musical and opera specifically
