@@ -39,5 +39,7 @@ class FixtureType(private val gdtf: GDTF) {
  *     where the channel references the Geometry GenericLED, the channel is instantiated by the Geometry Reference LED1,
  *     the controlled Attribute is Dimmer and it is the coarse channel of two channels controlling the dimmer with
  *     16 bits.
+ *     If the channel is only 8-bit, the " (1/1)" at the end is omitted. If the channel does not come from a
+ *     referenced Geometry, the "LED1 -> " is omitted.
  */
 data class DmxMode(val name: String, val channelCount: Int, val channelLayout: List<List<String?>>)
