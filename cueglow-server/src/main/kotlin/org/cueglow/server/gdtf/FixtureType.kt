@@ -28,8 +28,16 @@ class FixtureType(private val gdtf: GDTF) {
                         offsetString.split(",").map { it.toInt() }.maxOf {it}
                     }.maxOrNull() ?: TODO("Err")
 
-            DmxMode(dmxMode.name, channelCount)
+            DmxMode(dmxMode.name, channelCount, listOf(listOf())) //TODO create channelLayout
     })}
 }
 
-data class DmxMode(val name: String, val channelCount: Int)
+/**
+ * @property channelLayout A list of DMX breaks, each of which is a list of channel name strings. If the channel name is
+ *     null, it means this specific DMX offset is empty.
+ *     Example for a channel name: "LED1 -> GenericLED_Dimmer (1/2)"
+ *     where the channel references the Geometry GenericLED, the channel is instantiated by the Geometry Reference LED1,
+ *     the controlled Attribute is Dimmer and it is the coarse channel of two channels controlling the dimmer with
+ *     16 bits.
+ */
+data class DmxMode(val name: String, val channelCount: Int, val channelLayout: List<List<String?>>)
