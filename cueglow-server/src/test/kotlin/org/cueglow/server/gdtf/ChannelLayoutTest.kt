@@ -13,10 +13,20 @@ fun fixtureTypeFromGdtfResource(exampleGdtfFileName: String, cls: Class<*>): Fix
 }
 
 internal class ChannelLayoutTest {
+    private val exampleFixtureType =
+        fixtureTypeFromGdtfResource("ChannelLayoutTest/Test@Channel_Layout_Test@v1_first_try.gdtf", this.javaClass)
+
+    @Test
+    fun testFindingAbstractGeometries() {
+        val abstractGeometries = findAbstractGeometries(exampleFixtureType.gdtf.fixtureType.geometries)
+        assertEquals(1, abstractGeometries.size)
+        assertEquals("AbstractElement", abstractGeometries[0].name)
+        assertEquals("Element 1", abstractGeometries[0].referencedBy[0].name)
+        assertEquals("Element 2", abstractGeometries[0].referencedBy[1].name)
+    }
+
     @Test
     fun testComplexChannelLayout() {
-        val exampleFixtureType =
-            fixtureTypeFromGdtfResource("ChannelLayoutTest/Test@Channel_Layout_Test@v1_first_try.gdtf", this.javaClass)
         // expected channel layout for mode 1 (can also be seen in Screenshots in Resources,
         //      screenshotted because there is currently a bug in the Share that does not allow it to be opened again in
         //      the builder)
