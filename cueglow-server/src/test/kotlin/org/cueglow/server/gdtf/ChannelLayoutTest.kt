@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.InputStream
 
-fun fixtureTypeFromGdtfResource(exampleGdtfFileName: String, cls: Class<*>): FixtureType {
+fun fixtureTypeFromGdtfResource(exampleGdtfFileName: String, cls: Class<*>): GdtfWrapper {
     val exampleGdtfInputStream: InputStream =
         cls.classLoader.getResourceAsStream(exampleGdtfFileName) ?: throw Error("inputStream is Null")
     val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream).unwrap()
-    return FixtureType(parsedExampleGdtf)
+    return GdtfWrapper(parsedExampleGdtf)
 }
 
 internal class ChannelLayoutTest {

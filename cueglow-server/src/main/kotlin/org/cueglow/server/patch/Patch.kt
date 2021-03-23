@@ -1,7 +1,7 @@
 package org.cueglow.server.patch
 
 import com.github.michaelbull.result.*
-import org.cueglow.server.gdtf.FixtureType
+import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.objects.*
 import org.cueglow.server.objects.messages.*
 import java.util.*
@@ -14,7 +14,7 @@ import kotlin.collections.HashMap
  */
 class Patch {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
-    private val fixtureTypes: HashMap<UUID, FixtureType> = HashMap()
+    private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 
     fun getFixtures() = ImmutableMap(this.fixtures)
 
@@ -86,7 +86,7 @@ class Patch {
     // ------------------------
     // Modify Fixture Type List
     // ------------------------
-    fun addFixtureTypes(fixtureTypesToAdd: Iterable<FixtureType>): Result<Unit, List<FixtureTypeAlreadyExistsError>> {
+    fun addFixtureTypes(fixtureTypesToAdd: Iterable<GdtfWrapper>): Result<Unit, List<FixtureTypeAlreadyExistsError>> {
         return executeWithErrorList(fixtureTypesToAdd) eachFixtureType@{ fixtureTypeToAdd ->
             // validate fixture type is not patched already
             if (fixtureTypes.containsKey(fixtureTypeToAdd.fixtureTypeId)) {

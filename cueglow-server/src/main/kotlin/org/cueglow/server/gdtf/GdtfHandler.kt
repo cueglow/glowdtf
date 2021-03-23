@@ -20,7 +20,7 @@ class GdtfHandler(val patch: Patch): SyncGdtfReceiver {
     /** Parses new GDTF and adds it to the Patch. */
     override fun receive(file: InputStream): Result<UUID, GlowError> {
         val parsedGdtf = parseGdtf(file).getOrElse { return Err(it) }
-        val fixtureType = FixtureType(parsedGdtf)
+        val fixtureType = GdtfWrapper(parsedGdtf)
 
         patch.addFixtureTypes(listOf(fixtureType)).getOrElse { return Err(it[0]) }
 

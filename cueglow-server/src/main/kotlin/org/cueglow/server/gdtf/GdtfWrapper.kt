@@ -9,19 +9,35 @@ import javax.xml.bind.JAXBElement
  *
  * Currently only provides the most basic properties (dmxMode channelCount is also wrong, see comments).
  */
-class FixtureType(val gdtf: GDTF) {
+class GdtfWrapper(val gdtf: GDTF) {
     val name: String = gdtf.fixtureType.name
     val manufacturer: String = gdtf.fixtureType.manufacturer
     val fixtureTypeId: UUID = UUID.fromString(gdtf.fixtureType.fixtureTypeID)
     val modes: List<DmxMode> = createModes(gdtf)
 }
 
-data class AbstractGeometry(val name: String, val referencedBy: MutableList<GeometryReference>)
+/**
+ * @property channelLayout A list of DMX breaks, each of which is a list of channel name strings. If the channel name is
+ *     null, it means this specific DMX offset is empty.
+ *     Example for a channel name: "LED1 -> GenericLED_Dimmer (1/2)"
+ *     where the channel references the Geometry GenericLED, the channel is instantiated by the Geometry Reference LED1,
+ *     the controlled Attribute is Dimmer and it is the coarse channel of two channels controlling the dimmer with
+ *     16 bits.
+ *     If the channel is only 8-bit, the " (1/1)" at the end is omitted. If the channel does not come from a
+ *     referenced Geometry, the "LED1 -> " is omitted.
+ */
+data class DmxMode(val name: String, val channelCount: Int, val channelLayout: List<List<String?>>)
+
+//-----------------------
+// Mode Creation
+//-----------------------
 
 fun createModes(gdtf: GDTF): List<DmxMode> {
     val abstractGeometries: List<AbstractGeometry> = findAbstractGeometries(gdtf.fixtureType.geometries)
     return gdtf.fixtureType.dmxModes.dmxMode.map { createMode(it, abstractGeometries) }
 }
+
+data class AbstractGeometry(val name: String, val referencedBy: MutableList<GeometryReference>)
 
 fun findAbstractGeometries(geometries: Geometries): List<AbstractGeometry> {
     val abstractGeometries: MutableList<AbstractGeometry> = mutableListOf()
@@ -29,6 +45,7 @@ fun findAbstractGeometries(geometries: Geometries): List<AbstractGeometry> {
     return abstractGeometries
 }
 
+/** Recursive Function which adds a geometry to the list of abstract geometries if it is referenced */
 fun addToListOrDescend(geometryList: List<JAXBElement<out BasicGeometryAttributes>>, abstractGeometries: MutableList<AbstractGeometry>) {
     geometryList.forEach { jaxbElementGeometry ->
         // if node is GeometryReference, add referenced Geometry to Set
@@ -41,6 +58,7 @@ fun addToListOrDescend(geometryList: List<JAXBElement<out BasicGeometryAttribute
                 newAbstractGeometry
             }
             abstractGeometry.referencedBy.add(currentGeometryReference)
+            // no need to recurse here since GeometryReference cannot have Geometry children
         } else {
             // node is not a GeometryReference, so it can have children and is therefore castable to BasicGeometryType
             // therefore we can descend and recurse
@@ -50,61 +68,64 @@ fun addToListOrDescend(geometryList: List<JAXBElement<out BasicGeometryAttribute
     }
 }
 
+//----------------------
+// Single Mode Creation
+//----------------------
+
 fun createMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): DmxMode {
     val modeName = mode.name
     val channels = mode.dmxChannels.dmxChannel
     val channelLayout: MutableList<MutableList<String?>> = mutableListOf(mutableListOf())
     channels.forEach { channel ->
-        val abstractGeometry = abstractGeometries.find { it.name == channel.geometry }
-        if (abstractGeometry != null) {
-            // channel is instantiated by references
-            val namePrototype = channelNamePrototype(channel)
-            abstractGeometry.referencedBy.forEach { geometryReference ->
-                val nameWithoutByteNumber = "${geometryReference.name} -> $namePrototype"
-                // calculate break
-                val (dmxBreak, refOffset) = if (channel.dmxBreak == "Overwrite") {
-                    // use last Break element in geometry reference as override element
-                    val lastBreakMap = geometryReference.`break`.last()
-                    val dmxBreak = lastBreakMap.dmxBreak.toInt()
-                    val refOffset = lastBreakMap.dmxOffset
-                    Pair(dmxBreak, refOffset)
-                } else {
-                    // use first Break element in geometry reference that matches break of channel
-                    val dmxBreak = channel.dmxBreak.toInt()
-                    val refOffset = geometryReference.`break`.find { it.dmxBreak.toInt() == dmxBreak }?.dmxOffset ?:
-                    throw java.lang.IllegalArgumentException("The Geometry Reference ${geometryReference.name} does not " +
-                            "provide an offset for the break $dmxBreak as required by the channel $namePrototype in " +
-                            "DMX Mode $modeName")
-                    Pair(dmxBreak, refOffset)
-                }
-                val (offsets, byteNumber) = getOffsetsAndByteNumber(channel)
-                offsets.forEachIndexed { offsetIndex, originalOffset ->
-                    val offset = originalOffset + refOffset - 1
-                    val nameToWrite = appendByteNumber(nameWithoutByteNumber, offsetIndex, byteNumber)
-                    try {
-                        channelLayout.putChannelNameAt(nameToWrite, dmxBreak, offset)
-                    } catch (error: java.lang.IllegalArgumentException) {
-                        throw java.lang.IllegalArgumentException("${error.message} (in DMX Mode $modeName)")
-                    }
-                }
-            }
-        } else {
-            // channel is what it is
-            val dmxBreak: Int = channel.dmxBreak.toInt()
-            val (offsets, byteNumber) = getOffsetsAndByteNumber(channel)
-            val namePrototype = channelNamePrototype(channel)
-            offsets.forEachIndexed { offsetIndex, offset ->
-                val nameToWrite = appendByteNumber(namePrototype, offsetIndex, byteNumber)
-                try {
-                    channelLayout.putChannelNameAt(nameToWrite, dmxBreak, offset)
-                } catch (error: java.lang.IllegalArgumentException) {
-                    throw java.lang.IllegalArgumentException("${error.message} (in DMX Mode $modeName)")
-                }
-            }
+        try {
+            channelLayout.addChannel(channel, abstractGeometries)
+        } catch (error: java.lang.IllegalArgumentException) {
+            throw java.lang.IllegalArgumentException("GDTF Error in DMX Mode $modeName", error)
         }
     }
     val channelCount: Int = channelLayout.sumBy { it.size }
     return DmxMode(modeName, channelCount, channelLayout)
+}
+
+fun MutableList<MutableList<String?>>.addChannel(channel: DMXChannel, abstractGeometries: List<AbstractGeometry>) {
+    val abstractGeometry = abstractGeometries.find { it.name == channel.geometry }
+    if (abstractGeometry != null) {
+        // channel is instantiated by references
+        val namePrototype = channelNamePrototype(channel)
+        abstractGeometry.referencedBy.forEach { geometryReference ->
+            val nameWithoutByteNumber = "${geometryReference.name} -> $namePrototype"
+            // calculate break
+            val (dmxBreak, refOffset) = if (channel.dmxBreak == "Overwrite") {
+                // use last Break element in geometry reference as override element
+                val lastBreakMap = geometryReference.`break`.last()
+                val dmxBreak = lastBreakMap.dmxBreak.toInt()
+                val refOffset = lastBreakMap.dmxOffset
+                Pair(dmxBreak, refOffset)
+            } else {
+                // use first Break element in geometry reference that matches break of channel
+                val dmxBreak = channel.dmxBreak.toInt()
+                val refOffset = geometryReference.`break`.find { it.dmxBreak.toInt() == dmxBreak }?.dmxOffset ?:
+                throw java.lang.IllegalArgumentException("The Geometry Reference ${geometryReference.name} does not " +
+                        "provide an offset for the break $dmxBreak as required by the channel $namePrototype")
+                Pair(dmxBreak, refOffset)
+            }
+            val (offsets, byteNumber) = getOffsetsAndByteNumber(channel)
+            offsets.forEachIndexed { offsetIndex, originalOffset ->
+                val offset = originalOffset + refOffset - 1
+                val nameToWrite = appendByteNumber(nameWithoutByteNumber, offsetIndex, byteNumber)
+                this.putChannelNameAt(nameToWrite, dmxBreak, offset)
+            }
+        }
+    } else {
+        // channel is instantiated by itself, not by GeometryReferences
+        val dmxBreak: Int = channel.dmxBreak.toInt()
+        val (offsets, byteNumber) = getOffsetsAndByteNumber(channel)
+        val namePrototype = channelNamePrototype(channel)
+        offsets.forEachIndexed { offsetIndex, offset ->
+            val nameToWrite = appendByteNumber(namePrototype, offsetIndex, byteNumber)
+            this.putChannelNameAt(nameToWrite, dmxBreak, offset)
+        }
+    }
 }
 
 fun getOffsetsAndByteNumber(channel: DMXChannel): Pair<List<Int>, Int> {
@@ -148,15 +169,3 @@ fun <T> MutableList<T>.elementAtOrFillWith(index: Int, fillWith: T): T {
         this[index]
     }
 }
-
-/**
- * @property channelLayout A list of DMX breaks, each of which is a list of channel name strings. If the channel name is
- *     null, it means this specific DMX offset is empty.
- *     Example for a channel name: "LED1 -> GenericLED_Dimmer (1/2)"
- *     where the channel references the Geometry GenericLED, the channel is instantiated by the Geometry Reference LED1,
- *     the controlled Attribute is Dimmer and it is the coarse channel of two channels controlling the dimmer with
- *     16 bits.
- *     If the channel is only 8-bit, the " (1/1)" at the end is omitted. If the channel does not come from a
- *     referenced Geometry, the "LED1 -> " is omitted.
- */
-data class DmxMode(val name: String, val channelCount: Int, val channelLayout: List<List<String?>>)
