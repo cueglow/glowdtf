@@ -77,46 +77,28 @@ fun createMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): DmxMo
                             "DMX Mode $modeName")
                     Pair(dmxBreak, refOffset)
                 }
-                val offsets: List<Int> = channel.offset.split(",").map { it.toInt() }
-                val byteNumber = offsets.size
+                val (offsets, byteNumber) = getOffsetsAndByteNumber(channel)
                 offsets.forEachIndexed { offsetIndex, originalOffset ->
-                    val offset = originalOffset+refOffset-1
-                    val breakList = channelLayout.elementAtOrFillWith(dmxBreak - 1, mutableListOf())
-                    val nameAtWriteIndex = breakList.elementAtOrFillWith(offset - 1, null)
-                    val nameToWrite = if (byteNumber == 1) {
-                        nameWithoutByteNumber
-                    } else {
-                        "$nameWithoutByteNumber (${offsetIndex+1}/$byteNumber)"
-                    }
-                    if (nameAtWriteIndex != null) {
-                        // channel name already set -> there is a collision between two channels
-                        throw IllegalArgumentException("GDTF file produces DMX Channel collision at break $dmxBreak and offset " +
-                                "$offset between $nameAtWriteIndex and $nameToWrite (in Mode $modeName)")
-                    } else {
-                        breakList[offset - 1] = nameToWrite
+                    val offset = originalOffset + refOffset - 1
+                    val nameToWrite = appendByteNumber(nameWithoutByteNumber, offsetIndex, byteNumber)
+                    try {
+                        channelLayout.putChannelNameAt(nameToWrite, dmxBreak, offset)
+                    } catch (error: java.lang.IllegalArgumentException) {
+                        throw java.lang.IllegalArgumentException("${error.message} (in DMX Mode $modeName)")
                     }
                 }
             }
         } else {
             // channel is what it is
             val dmxBreak: Int = channel.dmxBreak.toInt()
-            val offsets: List<Int> = channel.offset.split(",").map { it.toInt() }
-            val byteNumber = offsets.size
+            val (offsets, byteNumber) = getOffsetsAndByteNumber(channel)
             val namePrototype = channelNamePrototype(channel)
             offsets.forEachIndexed { offsetIndex, offset ->
-                val breakList = channelLayout.elementAtOrFillWith(dmxBreak - 1, mutableListOf())
-                val nameAtWriteIndex = breakList.elementAtOrFillWith(offset - 1, null)
-                val nameToWrite = if (byteNumber == 1) {
-                    namePrototype
-                } else {
-                    "$namePrototype (${offsetIndex+1}/$byteNumber)"
-                }
-                if (nameAtWriteIndex != null) {
-                    // channel name already set -> there is a collision between two channels
-                    throw IllegalArgumentException("GDTF file produces DMX Channel collision at break $dmxBreak and offset " +
-                    "$offset between $nameAtWriteIndex and $nameToWrite (in Mode $modeName)")
-                } else {
-                    breakList[offset - 1] = nameToWrite
+                val nameToWrite = appendByteNumber(namePrototype, offsetIndex, byteNumber)
+                try {
+                    channelLayout.putChannelNameAt(nameToWrite, dmxBreak, offset)
+                } catch (error: java.lang.IllegalArgumentException) {
+                    throw java.lang.IllegalArgumentException("${error.message} (in DMX Mode $modeName)")
                 }
             }
         }
@@ -124,6 +106,32 @@ fun createMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): DmxMo
     val channelCount: Int = channelLayout.sumBy { it.size }
     return DmxMode(modeName, channelCount, channelLayout)
 }
+
+fun getOffsetsAndByteNumber(channel: DMXChannel): Pair<List<Int>, Int> {
+    val offsets: List<Int> = channel.offset.split(",").map { it.toInt() }
+    val byteNumber = offsets.size
+    return Pair(offsets, byteNumber)
+}
+
+fun MutableList<MutableList<String?>>.putChannelNameAt(nameToWrite: String, dmxBreak: Int, offset: Int) {
+    val breakList = this.elementAtOrFillWith(dmxBreak - 1, mutableListOf())
+    val nameAtWriteIndex = breakList.elementAtOrFillWith(offset - 1, null)
+    if (nameAtWriteIndex != null) {
+        // channel name already set -> there is a collision between two channels
+        throw IllegalArgumentException("GDTF file produces DMX Channel collision at break $dmxBreak and offset " +
+                "$offset between $nameAtWriteIndex and $nameToWrite")
+    } else {
+        breakList[offset - 1] = nameToWrite
+    }
+}
+
+fun appendByteNumber(namePrototype: String, offsetIndex: Int, byteNumber: Int) =
+    if (byteNumber == 1) {
+        namePrototype
+    } else {
+        "$namePrototype (${offsetIndex+1}/$byteNumber)"
+    }
+
 
 /** Name Prototype where reference name has to be prepended and byte-number appended. */
 fun channelNamePrototype(channel: DMXChannel): String {
