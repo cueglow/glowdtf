@@ -1,12 +1,13 @@
 package org.cueglow.server.gdtf
 
+import com.beust.klaxon.Json
 import org.cueglow.gdtf.GDTF
 import java.util.*
 
 /**
  * Immutable wrapper around GDTF
  */
-class GdtfWrapper(val gdtf: GDTF) {
+class GdtfWrapper(@Json(ignored = true)val gdtf: GDTF) {
     val name: String = gdtf.fixtureType.name
     val manufacturer: String = gdtf.fixtureType.manufacturer
     val fixtureTypeId: UUID = UUID.fromString(gdtf.fixtureType.fixtureTypeID)

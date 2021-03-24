@@ -1,5 +1,16 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.karumi.kotlinsnapshot:plugin:2.2.2")
+    }
+}
+
+apply(plugin = "com.karumi.kotlin-snapshot")
+
 plugins {
     kotlin("jvm") version "1.4.10"
     application

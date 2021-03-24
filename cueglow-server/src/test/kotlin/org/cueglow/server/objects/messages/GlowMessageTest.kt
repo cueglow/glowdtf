@@ -2,6 +2,7 @@ package org.cueglow.server.objects.messages
 
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
+import com.karumi.kotlinsnapshot.matchWithSnapshot
 import org.cueglow.server.gdtf.fixtureTypeFromGdtfResource
 import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.json.toJsonString
@@ -9,8 +10,8 @@ import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.util.*
@@ -121,34 +122,17 @@ class GlowMessageTest {
     )
 
     @Test
-    @Disabled
     fun addFixtureTypesSnapshotTest() {
         val glowMessage = GlowMessage.AddFixtureTypes(listOf(exampleFixtureType))
         val serialized = glowMessage.toJsonString()
-        println(serialized)
-        // this is just a snapshot test! Will break in the future.
-        // TODO update once channelLayout is documented
-        // TODO move to proper snapshot testing tool
-        assertEquals(
-            """{"event" : "addFixtureTypes", "data" : [{"fixtureTypeId" : "7fb33577-09c9-4bf0-be3b-ef0dc3bef4be", "manufacturer" : "Robe lighting", "modes" : [{"channelCount" : 49, "name" : "mode1"}, {"channelCount" : 42, "name" : "mode 2"}], "name" : "Robin Esprite"}]}""",
-
-            serialized
-        )
+        serialized.matchWithSnapshot()
     }
 
     @Test
-    @Disabled
     fun patchInitialStateSnapshotTest() {
         val glowPatch = GlowPatch(listOf(examplePatchFixture), listOf(exampleFixtureType))
         val glowMessage = GlowMessage.PatchInitialState(glowPatch)
         val serialized = glowMessage.toJsonString()
-        println(serialized)
-        // this is just a snapshot test! Will break in the future.
-        // TODO update once channelLayout is documented
-        // TODO move to proper snapshot testing tool
-        assertEquals(
-            """{"event" : "patchInitialState", "data" : {"fixtures" : [{"address" : 1, "dmxMode" : "mode1", "fid" : 1, "fixtureTypeId" : "7fb33577-09c9-4bf0-be3b-ef0dc3bef4be", "name" : "exampleFixture", "universe" : 1, "uuid" : "91faaa61-624b-477a-a6c2-de00c717b3e6"}], "fixtureTypes" : [{"fixtureTypeId" : "7fb33577-09c9-4bf0-be3b-ef0dc3bef4be", "manufacturer" : "Robe lighting", "modes" : [{"channelCount" : 49, "name" : "mode1"}, {"channelCount" : 42, "name" : "mode 2"}], "name" : "Robin Esprite"}]}}""",
-            serialized
-        )
+        serialized.matchWithSnapshot()
     }
 }
