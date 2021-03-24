@@ -125,6 +125,9 @@ internal class ApiIntegrationTest {
     fun gdtfWithChannelClash() = gdtfWithChannelClash(::uploadGdtfFile)
 
     @Test
+    fun gdtfWithMissingBreakInGeometryReference() = gdtfWithMissingBreakInGeometryReference(::uploadGdtfFile)
+
+    @Test
     fun removeInvalidFixtureTypes() {
         setupExampleFixture()
         removeInvalidFixtureTypesTest(wsClient, patch)

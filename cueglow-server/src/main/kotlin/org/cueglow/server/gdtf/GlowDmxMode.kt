@@ -97,7 +97,7 @@ data class MultiByteChannel(val nameWithoutByteNumber: String, val dmxBreak: Int
                 val dmxBreak = channel.dmxBreak.toInt()
                 val refOffset = geometryReference.`break`.find { it.dmxBreak.toInt() == dmxBreak }?.dmxOffset
                     ?: throw InvalidGdtfException(
-                        "The Geometry Reference '${geometryReference.name}' does not provide an offset for the break '$dmxBreak'")
+                        "The Geometry Reference '${geometryReference.name}' does not provide an offset for the break $dmxBreak")
                 return Pair(dmxBreak, refOffset)
             }
         }

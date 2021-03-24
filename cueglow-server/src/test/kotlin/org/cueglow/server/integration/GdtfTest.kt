@@ -139,3 +139,18 @@ fun gdtfWithChannelClash(uploadGdtfFile: (String) -> ResponseResultOf<String>) {
     // Error Message should contain the Mode Name
     assertTrue(data.description.contains("Mode 1"))
 }
+
+fun gdtfWithMissingBreakInGeometryReference(uploadGdtfFile: (String) -> ResponseResultOf<String>) {
+    val (_, response, _) = uploadGdtfFile("ChannelLayoutTest/Test@Channel_Layout_Test@v1_first_try.missing_break_in_geometry_reference.gdtf")
+
+    assertEquals(400, response.statusCode)
+
+    val responseJSON = response.body().asString("text/plain")
+    println("Error returned by server: ")
+    println(responseJSON)
+    val jsonMessage = GlowMessage.fromJsonString(responseJSON)
+    val data =(jsonMessage as GlowMessage.Error).data
+    assertEquals("InvalidGdtfError", data.name)
+    // Error Message should contain the name of the faulty geometry reference
+    assertTrue(data.description.contains("Element 2"))
+}
