@@ -31,7 +31,7 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
         try {
             channelLayout.addChannel(channel, abstractGeometries)
         } catch (exception: InvalidGdtfException) {
-            throw InvalidGdtfException("Error in DMX Mode ${mode.name}", exception)
+            throw InvalidGdtfException("Error in DMX Mode '${mode.name}'", exception)
         }
     }
     val channelCount: Int = channelLayout.sumBy { it.size }
@@ -71,7 +71,7 @@ data class MultiByteChannel(val nameWithoutByteNumber: String, val dmxBreak: Int
                 val offsets = channelOffsets.map{it + referenceOffset - 1}
                 Pair(dmxBreak, offsets)
             } catch (exception: InvalidGdtfException) {
-                throw InvalidGdtfException("Error in channel $nameWithoutByteNumber", exception)
+                throw InvalidGdtfException("Error in channel '$nameWithoutByteNumber'", exception)
             }
             return MultiByteChannel(nameWithoutByteNumber, dmxBreak, offsets)
         }
@@ -97,7 +97,7 @@ data class MultiByteChannel(val nameWithoutByteNumber: String, val dmxBreak: Int
                 val dmxBreak = channel.dmxBreak.toInt()
                 val refOffset = geometryReference.`break`.find { it.dmxBreak.toInt() == dmxBreak }?.dmxOffset
                     ?: throw InvalidGdtfException(
-                        "The Geometry Reference ${geometryReference.name} does not provide an offset for the break $dmxBreak")
+                        "The Geometry Reference '${geometryReference.name}' does not provide an offset for the break '$dmxBreak'")
                 return Pair(dmxBreak, refOffset)
             }
         }
@@ -117,7 +117,7 @@ private fun MutableList<MutableList<String?>>.putChannelNameAt(nameToWrite: Stri
     if (nameAtWriteIndex != null) {
         // channel name already set -> there is a collision between two channels
         throw InvalidGdtfException(
-            "GDTF file produces DMX Channel collision at break $dmxBreak and offset $offset between $nameAtWriteIndex and $nameToWrite")
+            "GDTF file produces DMX Channel collision at break $dmxBreak and offset $offset between '$nameAtWriteIndex' and '$nameToWrite'")
     } else {
         breakList[offset - 1] = nameToWrite
     }

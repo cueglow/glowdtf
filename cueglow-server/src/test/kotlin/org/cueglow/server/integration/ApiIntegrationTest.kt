@@ -122,6 +122,9 @@ internal class ApiIntegrationTest {
     fun gdtfWithoutDescriptionXml() = noDescriptionXmlUploadError(::uploadGdtfFile)
 
     @Test
+    fun gdtfWithChannelClash() = gdtfWithChannelClash(::uploadGdtfFile)
+
+    @Test
     fun removeInvalidFixtureTypes() {
         setupExampleFixture()
         removeInvalidFixtureTypesTest(wsClient, patch)

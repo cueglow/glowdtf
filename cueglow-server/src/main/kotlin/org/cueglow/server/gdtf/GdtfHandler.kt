@@ -5,6 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
 import org.cueglow.server.objects.InvalidGdtfException
+import org.cueglow.server.objects.getChainedMessages
 import org.cueglow.server.objects.messages.GlowError
 import org.cueglow.server.objects.messages.InvalidGdtfError
 import org.cueglow.server.patch.Patch
@@ -26,7 +27,7 @@ class GdtfHandler(val patch: Patch): SyncGdtfReceiver {
         val fixtureType = try {
             GdtfWrapper(parsedGdtf)
         } catch (exception: InvalidGdtfException) {
-            return Err(InvalidGdtfError(exception.toString()))
+            return Err(InvalidGdtfError(exception.getChainedMessages()))
         }
 
         patch.addFixtureTypes(listOf(fixtureType)).getOrElse { return Err(it[0]) }

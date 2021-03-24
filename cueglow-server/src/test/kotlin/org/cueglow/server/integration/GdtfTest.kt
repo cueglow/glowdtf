@@ -121,3 +121,21 @@ fun noDescriptionXmlUploadError(uploadGdtfFile: (String) -> ResponseResultOf<Str
     assertEquals("MissingDescriptionXmlInGdtfError", data.name)
     assertNotEquals("", data.description)
 }
+
+fun gdtfWithChannelClash(uploadGdtfFile: (String) -> ResponseResultOf<String>) {
+    val (_, response, _) = uploadGdtfFile("ChannelLayoutTest/Test@Channel_Layout_Test@v1_first_try.channel_clash.gdtf")
+
+    assertEquals(400, response.statusCode)
+
+    val responseJSON = response.body().asString("text/plain")
+    println("Error returned by server: ")
+    println(responseJSON)
+    val jsonMessage = GlowMessage.fromJsonString(responseJSON)
+    val data =(jsonMessage as GlowMessage.Error).data
+    assertEquals("InvalidGdtfError", data.name)
+    // Error Message should contain the names of the colliding channels
+    assertTrue(data.description.contains("Element 1 -> AbstractElement_Pan"))
+    assertTrue(data.description.contains("Main_Dimmer"))
+    // Error Message should contain the Mode Name
+    assertTrue(data.description.contains("Mode 1"))
+}
