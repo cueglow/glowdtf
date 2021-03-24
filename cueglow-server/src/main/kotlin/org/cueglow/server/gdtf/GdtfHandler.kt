@@ -4,7 +4,9 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
+import org.cueglow.server.objects.InvalidGdtfException
 import org.cueglow.server.objects.messages.GlowError
+import org.cueglow.server.objects.messages.InvalidGdtfError
 import org.cueglow.server.patch.Patch
 import java.io.InputStream
 import java.util.*
@@ -20,7 +22,12 @@ class GdtfHandler(val patch: Patch): SyncGdtfReceiver {
     /** Parses new GDTF and adds it to the Patch. */
     override fun receive(file: InputStream): Result<UUID, GlowError> {
         val parsedGdtf = parseGdtf(file).getOrElse { return Err(it) }
-        val fixtureType = GdtfWrapper(parsedGdtf)
+
+        val fixtureType = try {
+            GdtfWrapper(parsedGdtf)
+        } catch (exception: InvalidGdtfException) {
+            return Err(InvalidGdtfError(exception.toString()))
+        }
 
         patch.addFixtureTypes(listOf(fixtureType)).getOrElse { return Err(it[0]) }
 

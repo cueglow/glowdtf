@@ -3,6 +3,7 @@ package org.cueglow.server.gdtf
 import org.cueglow.gdtf.DMXChannel
 import org.cueglow.gdtf.DMXMode
 import org.cueglow.gdtf.GeometryReference
+import org.cueglow.server.objects.InvalidGdtfException
 
 /**
  * Represents a GDTF DMX Mode
@@ -29,8 +30,8 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
     mode.dmxChannels.dmxChannel.forEach { channel ->
         try {
             channelLayout.addChannel(channel, abstractGeometries)
-        } catch (error: java.lang.IllegalArgumentException) {
-            throw java.lang.IllegalArgumentException("GDTF Error in DMX Mode ${mode.name}", error)
+        } catch (exception: InvalidGdtfException) {
+            throw InvalidGdtfException("Error in DMX Mode ${mode.name}", exception)
         }
     }
     val channelCount: Int = channelLayout.sumBy { it.size }
@@ -69,8 +70,8 @@ data class MultiByteChannel(val nameWithoutByteNumber: String, val dmxBreak: Int
                 val channelOffsets = channel.getOffsetList()
                 val offsets = channelOffsets.map{it + referenceOffset - 1}
                 Pair(dmxBreak, offsets)
-            } catch (error: java.lang.IllegalArgumentException) {
-                throw java.lang.IllegalArgumentException("Error while parsing channel $nameWithoutByteNumber")
+            } catch (exception: InvalidGdtfException) {
+                throw InvalidGdtfException("Error in channel $nameWithoutByteNumber", exception)
             }
             return MultiByteChannel(nameWithoutByteNumber, dmxBreak, offsets)
         }
@@ -95,10 +96,8 @@ data class MultiByteChannel(val nameWithoutByteNumber: String, val dmxBreak: Int
                 // use first Break element in geometry reference that matches break of channel
                 val dmxBreak = channel.dmxBreak.toInt()
                 val refOffset = geometryReference.`break`.find { it.dmxBreak.toInt() == dmxBreak }?.dmxOffset
-                    ?: throw java.lang.IllegalArgumentException(
-                        "The Geometry Reference ${geometryReference.name} does not " +
-                                "provide an offset for the break $dmxBreak"
-                    )
+                    ?: throw InvalidGdtfException(
+                        "The Geometry Reference ${geometryReference.name} does not provide an offset for the break $dmxBreak")
                 return Pair(dmxBreak, refOffset)
             }
         }
@@ -117,10 +116,8 @@ private fun MutableList<MutableList<String?>>.putChannelNameAt(nameToWrite: Stri
     val nameAtWriteIndex = breakList.elementAtOrFillWith(offset - 1, null)
     if (nameAtWriteIndex != null) {
         // channel name already set -> there is a collision between two channels
-        throw IllegalArgumentException(
-            "GDTF file produces DMX Channel collision at break $dmxBreak and offset " +
-                    "$offset between $nameAtWriteIndex and $nameToWrite"
-        )
+        throw InvalidGdtfException(
+            "GDTF file produces DMX Channel collision at break $dmxBreak and offset $offset between $nameAtWriteIndex and $nameToWrite")
     } else {
         breakList[offset - 1] = nameToWrite
     }

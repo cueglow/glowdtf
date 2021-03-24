@@ -34,6 +34,7 @@ class InvalidDmxAddress(value: Int): GlowError("The proposed DMX Address $value 
 class MissingDescriptionXmlInGdtfError: GlowError("The uploaded GDTF file did not contain a file called 'description.xml' in its archive. ")
 class GdtfUnmarshalError(description: String): GlowError(description)
 class FixtureTypeAlreadyExistsError(fixtureTypeId: UUID): GlowError("A fixture type with the fixtureTypeId '$fixtureTypeId' already exists in the Patch. Updating Fixture Types is not supported. ")
+class InvalidGdtfError(description: String): GlowError(description)
 
 // Errors related to the Network API
 class MissingFilePartError: GlowError("The GDTF upload request should include the GDTF file in a part with the name 'file'. ")

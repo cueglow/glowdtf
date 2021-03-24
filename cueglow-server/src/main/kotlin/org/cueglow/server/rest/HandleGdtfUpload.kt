@@ -6,10 +6,7 @@ import com.github.michaelbull.result.unwrap
 import io.javalin.http.Context
 import org.cueglow.server.gdtf.SyncGdtfReceiver
 import org.cueglow.server.json.toJsonString
-import org.cueglow.server.objects.messages.GdtfUnmarshalError
-import org.cueglow.server.objects.messages.GlowMessage
-import org.cueglow.server.objects.messages.MissingDescriptionXmlInGdtfError
-import org.cueglow.server.objects.messages.MissingFilePartError
+import org.cueglow.server.objects.messages.*
 
 /**
  * REST Network Handler for New Fixture Types via GDTF Upload
@@ -32,8 +29,9 @@ fun handleGdtfUpload(ctx: Context, gdtfHandler: SyncGdtfReceiver) {
             ctx.status(200)
             ctx.contentType("application/json")
         }
-        result.getError().let {it is MissingDescriptionXmlInGdtfError || it is GdtfUnmarshalError} -> {
-            // result is Err
+        result.getError().let {it is MissingDescriptionXmlInGdtfError ||
+                               it is GdtfUnmarshalError ||
+                               it is InvalidGdtfError} -> {
             ctx.status(400)
                 .result(result.getError()?.toJsonString() ?: "")
         }
