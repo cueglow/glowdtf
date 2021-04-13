@@ -1,8 +1,9 @@
 package org.cueglow.server.objects
 
 import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import org.cueglow.server.objects.ArtNetAddress.Factory.tryFrom
 
 /**
  * Represents an Art-Net v4 Port-Address.
@@ -29,7 +30,7 @@ class ArtNetAddress private constructor(val value: Short) {
             return if (input in 0..32_767) {
                 Ok(ArtNetAddress(input.toShort()))
             } else {
-                Err(InvalidArtNetAddress)
+                Err(InvalidArtNetAddress(input))
             }
         }
         /**
@@ -40,11 +41,11 @@ class ArtNetAddress private constructor(val value: Short) {
          *
          * @return Result of valid ArtNetAddress or Error for invalid input
          */
-        fun tryFrom(net: Int, subNet: Int, universe: Int): Result<ArtNetAddress, ArtNetAddressError> {
+        fun tryFrom(net: Int, subNet: Int, universe: Int): Result<ArtNetAddress, GlowError> {
             return when {
-                net !in 0..127 -> Err(InvalidArtNetNet)
-                subNet !in 0..15 -> Err(InvalidArtNetSubNet)
-                universe !in 0..15 -> Err(InvalidArtNetUniverse)
+                net !in 0..127 -> Err(InvalidArtNetNet(net))
+                subNet !in 0..15 -> Err(InvalidArtNetSubNet(subNet))
+                universe !in 0..15 -> Err(InvalidArtNetUniverse(universe))
                 else -> {
                     val value = (net shl 8) + (subNet shl 4) + universe
                     Ok(ArtNetAddress(value.toShort()))
@@ -62,7 +63,7 @@ class ArtNetAddress private constructor(val value: Short) {
      * This works because all bits of higher significance than the "Net"-bits are ensured to be zero (ArtNetAddress is
      * positive and in range). When shifting right, the leftmost bits are filled with copies of the sign bit, here 0
      * because the ArtNetAddress is positive. Therefore, after shifting, all bits but the lowest 7 bits (that form
-     * the "Net" address) are zero. No bitmasking is needed.
+     * the "Net" address) are zero. No bitmask is needed.
      */
     fun getNet() = value.toInt() shr 8
 

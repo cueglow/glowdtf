@@ -22,6 +22,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
     testImplementation("org.java-websocket:Java-WebSocket:1.5.1")
+    testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
 
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.9")
 
