@@ -8,11 +8,11 @@ import com.github.michaelbull.result.unwrap
 import org.awaitility.Awaitility
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.CueGlowServer
-import org.cueglow.server.gdtf.fixtureTypeFromGdtfResource
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.Patch
 import org.cueglow.server.patch.PatchFixture
+import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
@@ -51,7 +51,7 @@ internal class ApiIntegrationTest {
     // Helpers
     //-----------------------------------------------------
 
-    private val exampleFixtureType = fixtureTypeFromGdtfResource("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf", this.javaClass)
+    private val exampleFixtureType = ExampleFixtureType.esprite
 
     private val examplePatchFixture = PatchFixture(
         UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),

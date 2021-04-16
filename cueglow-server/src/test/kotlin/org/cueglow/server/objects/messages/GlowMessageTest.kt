@@ -3,13 +3,13 @@ package org.cueglow.server.objects.messages
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
 import com.karumi.kotlinsnapshot.matchWithSnapshot
-import org.cueglow.server.gdtf.fixtureTypeFromGdtfResource
 import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.json.toJsonString
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
+import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
@@ -108,8 +108,7 @@ class GlowMessageTest {
         assertFalse(serialized.contains("universe"))
     }
 
-    private val exampleFixtureType =
-        fixtureTypeFromGdtfResource("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf", this.javaClass)
+    private val exampleFixtureType = ExampleFixtureType.esprite
 
     private val examplePatchFixture = PatchFixture(
         UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
