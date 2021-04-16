@@ -4,11 +4,13 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.unwrap
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
+import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.*
+import java.util.concurrent.LinkedBlockingQueue
 
 internal class PatchTest {
 
@@ -22,7 +24,7 @@ internal class PatchTest {
     @Test
     fun patchList() {
         // instantiate
-        val patch = Patch()
+        val patch = Patch(LinkedBlockingQueue<GlowMessage>())
         assertTrue(patch.getFixtures().isEmpty())
         assertTrue(patch.getFixtureTypes().isEmpty())
 
@@ -77,7 +79,7 @@ internal class PatchTest {
 
     @Test
     fun getGlowPatchIsImmutable() {
-        val patch = Patch()
+        val patch = Patch(LinkedBlockingQueue<GlowMessage>())
         patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
         patch.addFixtures(listOf(exampleFixture)).unwrap()
         val glowPatch = patch.getGlowPatch()

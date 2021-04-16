@@ -5,13 +5,14 @@ import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.objects.ImmutableMap
 import org.cueglow.server.objects.messages.*
 import java.util.*
+import java.util.concurrent.BlockingQueue
 
 /**
  * Holds Patch Data
  *
  * The data is isolated such that it can only be modified by methods that notify the StreamHandler on change.
  */
-class Patch {
+class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
     private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 
@@ -86,14 +87,21 @@ class Patch {
     // Modify Fixture Type List
     // ------------------------
     fun addFixtureTypes(fixtureTypesToAdd: Iterable<GdtfWrapper>): Result<Unit, List<FixtureTypeAlreadyExistsError>> {
-        return executeWithErrorList(fixtureTypesToAdd) eachFixtureType@{ fixtureTypeToAdd ->
+        val addedFixtureTypes = mutableListOf<GdtfWrapper>()
+        val mainResult =  executeWithErrorList(fixtureTypesToAdd) eachFixtureType@{ fixtureTypeToAdd ->
             // validate fixture type is not patched already
             if (fixtureTypes.containsKey(fixtureTypeToAdd.fixtureTypeId)) {
                 return@eachFixtureType Err(FixtureTypeAlreadyExistsError(fixtureTypeToAdd.fixtureTypeId))
             }
             fixtureTypes[fixtureTypeToAdd.fixtureTypeId] = fixtureTypeToAdd
+            addedFixtureTypes.add(fixtureTypeToAdd)
             return@eachFixtureType Ok(Unit)
         }
+        if (addedFixtureTypes.isNotEmpty()) {
+            val glowMessage = GlowMessage.AddFixtureTypes(addedFixtureTypes)
+            outEventQueue.add(glowMessage)
+        }
+        return mainResult
     }
 
     fun removeFixtureTypes(fixtureTypeIdsToRemove: List<UUID>): Result<Unit, List<UnpatchedFixtureTypeIdError>> {
