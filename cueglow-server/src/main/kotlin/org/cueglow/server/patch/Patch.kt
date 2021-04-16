@@ -6,6 +6,8 @@ import org.cueglow.server.objects.ImmutableMap
 import org.cueglow.server.objects.messages.*
 import java.util.*
 import java.util.concurrent.BlockingQueue
+import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 /**
  * Holds Patch Data
@@ -23,10 +25,6 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
     /** Returns an immutable copy of the Patch */
     fun getGlowPatch(): GlowPatch = GlowPatch(fixtures.values.toList(), fixtureTypes.values.toList())
 
-    // -------------------
-    // Modify Fixture List
-    // -------------------
-
     /**
      * Execute [lambda] for every element in [collection]. If the result of [lambda] is an Error, add it to the
      * error list which is returned once all elements are dealt with.
@@ -39,6 +37,29 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
         if (errorList.isNotEmpty()) {return Err(errorList)}
         return Ok(Unit)
     }
+
+    /**
+     * Calls [executeWithErrorList] but also keeps a list of successful operations. When the operations are done, the
+     * successful operations are wrapped in the specified [messageType] and added to the [outEventQueue].
+     */
+    private fun <T,R,E>executeWithErrorListAndSendOutEvent(messageType: KClass<out GlowMessage>, collection: Iterable<T>, lambda: (T) -> Result<R, E>): Result<Unit, List<E>> {
+        val successList = mutableListOf<R>()
+        val mainResult = executeWithErrorList(collection) { collectionElement ->
+            lambda(collectionElement).map{
+                successList.add(it)
+                Unit
+            }
+        }
+        if (successList.isNotEmpty()) {
+            val glowMessage = messageType.primaryConstructor?.call(successList, null) ?: throw IllegalArgumentException("messageType does not have a primary constructor")
+            outEventQueue.add(glowMessage)
+        }
+        return mainResult
+    }
+
+    // -------------------
+    // Modify Fixture List
+    // -------------------
 
     fun addFixtures(fixturesToAdd: Iterable<PatchFixture>): Result<Unit, List<GlowError>> {
         return executeWithErrorList(fixturesToAdd) eachFixture@{ patchFixtureToAdd ->
@@ -86,22 +107,16 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
     // ------------------------
     // Modify Fixture Type List
     // ------------------------
+
     fun addFixtureTypes(fixtureTypesToAdd: Iterable<GdtfWrapper>): Result<Unit, List<FixtureTypeAlreadyExistsError>> {
-        val addedFixtureTypes = mutableListOf<GdtfWrapper>()
-        val mainResult =  executeWithErrorList(fixtureTypesToAdd) eachFixtureType@{ fixtureTypeToAdd ->
+        return executeWithErrorListAndSendOutEvent(GlowMessage.AddFixtureTypes::class, fixtureTypesToAdd) eachFixtureType@{ fixtureTypeToAdd ->
             // validate fixture type is not patched already
             if (fixtureTypes.containsKey(fixtureTypeToAdd.fixtureTypeId)) {
                 return@eachFixtureType Err(FixtureTypeAlreadyExistsError(fixtureTypeToAdd.fixtureTypeId))
             }
             fixtureTypes[fixtureTypeToAdd.fixtureTypeId] = fixtureTypeToAdd
-            addedFixtureTypes.add(fixtureTypeToAdd)
-            return@eachFixtureType Ok(Unit)
+            return@eachFixtureType Ok(fixtureTypeToAdd)
         }
-        if (addedFixtureTypes.isNotEmpty()) {
-            val glowMessage = GlowMessage.AddFixtureTypes(addedFixtureTypes)
-            outEventQueue.add(glowMessage)
-        }
-        return mainResult
     }
 
     fun removeFixtureTypes(fixtureTypeIdsToRemove: List<UUID>): Result<Unit, List<UnpatchedFixtureTypeIdError>> {
