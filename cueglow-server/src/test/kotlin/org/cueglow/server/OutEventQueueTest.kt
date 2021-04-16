@@ -119,6 +119,26 @@ class OutEventQueueTest {
         assertEquals(null, queue.peek())
     }
 
-    // TODO test for add fixture type, add fixture, remove fixture type -> should also generate message for removed fixture
+    @Test
+    fun removingFixtureViaFixtureTypeSendsOutEvent() {
+        patch.addFixtureTypes(listOf(exampleFixtureType))
+        assertTrue(queue.pollTimeout() is GlowMessage.AddFixtureTypes)
 
+        patch.addFixtures(listOf(examplePatchFixture))
+        assertTrue(queue.pollTimeout() is GlowMessage.AddFixtures)
+
+        patch.removeFixtureTypes(listOf(exampleFixtureType.fixtureTypeId))
+        val removeFixturesMessage = queue.pollTimeout() as GlowMessage.RemoveFixtures
+
+        assertEquals(1, removeFixturesMessage.data.size)
+        assertEquals(examplePatchFixture.uuid, removeFixturesMessage.data[0])
+
+        val removeFixtureTypeMessage = queue.pollTimeout() as GlowMessage.RemoveFixtureTypes
+
+        assertEquals(1, removeFixtureTypeMessage.data.size)
+        assertEquals(exampleFixtureType.fixtureTypeId, removeFixtureTypeMessage.data[0])
+
+        // queue should be empty now
+        assertEquals(null, queue.peek())
+    }
 }
