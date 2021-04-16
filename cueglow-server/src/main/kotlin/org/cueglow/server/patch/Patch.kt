@@ -120,12 +120,12 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
     }
 
     fun removeFixtureTypes(fixtureTypeIdsToRemove: List<UUID>): Result<Unit, List<UnpatchedFixtureTypeIdError>> {
-        return executeWithErrorList(fixtureTypeIdsToRemove) eachFixtureType@{ fixtureTypeIdToRemove ->
+        return executeWithErrorListAndSendOutEvent(GlowMessage.RemoveFixtureTypes::class, fixtureTypeIdsToRemove) eachFixtureType@{ fixtureTypeIdToRemove ->
             fixtureTypes.remove(fixtureTypeIdToRemove) ?:
                 return@eachFixtureType Err(UnpatchedFixtureTypeIdError(fixtureTypeIdToRemove))
             // remove associated fixtures
-            fixtures.filter { it.value.fixtureTypeId == fixtureTypeIdToRemove }.keys.forEach {fixtures.remove(it)}
-            return@eachFixtureType Ok(Unit)
+            fixtures.filter { it.value.fixtureTypeId == fixtureTypeIdToRemove }.keys.forEach {fixtures.remove(it)} // TODO use this.removeFixtures to create outEvent (create test, too)
+            return@eachFixtureType Ok(fixtureTypeIdToRemove)
         }
     }
 }
