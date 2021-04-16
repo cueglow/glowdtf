@@ -62,7 +62,7 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
     // -------------------
 
     fun addFixtures(fixturesToAdd: Iterable<PatchFixture>): Result<Unit, List<GlowError>> {
-        return executeWithErrorList(fixturesToAdd) eachFixture@{ patchFixtureToAdd ->
+        return executeWithErrorListAndSendOutEvent(GlowMessage.AddFixtures::class, fixturesToAdd) eachFixture@{ patchFixtureToAdd ->
             // validate uuid does not exist yet
             if (fixtures.contains(patchFixtureToAdd.uuid)) {
                 return@eachFixture Err(FixtureUuidAlreadyExistsError(patchFixtureToAdd.uuid))
@@ -76,12 +76,12 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
                 return@eachFixture Err(UnknownDmxModeError(patchFixtureToAdd.dmxMode, patchFixtureToAdd.fixtureTypeId))
             }
             fixtures[patchFixtureToAdd.uuid] = patchFixtureToAdd
-            return@eachFixture Ok(Unit)
+            return@eachFixture Ok(patchFixtureToAdd)
         }
     }
 
     fun updateFixtures(fixtureUpdates: Iterable<PatchFixtureUpdate>): Result<Unit, List<GlowError>> {
-        return executeWithErrorList(fixtureUpdates) eachUpdate@{fixtureUpdate ->
+        return executeWithErrorListAndSendOutEvent(GlowMessage.UpdateFixtures::class, fixtureUpdates) eachUpdate@{ fixtureUpdate ->
             // validate fixture uuid exists already
             val oldFixture = fixtures[fixtureUpdate.uuid] ?: run {
                 return@eachUpdate Err(UnknownFixtureUuidError(fixtureUpdate.uuid))
@@ -93,14 +93,14 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
                 address = fixtureUpdate.address.getOr(oldFixture.address),
             )
             fixtures[newFixture.uuid] = newFixture
-            return@eachUpdate Ok(Unit)
+            return@eachUpdate Ok(fixtureUpdate)
         }
     }
 
     fun removeFixtures(uuids: Iterable<UUID>): Result<Unit, List<UnknownFixtureUuidError>> {
-        return executeWithErrorList(uuids) eachFixture@{uuidToRemove ->
+        return executeWithErrorListAndSendOutEvent(GlowMessage.RemoveFixtures::class, uuids) eachFixture@{ uuidToRemove ->
             fixtures.remove(uuidToRemove) ?: return@eachFixture Err(UnknownFixtureUuidError(uuidToRemove))
-            return@eachFixture Ok(Unit)
+            return@eachFixture Ok(uuidToRemove)
         }
     }
 
