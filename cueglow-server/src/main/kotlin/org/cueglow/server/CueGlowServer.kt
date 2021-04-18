@@ -3,6 +3,7 @@ package org.cueglow.server
 import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.gdtf.GdtfHandler
+import org.cueglow.server.json.JsonSubscriptionHandler
 import org.cueglow.server.rest.handleGdtfUpload
 import org.cueglow.server.websocket.GlowWebSocketHandler
 import org.eclipse.jetty.server.Server
@@ -22,7 +23,11 @@ class CueGlowServer(port: Int = 7000) : Logging {
         logger.info("Starting CueGlow Server")
     }
 
-    val state = StateProvider()
+    val jsonSubscriptionHandler = JsonSubscriptionHandler()
+
+    val outEventHandler = OutEventHandler(listOf(jsonSubscriptionHandler))
+
+    val state = StateProvider(outEventHandler.queue)
 
     private val gdtfHandler = GdtfHandler(state.patch)
 

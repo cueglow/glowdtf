@@ -13,12 +13,13 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.*
 import java.util.concurrent.BlockingQueue
+import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
 class OutEventQueueTest {
-    private val state = StateProvider()
+    private val queue = LinkedBlockingQueue<GlowMessage>()
+    private val state = StateProvider(queue)
     private val patch = state.patch
-    private val queue = state.outEventQueue
     private val exampleFixtureType = ExampleFixtureType.esprite
     private val examplePatchFixture = PatchFixture(
         UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
@@ -91,7 +92,7 @@ class OutEventQueueTest {
     }
 
     @Test
-    fun FixtureLifecycleCreatesProperOutEvents() {
+    fun fixtureLifecycleCreatesProperOutEvents() {
         // add fixture type
         patch.addFixtureTypes(listOf(exampleFixtureType))
         assertTrue(queue.pollTimeout() is GlowMessage.AddFixtureTypes)

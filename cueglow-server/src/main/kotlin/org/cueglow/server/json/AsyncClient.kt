@@ -7,4 +7,5 @@ import org.cueglow.server.objects.messages.GlowMessage
  */
 interface AsyncClient {
     fun send(message: GlowMessage)
+    // TODO what happens if send is called but client is disconnected? -> specify! maybe move to boolean return value to indicate this.
 }
