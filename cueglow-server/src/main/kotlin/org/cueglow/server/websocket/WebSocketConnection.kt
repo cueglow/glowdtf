@@ -24,7 +24,7 @@ class WebSocketConnection(val state: StateProvider): WebSocketListener, AsyncCli
      * Sends a message to the WebSocket client.
      * If the client is disconnected, nothing will be done.
      */
-    fun send(message: String) {
+    override fun send(message: String) {
         session?.remote?.sendStringByFuture(message)
     }
 

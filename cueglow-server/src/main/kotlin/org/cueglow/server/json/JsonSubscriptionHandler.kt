@@ -25,8 +25,10 @@ class JsonSubscriptionHandler: OutEventReceiver, Logging {
             else -> return
         }
 
-        topicSubscribers!!.forEach {it.send(glowMessage)} // null asserted because all possible keys are initialized in init block
-        // TODO serialize only once for all subscribers (requires changing the AsyncClient Interface to also accept Strings directly or changing to WebSocketConnection-specific one)
+        if (topicSubscribers!!.isNotEmpty()) { // null asserted because all possible keys are initialized in init block
+            val stringMessage = glowMessage.toJsonString()
+            topicSubscribers.forEach {it.send(stringMessage)}
+        }
     }
 
     fun subscribe(subscriber: AsyncClient, topic: JsonTopic) {

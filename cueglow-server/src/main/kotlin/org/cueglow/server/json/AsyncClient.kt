@@ -12,4 +12,6 @@ interface AsyncClient {
      * If the message cannot be sent (e.g. because the client is disconnected), nothing should happen.
      */
     fun send(message: GlowMessage)
+
+    fun send(message: String)
 }

@@ -22,7 +22,7 @@ class JsonSubscriptionHandlerTest {
         subscriptionHandler.receive(testMessage)
         // now the client should have gotten the message
         assertEquals(1, client.messages.size)
-        assertEquals(testMessage, client.messages.remove())
+        assertEquals(testMessage.toJsonString(), client.messages.remove())
 
         subscriptionHandler.unsubscribe(client, JsonTopic.PATCH)
         subscriptionHandler.receive(testMessage)
@@ -42,10 +42,14 @@ class JsonSubscriptionHandlerTest {
 
 
 class TestClient: AsyncClient, Logging {
-    val messages = LinkedBlockingQueue<GlowMessage>()
+    val messages = LinkedBlockingQueue<String>()
 
     override fun send(message: GlowMessage) {
-        logger.info("Client is instructed to send: ${message.toJsonString()}")
+        send(message.toJsonString())
+    }
+
+    override fun send(message: String) {
+        logger.info("Client is instructed to send: $message")
         messages.add(message)
     }
 }
