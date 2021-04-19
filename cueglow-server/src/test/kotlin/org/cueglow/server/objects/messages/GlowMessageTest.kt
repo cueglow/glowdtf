@@ -110,15 +110,7 @@ class GlowMessageTest {
 
     private val exampleFixtureType = ExampleFixtureType.esprite
 
-    private val examplePatchFixture = PatchFixture(
-        UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
-        1,
-        "exampleFixture",
-        exampleFixtureType.fixtureTypeId,
-        "mode1",
-        ArtNetAddress.tryFrom(1).unwrap(),
-        DmxAddress.tryFrom(1).unwrap(),
-    )
+    private val examplePatchFixture = ExampleFixtureType.esprite_fixture
 
     @Test
     fun addFixtureTypesSnapshotTest() {

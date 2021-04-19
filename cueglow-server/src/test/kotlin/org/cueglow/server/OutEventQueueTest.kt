@@ -21,15 +21,7 @@ class OutEventQueueTest {
     private val state = StateProvider(queue)
     private val patch = state.patch
     private val exampleFixtureType = ExampleFixtureType.esprite
-    private val examplePatchFixture = PatchFixture(
-        UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
-        1,
-        "exampleFixture",
-        exampleFixtureType.fixtureTypeId,
-        "mode1",
-        ArtNetAddress.tryFrom(1).unwrap(),
-        DmxAddress.tryFrom(1).unwrap(),
-    )
+    private val examplePatchFixture = ExampleFixtureType.esprite_fixture
 
     private fun <T> BlockingQueue<T>.pollTimeout(): T = this.poll(1, TimeUnit.SECONDS) ?: throw Error("No Message in Queue until Timeout")
 

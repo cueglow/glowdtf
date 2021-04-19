@@ -4,22 +4,14 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.unwrap
-import org.awaitility.Awaitility
-import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.CueGlowServer
-import org.cueglow.server.objects.ArtNetAddress
-import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.Patch
-import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import java.io.File
 import java.net.URI
-import java.time.Duration
-import java.util.*
 
 /**
  * Tests the WebSocket and REST API
@@ -42,26 +34,13 @@ internal class ApiIntegrationTest {
 
     private lateinit var wsClient: WsClient
 
-    init {
-        Awaitility.setDefaultPollInterval(fibonacci())
-        Awaitility.setDefaultTimeout(Duration.ofSeconds(2))
-    }
-
     //-----------------------------------------------------
     // Helpers
     //-----------------------------------------------------
 
     private val exampleFixtureType = ExampleFixtureType.esprite
 
-    private val examplePatchFixture = PatchFixture(
-        UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
-        1,
-        "exampleFixture",
-        exampleFixtureType.fixtureTypeId,
-        "mode1",
-        ArtNetAddress.tryFrom(1).unwrap(),
-        DmxAddress.tryFrom(1).unwrap(),
-    )
+    private val examplePatchFixture = ExampleFixtureType.esprite_fixture
 
     private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
         val exampleGdtfFile =
@@ -105,7 +84,6 @@ internal class ApiIntegrationTest {
     //-----------------------------------------------------
     // Individual Tests
     //-----------------------------------------------------
-
 
     // GDTF / Fixture Type Tests
 
