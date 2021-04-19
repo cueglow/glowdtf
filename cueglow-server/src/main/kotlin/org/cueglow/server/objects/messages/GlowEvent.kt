@@ -10,6 +10,7 @@ enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessag
     // Generic
 
     ERROR("error", GlowMessage.Error::class),
+    SYNC("sync", GlowMessage.Sync::class),
 
     // Patch-specific
 

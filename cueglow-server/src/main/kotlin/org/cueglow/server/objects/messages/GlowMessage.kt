@@ -25,6 +25,7 @@ sealed class GlowMessage constructor(
     // Generic
 
     class Error(@Json(index=1) val data: GlowError, messageId: Int? = null): GlowMessage(GlowEvent.ERROR, messageId)
+    class Sync(@Json(index=1) val data: UUID, messageId: Int? = null): GlowMessage(GlowEvent.SYNC, messageId)
 
     // Patch-specific
 

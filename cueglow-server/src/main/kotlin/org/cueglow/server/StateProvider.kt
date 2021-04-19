@@ -10,6 +10,6 @@ import java.util.concurrent.BlockingQueue
  *
  * The StateProvider is initialized by the main process and passed to e.g. a [JsonHandler] for mutation.
  */
-class StateProvider(outEventQueue: BlockingQueue<GlowMessage>) {
+class StateProvider(val outEventQueue: BlockingQueue<GlowMessage>) {
     val patch = Patch(outEventQueue)
 }
