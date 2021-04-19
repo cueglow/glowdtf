@@ -22,32 +22,6 @@ internal class ApiIntegrationTest: ClientAndServerTest() {
     // Individual Tests
     //-----------------------------------------------------
 
-    // Update Fixture Tests
-
-    @Test
-    fun updateUnknownFixture() {
-        setupExampleFixture()
-        updateUnknownFixtureTest(wsClient)
-    }
-
-    @Test
-    fun updateAddress() {
-        setupExampleFixture()
-        updateAddressTest(wsClient, patch)
-    }
-
-    @Test
-    fun updateUniverse() {
-        setupExampleFixture()
-        updateUniverseTest(wsClient, patch)
-    }
-
-    @Test
-    fun updateNameAndFid() {
-        setupExampleFixture()
-        updateNameAndFidTest(wsClient, patch)
-    }
-
     // Remove Fixture Tests
 
     @Test
