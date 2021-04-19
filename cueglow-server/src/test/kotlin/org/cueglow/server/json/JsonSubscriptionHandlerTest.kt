@@ -4,6 +4,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.StateProvider
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.objects.messages.GlowPatch
+import org.cueglow.server.objects.messages.GlowTopic
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.LinkedBlockingQueue
@@ -25,7 +26,7 @@ class JsonSubscriptionHandlerTest {
         // without subscription, the message should not arrive
         assertEquals(0, client.messages.size)
 
-        subscriptionHandler.subscribe(client, JsonTopic.PATCH, state)
+        subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
 
         // client should get initial state
         assertEquals(1, client.messages.size)
@@ -49,7 +50,7 @@ class JsonSubscriptionHandlerTest {
         assertEquals(testMessage.toJsonString(), client.messages.remove())
 
         // unsubscribe
-        subscriptionHandler.unsubscribe(client, JsonTopic.PATCH)
+        subscriptionHandler.unsubscribe(client, GlowTopic.PATCH)
 
         // now the client should not get another message because he unsubscribed
         subscriptionHandler.receive(testMessage)
@@ -58,7 +59,7 @@ class JsonSubscriptionHandlerTest {
 
     @Test
     fun unsubscribeWithoutTopic() {
-        subscriptionHandler.subscribe(client, JsonTopic.PATCH, state)
+        subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
 
         assertEquals(1, client.messages.size)
         assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
@@ -74,11 +75,11 @@ class JsonSubscriptionHandlerTest {
 
     @Test
     fun resubscribeBlocksMessagesUntilSync() {
-        subscriptionHandler.subscribe(client, JsonTopic.PATCH, state)
+        subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
         subscriptionHandler.receive(outEventQueue.remove())
 
         // resubscribe - now messages must be blocked until second sync delivery
-        subscriptionHandler.subscribe(client, JsonTopic.PATCH, state)
+        subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
 
         assertEquals(2, client.messages.size)
         assertEquals(expectedInitialState.toJsonString(), client.messages.remove())

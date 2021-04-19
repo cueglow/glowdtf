@@ -3,15 +3,14 @@ package org.cueglow.server.objects.messages
 import com.github.michaelbull.result.getOrElse
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.StateProvider
-import org.cueglow.server.json.JsonTopic
 
 abstract class IncomingGlowRequestHandler(private val state: StateProvider, private val subscriptionHandler: SubscriptionHandler): Logging {
     fun handle(request: GlowRequest) {
         when (request.originalMessage.event) {
             // TODO remove events that shouldn't come from outside and handle them with Error in else clause
-            GlowEvent.PATCH_SUBSCRIBE -> subscriptionHandler.subscribe(request.client, JsonTopic.PATCH, state)
+            GlowEvent.PATCH_SUBSCRIBE -> subscriptionHandler.subscribe(request.client, GlowTopic.PATCH, state)
             GlowEvent.PATCH_INITIAL_STATE -> TODO("client must not send this - error")
-            GlowEvent.PATCH_UNSUBSCRIBE -> subscriptionHandler.unsubscribe(request.client, JsonTopic.PATCH)
+            GlowEvent.PATCH_UNSUBSCRIBE -> subscriptionHandler.unsubscribe(request.client, GlowTopic.PATCH)
             GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> handleAddFixtures(request)
             GlowEvent.UPDATE_FIXTURES -> handleUpdateFixture(request)
