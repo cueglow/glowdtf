@@ -3,15 +3,9 @@ package org.cueglow.server.integration
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.ResponseResultOf
-import com.github.michaelbull.result.Ok
-import org.cueglow.server.CueGlowServer
-import org.cueglow.server.patch.Patch
-import org.cueglow.server.test_utilities.ExampleFixtureType
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
+import org.cueglow.server.test_utilities.ClientAndServerTest
+import org.junit.jupiter.api.Test
 import java.io.File
-import java.net.URI
 
 /**
  * Tests the WebSocket and REST API
@@ -22,26 +16,7 @@ import java.net.URI
  *
  * To wait for responses/state-changes we use Awaitility.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(OrderAnnotation::class)
-internal class ApiIntegrationTest {
-    //-----------------------------------------------------
-    // Initialization
-    //-----------------------------------------------------
-    private lateinit var server: CueGlowServer
-
-    private lateinit var patch: Patch
-
-    private lateinit var wsClient: WsClient
-
-    //-----------------------------------------------------
-    // Helpers
-    //-----------------------------------------------------
-
-    private val exampleFixtureType = ExampleFixtureType.esprite
-
-    private val examplePatchFixture = ExampleFixtureType.esprite_fixture
-
+internal class ApiIntegrationTest: ClientAndServerTest() {
     private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
         val exampleGdtfFile =
             File(javaClass.classLoader.getResource(filename)?.file ?: throw Error("can't get resource"))
@@ -53,34 +28,6 @@ internal class ApiIntegrationTest {
             )
             .responseString()
     }
-
-    private fun setupExampleFixtureType() {
-        assertTrue(patch.addFixtureTypes(listOf(exampleFixtureType)) is Ok)
-    }
-
-    private fun setupExampleFixture() {
-        setupExampleFixtureType()
-        assert(patch.addFixtures(listOf(examplePatchFixture)) is Ok)
-    }
-
-    //-----------------------------------------------------
-    // Setup/Teardown for Each Test
-    //-----------------------------------------------------
-
-    @BeforeEach
-    fun setup() {
-        server = CueGlowServer()
-        patch = server.state.patch
-        wsClient = WsClient(URI("ws://localhost:7000/ws"))
-        wsClient.connectBlocking()
-    }
-
-    @AfterEach
-    fun teardown() {
-        wsClient.closeBlocking()
-        server.stop()
-    }
-
     //-----------------------------------------------------
     // Individual Tests
     //-----------------------------------------------------
