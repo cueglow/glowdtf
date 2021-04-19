@@ -22,32 +22,6 @@ internal class ApiIntegrationTest: ClientAndServerTest() {
     // Individual Tests
     //-----------------------------------------------------
 
-    // Add Fixture Tests
-
-    @Test
-    fun addFixture() {
-        setupExampleFixtureType()
-        addFixtureTest(wsClient, patch, examplePatchFixture)
-    }
-
-    @Test
-    fun addFixtureDuplicateUuid() {
-        setupExampleFixture()
-        addFixtureDuplicateUuidTest(wsClient, patch)
-    }
-
-    @Test
-    fun addFixtureInvalidFixtureTypeId() {
-        setupExampleFixtureType()
-        addFixtureInvalidFixtureTypeIdTest(wsClient, patch)
-    }
-
-    @Test
-    fun addFixtureInvalidDmxMode() {
-        setupExampleFixtureType()
-        addFixtureInvalidDmxModeTest(wsClient, patch)
-    }
-
     // Update Fixture Tests
 
     @Test

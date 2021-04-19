@@ -7,7 +7,6 @@ import org.awaitility.Awaitility.await
 import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
-import org.cueglow.server.patch.Patch
 import org.cueglow.server.test_utilities.ClientAndServerTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
