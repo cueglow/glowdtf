@@ -8,7 +8,7 @@ import java.net.URI
 
 /*** WebSocket client for Testing */
 class WsClient(uri: URI): WebSocketClient(uri), Logging {
-    private val receivedMessages = ArrayDeque<String>()
+    val receivedMessages = ArrayDeque<String>()
 
     override fun onOpen(handshakedata: ServerHandshake?) {
         logger.info("WsClient opened")

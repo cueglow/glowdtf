@@ -39,18 +39,19 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
     }
 
     fun subscribe(subscriber: AsyncClient, topic: GlowTopic, state: StateProvider) {
-        unsubscribe(subscriber, topic)
+        if (internalUnsubscribe(subscriber, topic)) {logger.warn("Client $subscriber subscribed to $topic but was already subscribed. Subscription was reset. ")}
         when (topic) {
             GlowTopic.PATCH -> {
                 val syncUuid = UUID.randomUUID()
                 val syncMessage = GlowMessage.Sync(syncUuid)
+                pendingSubscriptions[syncUuid] = Pair(GlowTopic.PATCH, subscriber)
                 // TODO acquire state lock here
                 val initialPatchState = state.patch.getGlowPatch()
                 state.outEventQueue.put(syncMessage) // TODO possible deadlock because SubscriptionHandler is locked and cannot work to reduce message count in queue
+                // no deadlock problem if we don't have the SubscriptionHandler Lock here?
                 // TODO release state lock here
                 val initialMessage = GlowMessage.PatchInitialState(initialPatchState)
                 subscriber.send(initialMessage)
-                pendingSubscriptions[syncUuid] = Pair(GlowTopic.PATCH, subscriber)
             }
         }
     }
@@ -61,7 +62,12 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
     }
 
     fun unsubscribe(subscriber: AsyncClient, topic: GlowTopic) {
-        subscriptions[topic]!!.remove(subscriber) // null asserted because all possible keys are initialized in init block
+        if (!internalUnsubscribe(subscriber, topic)) {logger.warn("Client $subscriber unsubscribed from $topic but was not subscribed")}
+    }
+
+    /** Returns true if the subscriber was successfully unsubscribed and false if the subscriber wasn't subscribed */
+    private fun internalUnsubscribe(subscriber: AsyncClient, topic: GlowTopic): Boolean {
+        return subscriptions[topic]!!.remove(subscriber) // null asserted because all possible keys are initialized in init block
     }
 
     fun unsubscribe(subscriber: AsyncClient) {
