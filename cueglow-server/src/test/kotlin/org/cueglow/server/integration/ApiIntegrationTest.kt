@@ -17,52 +17,10 @@ import java.io.File
  * To wait for responses/state-changes we use Awaitility.
  */
 internal class ApiIntegrationTest: ClientAndServerTest() {
-    private fun uploadGdtfFile(filename: String, partname: String = "file"): ResponseResultOf<String> {
-        val exampleGdtfFile =
-            File(javaClass.classLoader.getResource(filename)?.file ?: throw Error("can't get resource"))
-        return Fuel.upload("http://localhost:7000/api/fixturetype")
-            .add(
-                FileDataPart(
-                    exampleGdtfFile, name = partname, filename = filename
-                )
-            )
-            .responseString()
-    }
+
     //-----------------------------------------------------
     // Individual Tests
     //-----------------------------------------------------
-
-    // GDTF / Fixture Type Tests
-
-    @Test
-    fun uploadGdtfFixtureType() = gdtfUploadTest(::uploadGdtfFile, patch)
-
-    @Test
-    fun invalidGdtfFileUpload() = invalidGdtfUploadTest(::uploadGdtfFile, patch)
-
-    @Test
-    fun noFilePartInGdtfUpload() = noFilePartInGdtfUploadErrors(::uploadGdtfFile)
-
-    @Test
-    fun gdtfWithoutDescriptionXml() = noDescriptionXmlUploadError(::uploadGdtfFile)
-
-    @Test
-    fun gdtfWithChannelClash() = gdtfWithChannelClash(::uploadGdtfFile)
-
-    @Test
-    fun gdtfWithMissingBreakInGeometryReference() = gdtfWithMissingBreakInGeometryReference(::uploadGdtfFile)
-
-    @Test
-    fun removeInvalidFixtureTypes() {
-        setupExampleFixture()
-        removeInvalidFixtureTypesTest(wsClient, patch)
-    }
-
-    @Test
-    fun removeFixtureType() {
-        setupExampleFixture()
-        removeFixtureTypeTest(wsClient, patch)
-    }
 
     // Add Fixture Tests
 
