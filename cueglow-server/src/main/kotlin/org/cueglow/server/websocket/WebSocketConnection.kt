@@ -6,10 +6,11 @@ import org.cueglow.server.json.AsyncClient
 import org.cueglow.server.json.JsonHandler
 import org.cueglow.server.json.toJsonString
 import org.cueglow.server.objects.messages.GlowMessage
+import org.cueglow.server.objects.messages.SubscriptionHandler
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.WebSocketListener
 
-class WebSocketConnection(val state: StateProvider): WebSocketListener, AsyncClient, Logging {
+class WebSocketConnection(val state: StateProvider, val subscriptionHandler: SubscriptionHandler): WebSocketListener, AsyncClient, Logging {
 
     @Volatile
     var session: Session? = null
@@ -39,7 +40,7 @@ class WebSocketConnection(val state: StateProvider): WebSocketListener, AsyncCli
     override fun onWebSocketConnect(newSession: Session) {
         session = newSession
         logger.info("WebSocket connection with ${newSession.remoteAddress} established")
-        jsonHandler = JsonHandler(this, state)
+        jsonHandler = JsonHandler(this, state, subscriptionHandler)
     }
 
     override fun onWebSocketText(message: String?) {

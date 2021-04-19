@@ -35,7 +35,7 @@ class CueGlowServer(port: Int = 7000) : Logging {
         // add our own WebSocket Handler
         config.server {
             val server = Server()
-            server.handler = GlowWebSocketHandler(state)
+            server.handler = GlowWebSocketHandler(state, jsonSubscriptionHandler)
             return@server server
         }
         config.requestLogger { ctx, executionTimeMs ->
