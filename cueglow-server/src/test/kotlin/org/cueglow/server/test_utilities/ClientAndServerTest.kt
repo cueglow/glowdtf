@@ -2,7 +2,6 @@ package org.cueglow.server.test_utilities
 
 import com.github.michaelbull.result.Ok
 import org.cueglow.server.CueGlowServer
-import org.cueglow.server.integration.WsClient
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import java.net.URI

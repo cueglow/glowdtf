@@ -1,4 +1,4 @@
-package org.cueglow.server.integration
+package org.cueglow.server.test_utilities
 
 import org.apache.logging.log4j.kotlin.Logging
 import org.awaitility.Awaitility

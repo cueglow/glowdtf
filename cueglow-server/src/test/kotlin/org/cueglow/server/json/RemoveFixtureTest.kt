@@ -1,7 +1,6 @@
-package org.cueglow.server.integration
+package org.cueglow.server.json
 
 import org.awaitility.Awaitility
-import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.test_utilities.ClientAndServerTest
