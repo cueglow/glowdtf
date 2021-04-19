@@ -5,7 +5,6 @@ import com.github.michaelbull.result.unwrap
 import com.karumi.kotlinsnapshot.matchWithSnapshot
 import org.cueglow.server.json.fromJsonString
 import org.cueglow.server.json.toJsonString
-import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate

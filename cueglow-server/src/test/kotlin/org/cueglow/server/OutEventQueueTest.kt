@@ -1,17 +1,12 @@
 package org.cueglow.server
 
 import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.unwrap
-import org.cueglow.server.objects.ArtNetAddress
-import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.messages.GlowMessage
-import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.util.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit

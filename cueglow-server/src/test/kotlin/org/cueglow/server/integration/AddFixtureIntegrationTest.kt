@@ -29,7 +29,7 @@ class AddFixtureIntegrationTest: ClientAndServerTest() {
     }""".trimIndent()
 
     @Test
-    fun addFixtureTest() {
+    fun addFixture() {
         setupExampleFixtureType()
 
         wsClient.send(addFixtureJsonMessage)
@@ -40,7 +40,7 @@ class AddFixtureIntegrationTest: ClientAndServerTest() {
     }
 
     @Test
-    fun addFixtureDuplicateUuidTest() {
+    fun addFixtureDuplicateUuid() {
         setupExampleFixture()
 
         wsClient.send(addFixtureJsonMessage)
@@ -56,7 +56,7 @@ class AddFixtureIntegrationTest: ClientAndServerTest() {
     }
 
     @Test
-    fun addFixtureInvalidFixtureTypeIdTest() {
+    fun addFixtureInvalidFixtureTypeId() {
         setupExampleFixtureType()
 
         val initialFixtureCount = patch.getFixtures().size
@@ -92,7 +92,7 @@ class AddFixtureIntegrationTest: ClientAndServerTest() {
     }
 
     @Test
-    fun addFixtureInvalidDmxModeTest() {
+    fun addFixtureInvalidDmxMode() {
         setupExampleFixtureType()
 
         val initialFixtureCount = patch.getFixtures().size

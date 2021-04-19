@@ -28,7 +28,7 @@ class GdtfIntegrationTest: ClientAndServerTest() {
     }
 
     @Test
-    fun gdtfUploadTest() {
+    fun gdtfUpload() {
         // HTTP Request
         val (_, response, result) = uploadGdtfFile("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf")
 
@@ -51,7 +51,7 @@ class GdtfIntegrationTest: ClientAndServerTest() {
     }
 
     @Test
-    fun removeInvalidFixtureTypesTest() {
+    fun removeInvalidFixtureTypes() {
         setupExampleFixture()
 
         val uuid1 = UUID.fromString("049bbf91-25f4-495f-ae30-9289adb8c2cf")
@@ -84,7 +84,7 @@ class GdtfIntegrationTest: ClientAndServerTest() {
     }
 
     @Test
-    fun removeFixtureTypeTest() {
+    fun removeFixtureType() {
         setupExampleFixture()
 
         val deleteJSONMsg =
@@ -105,7 +105,7 @@ class GdtfIntegrationTest: ClientAndServerTest() {
     }
 
     @Test
-    fun invalidGdtfUploadTest() {
+    fun invalidGdtfUpload() {
         val (_, response, _) = uploadGdtfFile("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf.broken")
 
         assertEquals(400, response.statusCode)

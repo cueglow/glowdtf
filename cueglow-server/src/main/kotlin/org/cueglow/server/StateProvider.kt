@@ -4,7 +4,6 @@ import org.cueglow.server.json.JsonHandler
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.patch.Patch
 import java.util.concurrent.BlockingQueue
-import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * Provides a collection of state objects
