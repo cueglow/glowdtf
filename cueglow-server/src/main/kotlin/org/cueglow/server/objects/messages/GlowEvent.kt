@@ -2,7 +2,6 @@ package org.cueglow.server.objects.messages
 
 import kotlin.reflect.KClass
 
-// TODO change class associations to GlowMessage classes
 /**
  * The different events in the [GlowMessage]
  */

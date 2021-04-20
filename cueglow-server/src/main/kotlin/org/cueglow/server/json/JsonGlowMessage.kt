@@ -1,9 +1,6 @@
 package org.cueglow.server.json
 
-import com.beust.klaxon.Converter
-import com.beust.klaxon.JsonValue
-import com.beust.klaxon.Klaxon
-import com.beust.klaxon.TypeAdapter
+import com.beust.klaxon.*
 import com.github.michaelbull.result.*
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
@@ -18,8 +15,6 @@ import kotlin.reflect.KClass
 // Serialization and Parsing
 //--------------------------
 
-// TODO check if this works with the new GlowMessage design
-
 /** Convert GlowMessage to JSON String by Extension Function */
 fun GlowMessage.toJsonString(): String {
     return Klaxon()
@@ -33,7 +28,6 @@ fun GlowMessage.toJsonString(): String {
         .toJsonString(this)
 }
 
-// TODO check if this works with the new GlowMessage design
 /**
  * Parse JSON to the internal representation [GlowMessage]
  */
@@ -46,7 +40,7 @@ fun GlowMessage.Companion.fromJsonString(input: String): GlowMessage = Klaxon()
     .converter(DmxAddressConverter)
     .converter(ArtNetAddressConverter)
     .parse<GlowMessage>(StringReader(input))
-    ?: TODO("Error Handling is WIP")
+    ?: throw KlaxonException("Klaxon Parser returned null after parsing '$input'")
 
 //-------------------------------
 // Klaxon Adapters and Converters

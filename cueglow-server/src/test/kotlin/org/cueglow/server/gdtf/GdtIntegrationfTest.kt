@@ -46,8 +46,6 @@ class GdtfIntegrationTest: ClientAndServerTest() {
         // check that fixture is added to Patch
         assertEquals(1, patch.getFixtureTypes().size)
         assertEquals("Robin Esprite", patch.getFixtureTypes()[expectedUUID]?.name)
-
-        // TODO check that streamUpdate is delivered (once streams are working)
     }
 
     @Test
@@ -117,8 +115,6 @@ class GdtfIntegrationTest: ClientAndServerTest() {
 
         // no fixtureType should be added
         assertEquals(0, patch.getFixtureTypes().size)
-
-        // TODO check error response once error handling is more mature
     }
 
     @Test
