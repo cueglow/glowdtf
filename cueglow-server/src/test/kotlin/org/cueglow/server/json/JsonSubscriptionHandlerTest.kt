@@ -73,7 +73,7 @@ class JsonSubscriptionHandlerTest {
         subscriptionHandler.receive(outEventQueue.remove())
 
         // function under test - unsubscribe without specifying topic
-        subscriptionHandler.unsubscribe(client)
+        subscriptionHandler.unsubscribeFromAllTopics(client)
 
         subscriptionHandler.receive(testMessage)
         assertEquals(0, client.messages.size)
@@ -104,7 +104,31 @@ class JsonSubscriptionHandlerTest {
         assertEquals(testMessage.toJsonString(), client.messages.remove())
     }
 
-    // TODO test what happens if we subscribe and then unsubscribe before sync arrives, then sync arrives -> should not be subscribed now (unsubscribe with/without topic!)
+    @Test
+    fun unsubscribeAllBeforeSync() {
+        subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
+        assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
+        subscriptionHandler.unsubscribeFromAllTopics(client)
+        // sync
+        subscriptionHandler.receive(outEventQueue.remove())
+
+        // client should not get updates
+        subscriptionHandler.receive(testMessage)
+        assertEquals(0, client.messages.size)
+    }
+
+    @Test
+    fun unsubscribeBeforeSync() {
+        subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
+        assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
+        subscriptionHandler.unsubscribe(client, GlowTopic.PATCH)
+        // sync
+        subscriptionHandler.receive(outEventQueue.remove())
+
+        // client should not get updates
+        subscriptionHandler.receive(testMessage)
+        assertEquals(0, client.messages.size)
+    }
 }
 
 

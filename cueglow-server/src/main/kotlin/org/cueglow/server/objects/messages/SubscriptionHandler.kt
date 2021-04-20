@@ -79,10 +79,17 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
 
     /** Returns true if the subscriber was successfully unsubscribed and false if the subscriber wasn't subscribed */
     private fun internalUnsubscribe(subscriber: AsyncClient, topic: GlowTopic): Boolean {
-        return activeSubscriptions[topic]!!.remove(subscriber) // null asserted because all possible keys are initialized in init block
+        val numberOfSubscriptionsRemovedFromPending = pendingSubscriptions
+            .filter {it.value.first == topic && it.value.second == subscriber}
+            .keys
+            .map {pendingSubscriptions.remove(it)}
+            .size
+        val removedFromActive = activeSubscriptions[topic]!!.remove(subscriber) // null asserted because all possible keys are initialized in init block
+        return removedFromActive || numberOfSubscriptionsRemovedFromPending > 0
     }
 
-    fun unsubscribe(subscriber: AsyncClient) {
+    fun unsubscribeFromAllTopics(subscriber: AsyncClient) {
+        pendingSubscriptions.filter {it.value.second == subscriber}.keys.map { pendingSubscriptions.remove(it) }
         activeSubscriptions.values.forEach {
             it.remove(subscriber)
         }
