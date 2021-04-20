@@ -52,7 +52,7 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
         }
         if (successList.isNotEmpty()) {
             val glowMessage = messageType.primaryConstructor?.call(successList, null) ?: throw IllegalArgumentException("messageType does not have a primary constructor")
-            outEventQueue.put(glowMessage) // possibly blocks rendering/etc. but the changes were already made so the message needs to be put into the queue
+            outEventQueue.put(glowMessage) // TODO possibly blocks rendering/etc. but the changes were already made so the message needs to be put into the queue
         }
         return mainResult
     }

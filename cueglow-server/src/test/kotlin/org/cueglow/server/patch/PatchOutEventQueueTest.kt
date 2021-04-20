@@ -1,8 +1,8 @@
-package org.cueglow.server
+package org.cueglow.server.patch
 
 import com.github.michaelbull.result.Err
+import org.cueglow.server.StateProvider
 import org.cueglow.server.objects.messages.GlowMessage
-import org.cueglow.server.patch.PatchFixtureUpdate
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -11,7 +11,7 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
-class OutEventQueueTest {
+class PatchOutEventQueueTest {
     private val queue = LinkedBlockingQueue<GlowMessage>()
     private val state = StateProvider(queue)
     private val patch = state.patch

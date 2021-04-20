@@ -12,19 +12,8 @@ import java.io.InputStream
 import java.time.Duration
 import java.util.*
 
-fun fixtureTypeFromGdtfResource(exampleGdtfFileName: String, cls: Class<*>): GdtfWrapper {
-    val exampleGdtfInputStream: InputStream =
-        cls.classLoader.getResourceAsStream(exampleGdtfFileName) ?: throw Error("inputStream is Null")
-    val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream).unwrap()
-    return GdtfWrapper(parsedExampleGdtf)
-}
-
+/** Provides Example [GdtfWrapper] and an example [PatchFixture] for tests. **/
 object ExampleFixtureType {
-    init {
-        Awaitility.setDefaultPollInterval(fibonacci())
-        Awaitility.setDefaultTimeout(Duration.ofSeconds(2))
-    }
-
     val esprite = fixtureTypeFromGdtfResource("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf", this.javaClass)
 
     val esprite_fixture = PatchFixture(
@@ -36,4 +25,17 @@ object ExampleFixtureType {
         ArtNetAddress.tryFrom(1).unwrap(),
         DmxAddress.tryFrom(1).unwrap(),
     )
+
+    // additional: Global settings for Awaitility
+    init {
+        Awaitility.setDefaultPollInterval(fibonacci())
+        Awaitility.setDefaultTimeout(Duration.ofSeconds(2))
+    }
+}
+
+fun fixtureTypeFromGdtfResource(exampleGdtfFileName: String, cls: Class<*>): GdtfWrapper {
+    val exampleGdtfInputStream: InputStream =
+        cls.classLoader.getResourceAsStream(exampleGdtfFileName) ?: throw Error("inputStream is Null")
+    val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream).unwrap()
+    return GdtfWrapper(parsedExampleGdtf)
 }
