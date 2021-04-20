@@ -7,6 +7,7 @@ import org.cueglow.server.objects.messages.GlowPatch
 import org.cueglow.server.objects.messages.GlowTopic
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
 class JsonSubscriptionHandlerTest {
@@ -37,6 +38,11 @@ class JsonSubscriptionHandlerTest {
         val syncMessage = outEventQueue.remove() as GlowMessage.Sync
 
         // updates should not get delivered until sync is delivered to the SubscriptionHandler
+        subscriptionHandler.receive(testMessage)
+        assertEquals(0, client.messages.size)
+
+        // when a foreign sync message arrives, updates are still not delivered
+        subscriptionHandler.receive(GlowMessage.Sync(UUID.randomUUID()))
         subscriptionHandler.receive(testMessage)
         assertEquals(0, client.messages.size)
 
