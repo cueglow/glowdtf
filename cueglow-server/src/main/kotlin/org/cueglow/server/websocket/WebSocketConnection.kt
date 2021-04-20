@@ -58,7 +58,7 @@ class WebSocketConnection(val state: StateProvider, val subscriptionHandler: Sub
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         logger.info("WebSocket connection to ${session?.remoteAddress} closed. Status: $statusCode. Reason: $reason. ")
+        subscriptionHandler.unsubscribe(this)
         session = null
-        // TODO pass close event to jsonHandler (unsubscribe, etc.) (must still be added in StringReceiver interface)
     }
 }
