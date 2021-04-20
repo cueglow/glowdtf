@@ -103,6 +103,8 @@ class JsonSubscriptionHandlerTest {
         assertEquals(1, client.messages.size)
         assertEquals(testMessage.toJsonString(), client.messages.remove())
     }
+
+    // TODO test what happens if we subscribe and then unsubscribe before sync arrives, then sync arrives -> should not be subscribed now (unsubscribe with/without topic!)
 }
 
 
