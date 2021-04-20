@@ -7,18 +7,13 @@ import org.cueglow.server.StateProvider
 abstract class IncomingGlowRequestHandler(private val state: StateProvider, private val subscriptionHandler: SubscriptionHandler): Logging {
     fun handle(request: GlowRequest) {
         when (request.originalMessage.event) {
-            // TODO remove events that shouldn't come from outside and handle them with Error in else clause
             GlowEvent.SUBSCRIBE -> subscriptionHandler.subscribe(request.client, (request.originalMessage as GlowMessage.Subscribe).data, state)
-            GlowEvent.PATCH_INITIAL_STATE -> TODO("client must not send this - error")
             GlowEvent.UNSUBSCRIBE -> subscriptionHandler.unsubscribe(request.client, (request.originalMessage as GlowMessage.Unsubscribe).data)
-            GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> handleAddFixtures(request)
             GlowEvent.UPDATE_FIXTURES -> handleUpdateFixture(request)
             GlowEvent.REMOVE_FIXTURES -> handleRemoveFixtures(request)
-            GlowEvent.FIXTURE_TYPE_ADDED -> TODO()
             GlowEvent.REMOVE_FIXTURE_TYPES -> handleRemoveFixtureTypes(request)
-            GlowEvent.ADD_FIXTURE_TYPES -> TODO()
-            GlowEvent.SYNC -> TODO()
+            else -> logger.warn("Received a message with event ${request.originalMessage.event} which should not be sent by client. Discarding message. ")
         }
     }
 
