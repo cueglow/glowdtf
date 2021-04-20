@@ -8,9 +8,9 @@ abstract class IncomingGlowRequestHandler(private val state: StateProvider, priv
     fun handle(request: GlowRequest) {
         when (request.originalMessage.event) {
             // TODO remove events that shouldn't come from outside and handle them with Error in else clause
-            GlowEvent.PATCH_SUBSCRIBE -> subscriptionHandler.subscribe(request.client, GlowTopic.PATCH, state)
+            GlowEvent.SUBSCRIBE -> subscriptionHandler.subscribe(request.client, (request.originalMessage as GlowMessage.Subscribe).data, state)
             GlowEvent.PATCH_INITIAL_STATE -> TODO("client must not send this - error")
-            GlowEvent.PATCH_UNSUBSCRIBE -> subscriptionHandler.unsubscribe(request.client, GlowTopic.PATCH)
+            GlowEvent.UNSUBSCRIBE -> subscriptionHandler.unsubscribe(request.client, (request.originalMessage as GlowMessage.Unsubscribe).data)
             GlowEvent.ERROR -> TODO()
             GlowEvent.ADD_FIXTURES -> handleAddFixtures(request)
             GlowEvent.UPDATE_FIXTURES -> handleUpdateFixture(request)

@@ -12,11 +12,14 @@ enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessag
     ERROR("error", GlowMessage.Error::class),
     SYNC("sync", GlowMessage.Sync::class),
 
+    // Subscriptions
+
+    SUBSCRIBE("subscribe", GlowMessage.Subscribe::class),
+    UNSUBSCRIBE("unsubscribe", GlowMessage.Unsubscribe::class),
+
     // Patch-specific
 
-    PATCH_SUBSCRIBE("patchSubscribe", GlowMessage.PatchSubscribe::class),
     PATCH_INITIAL_STATE("patchInitialState", GlowMessage.PatchInitialState::class),
-    PATCH_UNSUBSCRIBE("patchUnsubscribe", GlowMessage.PatchUnsubscribe::class),
 
     ADD_FIXTURES("addFixtures", GlowMessage.AddFixtures::class),
     UPDATE_FIXTURES("updateFixtures", GlowMessage.UpdateFixtures::class),

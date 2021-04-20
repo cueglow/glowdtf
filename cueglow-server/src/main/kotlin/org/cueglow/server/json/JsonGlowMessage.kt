@@ -9,6 +9,7 @@ import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
+import org.cueglow.server.objects.messages.GlowTopic
 import java.io.StringReader
 import java.util.*
 import kotlin.reflect.KClass
@@ -25,6 +26,7 @@ fun GlowMessage.toJsonString(): String {
         .fieldConverter(KlaxonArtNetAddressUpdate::class, ArtNetAddressResultConverter)
         .fieldConverter(KlaxonDmxAddressUpdate::class, DmxAddressResultConverter)
         .converter(KlaxonGlowEventConverter)
+        .converter(KlaxonGlowTopicConverter)
         .converter(UUIDConverter)
         .converter(DmxAddressConverter)
         .converter(ArtNetAddressConverter)
@@ -39,6 +41,7 @@ fun GlowMessage.Companion.fromJsonString(input: String): GlowMessage = Klaxon()
     .fieldConverter(KlaxonArtNetAddressUpdate::class, ArtNetAddressResultConverter)
     .fieldConverter(KlaxonDmxAddressUpdate::class, DmxAddressResultConverter)
     .converter(KlaxonGlowEventConverter)
+    .converter(KlaxonGlowTopicConverter)
     .converter(UUIDConverter)
     .converter(DmxAddressConverter)
     .converter(ArtNetAddressConverter)
@@ -60,6 +63,14 @@ object KlaxonGlowEventConverter: Converter {
     override fun toJson(value: Any): String = "\"$value\""
 
     override fun fromJson(jv: JsonValue): GlowEvent? = GlowEvent.fromString(jv.inside.toString())
+}
+
+object KlaxonGlowTopicConverter: Converter {
+    override fun canConvert(cls: Class<*>): Boolean = cls == GlowTopic::class.java
+
+    override fun toJson(value: Any): String = "\"$value\""
+
+    override fun fromJson(jv: JsonValue): GlowTopic? = GlowTopic.fromString(jv.inside.toString())
 }
 
 object UUIDConverter: Converter {

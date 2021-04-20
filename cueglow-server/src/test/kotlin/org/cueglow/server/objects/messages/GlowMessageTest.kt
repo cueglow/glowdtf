@@ -37,11 +37,11 @@ class GlowMessageTest {
     }
 
     @Test
-    fun testPatchSubscribe() {
-        val glowMessage = GlowMessage.PatchSubscribe()
+    fun testSubscribe() {
+        val glowMessage = GlowMessage.Subscribe(GlowTopic.PATCH)
 
         val expectedJson =
-            """{"event" : "patchSubscribe"}""".trimIndent()
+            """{"event" : "subscribe", "data" : "patch"}""".trimIndent()
 
         assertEquals(expectedJson, glowMessage.toJsonString())
 
@@ -52,11 +52,11 @@ class GlowMessageTest {
     }
 
     @Test
-    fun testPatchUnsubscribe() {
-        val glowMessage = GlowMessage.PatchUnsubscribe()
+    fun testUnsubscribe() {
+        val glowMessage = GlowMessage.Unsubscribe(GlowTopic.PATCH)
 
         val expectedJson =
-            """{"event" : "patchUnsubscribe"}""".trimIndent()
+            """{"event" : "unsubscribe", "data" : "patch"}""".trimIndent()
 
         assertEquals(expectedJson, glowMessage.toJsonString())
 

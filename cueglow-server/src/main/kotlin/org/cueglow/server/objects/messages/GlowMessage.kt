@@ -27,11 +27,14 @@ sealed class GlowMessage constructor(
     class Error(@Json(index=1) val data: GlowError, messageId: Int? = null): GlowMessage(GlowEvent.ERROR, messageId)
     class Sync(@Json(index=1) val data: UUID, messageId: Int? = null): GlowMessage(GlowEvent.SYNC, messageId)
 
-    // Patch-specific
+    // Subscriptions
 
-    class PatchSubscribe(): GlowMessage(GlowEvent.PATCH_SUBSCRIBE, null)
+    class Subscribe(@Json(index=1) val data: GlowTopic): GlowMessage(GlowEvent.SUBSCRIBE, null)
+    class Unsubscribe(@Json(index=1) val data: GlowTopic): GlowMessage(GlowEvent.UNSUBSCRIBE, null)
+
+    // Patch Topic
+
     class PatchInitialState(@Json(index=1) val data: GlowPatch): GlowMessage(GlowEvent.PATCH_INITIAL_STATE, null)
-    class PatchUnsubscribe(): GlowMessage(GlowEvent.PATCH_UNSUBSCRIBE, null)
 
     class AddFixtures(@Json(index=1) val data: List<PatchFixture>, messageId: Int? = null): GlowMessage(GlowEvent.ADD_FIXTURES, messageId)
     class UpdateFixtures(@Json(index=1) val data: List<PatchFixtureUpdate>, messageId: Int? = null): GlowMessage(GlowEvent.UPDATE_FIXTURES, messageId)

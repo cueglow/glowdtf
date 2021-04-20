@@ -12,11 +12,12 @@ import org.junit.jupiter.api.Test
 class PatchSubscriptionTest: ClientAndServerTest() {
     val subscriptionMessage =
         """{
-            "event": "patchSubscribe"
+            "event": "subscribe",
+            "data": "patch"
         }""".trimIndent()
 
     @Test
-    fun subscriptionLifecycle() {
+    fun patchSubscriptionLifecycle() {
         // subscribe
         wsClient.send(subscriptionMessage)
 
@@ -32,7 +33,7 @@ class PatchSubscriptionTest: ClientAndServerTest() {
         assertEquals(expectedUpdateString, updateString)
 
         // unsubscribe
-        wsClient.send("""{"event":"patchUnsubscribe"}""")
+        wsClient.send("""{"event":"unsubscribe", "data": "patch"}""")
 
         // update for this change should not be delivered (checked by re-subscribing and asserting on response)
         wsClient.send("""{"event": "removeFixtureTypes", "data": ["${exampleFixtureType.fixtureTypeId}"]}""")
