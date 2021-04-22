@@ -9,16 +9,6 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.*
 import java.util.concurrent.locks.ReentrantLock
 
-// TODO for concurrent patch testing
-// single-method interactions
-// TODO add the same fixture from multiple threads at once -> only one should succeed
-// TODO add the same fixture type form multiple threads -> only one should succeed
-// multi-method interactions
-// TODO update fixture while deleting it -> could not be deleted in the end
-// TODO Removing Fixture Type while adding fixtures for that fixture type should not leave any fixtures behind
-// TODO while removing a fixture type, fixtures where the associated fixture type is already removed should not be observable in the fixtures map
-
-
 class ConcurrentPatchGetterTest {
     val patch = Patch(LinkedBlockingQueue(), ReentrantLock())
 
@@ -45,8 +35,7 @@ class ConcurrentPatchGetterTest {
             repeat(readingThreadCount) {this.add(readTask)}
         }
 
-        repeat(iterationCount) { iterationNumber ->
-            //println("iteration $it")
+        repeat(iterationCount) { iteration ->
             // fill patch
             patch.addFixtureTypes(listOf(ExampleFixtureType.esprite, ExampleFixtureType.channelLayoutTestGdtf))
             patch.addFixtures(listOf(ExampleFixtureType.esprite_fixture, ExampleFixtureType.esprite_fixture2, ExampleFixtureType.channelLayoutTestGdtfFixture))
@@ -59,7 +48,7 @@ class ConcurrentPatchGetterTest {
                         throw Error(errorString(it))
                     }
                 } catch (error: Throwable) {
-                    println("FAIL in iteration ${iterationNumber + 1} of $iterationCount")
+                    println("FAIL in iteration ${iteration + 1} of $iterationCount")
                     throw error
                 }
             }
