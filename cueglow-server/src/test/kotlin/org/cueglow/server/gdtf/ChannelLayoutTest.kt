@@ -1,12 +1,12 @@
 package org.cueglow.server.gdtf
 
+import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.cueglow.server.test_utilities.fixtureTypeFromGdtfResource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 internal class ChannelLayoutTest {
-    private val exampleFixtureType =
-        fixtureTypeFromGdtfResource("ChannelLayoutTest/Test@Channel_Layout_Test@v1_first_try.gdtf", this.javaClass)
+    private val exampleFixtureType = ExampleFixtureType.channelLayoutTestGdtf
 
     @Test
     fun testFindingAbstractGeometries() {

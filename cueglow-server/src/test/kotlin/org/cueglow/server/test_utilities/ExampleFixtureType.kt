@@ -26,6 +26,25 @@ object ExampleFixtureType {
         DmxAddress.tryFrom(1).unwrap(),
     )
 
+    val esprite_fixture2 = esprite_fixture.copy(
+        uuid = UUID.randomUUID(),
+        fid = 2,
+        name = "exampleFixture2",
+        address = DmxAddress(100)
+    )
+
+    val channelLayoutTestGdtf = fixtureTypeFromGdtfResource("ChannelLayoutTest/Test@Channel_Layout_Test@v1_first_try.gdtf", this.javaClass)
+
+    val channelLayoutTestGdtfFixture = PatchFixture(
+        UUID.fromString("6c0e661f-058e-4331-b673-db836aefc9cb"),
+        10,
+        "channelLayoutTest1",
+        channelLayoutTestGdtf.fixtureTypeId,
+        "Mode 1",
+        ArtNetAddress(2),
+        DmxAddress(1)
+    )
+
     // additional: Global settings for Awaitility
     init {
         Awaitility.setDefaultPollInterval(fibonacci())
