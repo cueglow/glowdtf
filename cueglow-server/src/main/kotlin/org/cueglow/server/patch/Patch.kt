@@ -19,6 +19,8 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Loc
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
     private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 
+    // TODO move getters from copy-on-read to copy-on-write for possible performance improvement
+
     /** Returns an immutable copy of the fixtures in the Patch. **/
     fun getFixtures() = lock.withLock{
         fixtures.toMap()
@@ -49,7 +51,7 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Loc
     ): Result<Unit, List<E>> {
         val successList = mutableListOf<R>()
         val errorList= mutableListOf<E>()
-        //lock.withLock {
+        lock.withLock {
             collection.forEach{ element ->
                 lambda(element).mapError{errorList.add(it)}.map{successList.add(it)}
             }
@@ -57,7 +59,7 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Loc
                 val glowMessage = messageType.primaryConstructor?.call(successList, null) ?: throw IllegalArgumentException("messageType does not have a primary constructor")
                 outEventQueue.put(glowMessage) // TODO possibly blocks rendering/etc. but the changes were already made so the message needs to be put into the queue
             }
-        //}
+        }
         if (errorList.isNotEmpty()) {return Err(errorList)}
         return Ok(Unit)
     }
