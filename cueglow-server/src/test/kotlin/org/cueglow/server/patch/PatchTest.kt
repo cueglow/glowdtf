@@ -1,14 +1,16 @@
 package org.cueglow.server.patch
 
 import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
+import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.test_utilities.ExampleFixtureType
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -79,7 +81,7 @@ internal class PatchTest {
 
     @Test
     fun getGlowPatchIsImmutable() {
-        val patch = Patch(LinkedBlockingQueue<GlowMessage>())
+        val patch = Patch(LinkedBlockingQueue())
         patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
         patch.addFixtures(listOf(exampleFixture)).unwrap()
         val glowPatch = patch.getGlowPatch()
@@ -87,5 +89,57 @@ internal class PatchTest {
         patch.addFixtures(listOf(exampleFixture2)).unwrap()
         assertEquals(2, patch.getFixtures().size)
         assertEquals(1, glowPatch.fixtures.size)
+    }
+
+    @Test
+    fun getFixturesIsImmutable() {
+        // setup
+        val patch = Patch(LinkedBlockingQueue())
+        patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
+        patch.addFixtures(listOf(exampleFixture)).unwrap()
+        // get fixtures
+        val fixtures = patch.getFixtures()
+        assertEquals(1, fixtures.size)
+        // change fixtures
+        patch.addFixtures(listOf(exampleFixture2)).unwrap()
+        // getting again should change, the map we got before should not change
+        assertEquals(2, patch.getFixtures().size)
+        assertEquals(1, fixtures.size)
+        // we should not be able to cast the map to a mutable map
+        assertThrows <Exception> { (fixtures as MutableMap).remove(exampleFixture.uuid) }
+        // nothing should have changed from trying to cast
+        assertEquals(2, patch.getFixtures().size)
+        assertEquals(1, fixtures.size)
+        // update a fixture
+        patch.updateFixtures(listOf(PatchFixtureUpdate(
+            exampleFixture.uuid,
+            fid = 42,
+            name = "newName",
+            universe = Ok(ArtNetAddress.tryFrom(42).unwrap()),
+            address = Ok(DmxAddress.tryFrom(42).unwrap()))))
+        // old map should not change, getting again should change
+        assertTrue(exampleFixture.isSimilar(fixtures[exampleFixture.uuid]!!))
+        assertFalse(exampleFixture.isSimilar(patch.getFixtures()[exampleFixture.uuid]!!))
+    }
+
+    @Test
+    fun getFixtureTypesIsImmutable() {
+        // setup
+        val patch = Patch(LinkedBlockingQueue())
+        patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
+        patch.addFixtures(listOf(exampleFixture)).unwrap()
+        // get fixture types
+        val fixtureTypes = patch.getFixtureTypes()
+        assertEquals(1, fixtureTypes.size)
+        // remove the fixture type
+        patch.removeFixtureTypes(listOf(exampleFixtureType.fixtureTypeId))
+        // getting again should change, the map we got before should not change
+        assertEquals(0, patch.getFixtureTypes().size)
+        assertEquals(1, fixtureTypes.size)
+        // we should not be able to cast the map to a mutable map
+        assertThrows <Exception> { (fixtureTypes as MutableMap).remove(exampleFixtureType.fixtureTypeId) }
+        // nothing should have changed from trying to cast
+        assertEquals(0, patch.getFixtureTypes().size)
+        assertEquals(1, fixtureTypes.size)
     }
 }

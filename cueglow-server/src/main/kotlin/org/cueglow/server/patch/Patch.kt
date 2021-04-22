@@ -18,9 +18,11 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>) {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
     private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 
-    fun getFixtures() = ImmutableMap(this.fixtures)
+    /** Returns an immutable copy of the fixtures in the Patch. **/
+    fun getFixtures() = fixtures.toMap()
 
-    fun getFixtureTypes() = ImmutableMap(this.fixtureTypes)
+    /** Returns an immutable copy of the fixture types in the Patch. **/
+    fun getFixtureTypes() = fixtureTypes.toMap()
 
     /** Returns an immutable copy of the Patch */
     fun getGlowPatch(): GlowPatch = GlowPatch(fixtures.values.toList(), fixtureTypes.values.toList())
