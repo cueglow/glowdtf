@@ -1,34 +1,31 @@
 package org.cueglow.server.patch
 
 import com.github.michaelbull.result.Ok
-import org.cueglow.server.objects.messages.GlowError
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.locks.ReentrantLock
-import com.github.michaelbull.result.Result
-import java.util.*
-
-// TODO for concurrent patch testing
-// multi-method interactions
-// TODO update fixture while deleting it -> could not be deleted in the end
 
 class ConcurrentPatchModificationTest {
     val patch = Patch(LinkedBlockingQueue(), ReentrantLock())
     val threadCount = 4
     val iterationCount = 100
     val barrier = CyclicBarrier(threadCount)
-    val pool = Executors.newFixedThreadPool(threadCount)
+    val pool = Executors.newFixedThreadPool(threadCount)!!
 
     val exampleFixtureType = ExampleFixtureType.esprite
+    val exampleFixtureType2 = ExampleFixtureType.channelLayoutTestGdtf
     val exampleFixture = ExampleFixtureType.esprite_fixture
-    val exampleFixture2 = ExampleFixtureType.esprite_fixture2
 
-    fun <T> singleActionTest(task: Callable<T>, assertAndClean: (List<T>) -> Unit) {
-        val taskList = mutableListOf(task).apply {
-            repeat(threadCount - 1) {this.add(task)}
+    private fun generateExampleFixtures(count: Int): List<PatchFixture> {
+        return mutableListOf(exampleFixture).apply {
+            repeat(count - 1) { this.add(exampleFixture.copy(uuid = UUID.randomUUID())) }
         }
+    }
+
+    fun <T> taskListTest(taskList: List<Callable<T>>, assertAndClean: (List<T>) -> Unit) {
         repeat(iterationCount) { iteration ->
             val futures = pool.invokeAll(taskList)
 
@@ -46,123 +43,80 @@ class ConcurrentPatchModificationTest {
         }
     }
 
+    fun <T> singleTaskTest(task: Callable<T>, assertAndClean: (List<T>) -> Unit) {
+        val taskList = mutableListOf(task).apply {
+            repeat(threadCount - 1) {this.add(task)}
+        }
+        taskListTest(taskList, assertAndClean)
+    }
+
     @Test
-    fun addingSameFixtureFromMultipleThreadOnlyWorksOnce() {
+    fun addingAndRemovingFixtureConcurrently() {
         patch.addFixtureTypes(listOf(exampleFixtureType))
 
-        singleActionTest(
-            task = Callable {
+        singleTaskTest(
+            task = {
                 barrier.await(2, TimeUnit.SECONDS)
-                patch.addFixtures(listOf(exampleFixture))
+                val addResult = patch.addFixtures(listOf(exampleFixture))
+                barrier.await(2, TimeUnit.SECONDS)
+                val removeResult = patch.removeFixtures(listOf(exampleFixture.uuid))
+                Pair(addResult, removeResult)
             },
             assertAndClean = { results ->
-                assertEquals(1, results.filterIsInstance<Ok<Unit>>().size)
-                assertEquals(1, patch.getFixtures().size)
+                assertEquals(1, results.map{it.first}.filterIsInstance<Ok<Unit>>().size)
+                assertEquals(1, results.map{it.first}.filterIsInstance<Ok<Unit>>().size)
+                assertEquals(0, patch.getFixtures().size)
                 patch.removeFixtures(listOf(exampleFixture.uuid))
             }
         )
     }
 
     @Test
-    // This test is janky and sometimes needs lots of iteration to fail or multiple restarts
-    // maybe remove more than one fixture or interleave with getters like in the getter tests
-    fun removingFixtureFromMultipleThreadsOnlyWorksOnce() {
-        val removeList = listOf(exampleFixture.uuid)
-        patch.addFixtureTypes(listOf(exampleFixtureType))
-        patch.addFixtures(listOf(exampleFixture))
-        singleActionTest(
-            task = Callable {
+    fun addingAndRemovingFixtureTypesConcurrently() = singleTaskTest(
+            task = {
                 barrier.await(2, TimeUnit.SECONDS)
-                patch.removeFixtures(removeList)
+                val addResult = patch.addFixtureTypes(listOf(exampleFixtureType, exampleFixtureType2))
+                barrier.await(2, TimeUnit.SECONDS)
+                val removeResult = patch.removeFixtureTypes(listOf(exampleFixtureType, exampleFixtureType2).map{it.fixtureTypeId})
+                Pair(addResult, removeResult)
             },
             assertAndClean = { results ->
-                assertEquals(1, results.filterIsInstance<Ok<Unit>>().size)
-                assertEquals(0, patch.getFixtures().size)
-                patch.addFixtures(listOf(exampleFixture))
-            }
-        )
-    }
-
-    @Test
-    fun addingSameFixtureTypeFromMultipleThreadsOnlyWorksOnce() = singleActionTest(
-            task = Callable {
-                barrier.await(2, TimeUnit.SECONDS)
-                patch.addFixtureTypes(listOf(exampleFixtureType))
-            },
-            assertAndClean = { results ->
-                assertEquals(1, results.filterIsInstance<Ok<Unit>>().size)
-                assertEquals(1, patch.getFixtureTypes().size)
-                patch.removeFixtureTypes(listOf(exampleFixtureType.fixtureTypeId))
-            }
-        )
-
-    @Test
-    // This test is janky and sometimes needs >10_000 iteration to fail or multiple restarts,
-    // but it is partially also covered in ConcurrentPatchGetterTest
-    // maybe we can have more fixture types
-    fun removingSameFixtureTypeFromMultipleThreadsOnlyWorksOnce() {
-        val removeList = listOf(exampleFixtureType.fixtureTypeId)
-        fun setup() {
-            patch.addFixtureTypes(listOf(exampleFixtureType))
-            patch.addFixtures(listOf(exampleFixture))
-        }
-        setup()
-        singleActionTest(
-            task = Callable {
-                barrier.await(2, TimeUnit.SECONDS)
-                patch.removeFixtureTypes(removeList)
-            },
-            assertAndClean = { results ->
-                assertEquals(1, results.filterIsInstance<Ok<Unit>>().size)
+                // only one of the threads should have received an Ok
+                assertEquals(1, results.map{it.first}.filterIsInstance<Ok<Unit>>().size)
+                assertEquals(1, results.map{it.second}.filterIsInstance<Ok<Unit>>().size)
+                // remove should have worked
                 assertEquals(0, patch.getFixtureTypes().size)
-                assertEquals(0, patch.getFixtures().size)
-                setup()
             }
         )
-    }
 
-    // janky
     @Test
-    fun removingFixturesWhileUpdatingWorks() {
+    fun updateAndRemoveFixtures() {
         patch.addFixtureTypes(listOf(exampleFixtureType))
 
-        val fixtureList = mutableListOf(exampleFixture).apply {
-            repeat(100) {this.add(exampleFixture.copy(uuid = UUID.randomUUID()))}
-        }
+        val fixtureList = generateExampleFixtures(10)
         patch.addFixtures(fixtureList)
 
         val removeTask = Callable {
-            barrier.await(2, TimeUnit.SECONDS)
-            Thread.sleep(0, 5)
-            patch.removeFixtures(fixtureList.map { it.uuid }) as Result<Unit, List<GlowError>>
+            fixtureList.map{it.uuid}.forEach {
+                barrier.await(2, TimeUnit.SECONDS)
+                patch.removeFixtures(listOf(it))
+            }
         }
 
         val updateTask = Callable {
-            val updates = fixtureList.map {
-                PatchFixtureUpdate(it.uuid, fid = ThreadLocalRandom.current().nextInt())
+            fixtureList.map{it.uuid}.forEach {
+                val update = PatchFixtureUpdate(it, fid = ThreadLocalRandom.current().nextInt())
+                barrier.await(2, TimeUnit.SECONDS)
+                patch.updateFixtures(listOf(update))
             }
-            barrier.await(2, TimeUnit.SECONDS)
-            patch.updateFixtures(updates)
         }
 
         val taskList = mutableListOf(removeTask).apply {
             repeat(threadCount - 1) {this.add(updateTask)}
         }
 
-        repeat(iterationCount) { iteration ->
-            val futures = pool.invokeAll(taskList)
-
-            val results = futures.map { it.get() }
-
-            try {
-                assertEquals(0, patch.getFixtures().size)
-            } catch (error: Throwable) {
-                println("failing in iteration $iteration")
-                println("failing list of Results: $results")
-                println("failing with ${patch.getFixtures().size} fixtures: ${patch.getFixtures()}")
-                println("failing with ${patch.getFixtureTypes().size} fixture types: ${patch.getFixtureTypes()}")
-                throw error
-            }
+        taskListTest(taskList) {
+            assertEquals(0, patch.getFixtures().size)
         }
     }
 }
