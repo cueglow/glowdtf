@@ -1,12 +1,10 @@
 package org.cueglow.server.patch
 
-import com.github.michaelbull.result.Ok
 import org.cueglow.server.json.toJsonString
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.objects.messages.GlowPatch
 import org.cueglow.server.test_utilities.ClientAndServerTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class PatchSubscriptionTest: ClientAndServerTest() {

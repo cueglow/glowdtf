@@ -1,7 +1,6 @@
 package org.cueglow.server.gdtf
 
 import org.cueglow.server.test_utilities.ExampleFixtureType
-import org.cueglow.server.test_utilities.fixtureTypeFromGdtfResource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

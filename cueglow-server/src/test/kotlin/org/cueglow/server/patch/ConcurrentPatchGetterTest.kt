@@ -7,6 +7,7 @@ import com.github.michaelbull.result.getOrElse
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Test
 import java.util.concurrent.*
+import java.util.concurrent.locks.ReentrantLock
 
 // TODO for concurrent patch testing
 // single-method interactions
@@ -19,7 +20,7 @@ import java.util.concurrent.*
 
 
 class ConcurrentPatchGetterTest {
-    val patch = Patch(LinkedBlockingQueue())
+    val patch = Patch(LinkedBlockingQueue(), ReentrantLock())
 
     // Utility Method for Getter Tests below
     private fun <T> getterTest(errorString: (T) -> String, readLambda: (CyclicBarrier) -> Result<Unit, T>) {

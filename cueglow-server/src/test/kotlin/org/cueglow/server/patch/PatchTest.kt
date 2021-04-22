@@ -3,18 +3,19 @@ package org.cueglow.server.patch
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
-import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
-import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.locks.ReentrantLock
 
 internal class PatchTest {
+
+    private val patch = Patch(LinkedBlockingQueue(), ReentrantLock())
 
     private val exampleFixtureType = ExampleFixtureType.esprite
 
@@ -25,8 +26,6 @@ internal class PatchTest {
 
     @Test
     fun patchList() {
-        // instantiate
-        val patch = Patch(LinkedBlockingQueue<GlowMessage>())
         assertTrue(patch.getFixtures().isEmpty())
         assertTrue(patch.getFixtureTypes().isEmpty())
 
@@ -81,7 +80,6 @@ internal class PatchTest {
 
     @Test
     fun getGlowPatchIsImmutable() {
-        val patch = Patch(LinkedBlockingQueue())
         patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
         patch.addFixtures(listOf(exampleFixture)).unwrap()
         val glowPatch = patch.getGlowPatch()
@@ -93,8 +91,6 @@ internal class PatchTest {
 
     @Test
     fun getFixturesIsImmutable() {
-        // setup
-        val patch = Patch(LinkedBlockingQueue())
         patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
         patch.addFixtures(listOf(exampleFixture)).unwrap()
         // get fixtures
@@ -124,8 +120,6 @@ internal class PatchTest {
 
     @Test
     fun getFixtureTypesIsImmutable() {
-        // setup
-        val patch = Patch(LinkedBlockingQueue())
         patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
         patch.addFixtures(listOf(exampleFixture)).unwrap()
         // get fixture types
