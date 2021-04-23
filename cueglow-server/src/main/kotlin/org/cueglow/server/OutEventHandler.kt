@@ -12,6 +12,7 @@ class OutEventHandler(receivers: Iterable<OutEventReceiver>): Logging {
     val queue = LinkedBlockingQueue<GlowMessage>()
 
     init {
+        // TODO what happens if there is an exception in this thread?
         Executors.newSingleThreadExecutor().submit {
             while (true) {
                 val glowMessage = queue.take()

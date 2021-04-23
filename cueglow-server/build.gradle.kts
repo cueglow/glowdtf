@@ -34,6 +34,7 @@ dependencies {
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
     testImplementation("org.java-websocket:Java-WebSocket:1.5.1")
     testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
+    testImplementation("com.google.truth:truth:1.1.2")
 
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.9")
 
