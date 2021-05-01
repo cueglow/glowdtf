@@ -21,6 +21,8 @@ class JsonSubscriptionHandlerTest {
 
     private val expectedInitialState = GlowMessage.PatchInitialState(GlowPatch(listOf(), listOf()))
 
+    // TODO we can probably refactor some often used operations into functions, like "does client receive messages?"
+
     @Test
     fun singleSubscriberLifecycle() {
         subscriptionHandler.receive(testMessage)
@@ -140,7 +142,7 @@ class TestClient: AsyncClient, Logging {
     }
 
     override fun send(message: String) {
-        logger.info("Client is instructed to send: $message")
+        logger.debug("Client is instructed to send: $message")
         messages.add(message)
     }
 }
