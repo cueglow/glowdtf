@@ -46,7 +46,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
     }
 
     private fun publish(topic: GlowTopic, glowMessage: GlowMessage) {
-        lock.withLock { // TODO there is no test that fails if this is missing
+        lock.withLock {
             val topicSubscribers = activeSubscriptions[topic]
             if (topicSubscribers!!.isNotEmpty()) { // null asserted because all possible keys are initialized in init block
                 val messageString = serializeMessage(glowMessage)
@@ -72,6 +72,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
                 val syncMessage = GlowMessage.Sync(syncUuid)
                 val initialPatchState = lock.withLock {
                     val initialPatchState = state.lock.withLock { // TODO there is no test that fails when this is missing
+                        // -> need to test multiple threads subscribing while changes are happening -> all threads should have same state in the end with their respective updates applied
                         state.outEventQueue.offer(syncMessage, 1, TimeUnit.SECONDS)
                         state.patch.getGlowPatch()
                     }
@@ -102,7 +103,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
     }
 
     fun unsubscribeFromAllTopics(subscriber: AsyncClient) {
-        lock.withLock { // TODO no test fails if this is missing
+        lock.withLock {
             pendingSubscriptions.filter {it.value.second == subscriber}.keys.map { pendingSubscriptions.remove(it) }
             activeSubscriptions.values.forEach {
                 it.remove(subscriber)

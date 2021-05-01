@@ -27,12 +27,9 @@ class ConcurrentJsonSubscriptionHandlerTest {
 
     private fun isClientSubscribed(): Boolean {
         subscriptionHandler.receive(testMessage)
-        return if (client.messages.size == 0) {
-            false
-        } else {
-            assertEquals(testMessageString, client.messages.remove())
-            true
-        }
+        val receivedMessage = client.messages.poll() ?: return false
+        assertEquals(testMessageString, receivedMessage)
+        return true
     }
 
     @Test
@@ -68,8 +65,39 @@ class ConcurrentJsonSubscriptionHandlerTest {
 
         val taskList = listOf(subscribeTask, syncTask, sendTask)
 
-        concurrentTaskListTest(1000,taskList, { results ->
+        concurrentTaskListTest(1000, taskList, { results ->
             assertEquals(listOf(1,1,1), results)
         })
+    }
+
+    @Test
+    fun unsubscribeWhileReceiving() {
+        val setupTask = { barrier: CyclicBarrier ->
+            subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
+            subscriptionHandler.receive(queue.remove())
+            assertEquals(expectedInitialStateString, client.messages.remove())
+            assertTrue(isClientSubscribed())
+            barrier.await(1, TimeUnit.SECONDS)
+            1
+        }
+
+        val receiveTask = { barrier: CyclicBarrier ->
+            barrier.await(1, TimeUnit.SECONDS)
+            isClientSubscribed()
+            1
+        }
+
+        val unsubscribeTask = { barrier: CyclicBarrier ->
+            barrier.await(1, TimeUnit.SECONDS)
+            subscriptionHandler.unsubscribeFromAllTopics(client)
+            1
+        }
+
+        val taskList = mutableListOf(setupTask).apply {
+            repeat(4) {this.add(receiveTask)}
+            repeat(2) {this.add(unsubscribeTask)}
+        }
+
+        concurrentTaskListTest(2000, taskList)
     }
 }
