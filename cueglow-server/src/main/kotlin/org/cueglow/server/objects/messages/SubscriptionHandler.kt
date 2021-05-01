@@ -91,7 +91,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
 
     /** Returns true if the subscriber was successfully unsubscribed and false if the subscriber wasn't subscribed */
     private fun internalUnsubscribe(subscriber: AsyncClient, topic: GlowTopic): Boolean {
-        lock.withLock { // TODO no test fails if this is missing
+        lock.withLock {
             val numberOfSubscriptionsRemovedFromPending = pendingSubscriptions
                 .filter {it.value.first == topic && it.value.second == subscriber}
                 .keys

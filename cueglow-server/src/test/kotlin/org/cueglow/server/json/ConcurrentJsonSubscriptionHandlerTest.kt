@@ -87,15 +87,22 @@ class ConcurrentJsonSubscriptionHandlerTest {
             1
         }
 
-        val unsubscribeTask = { barrier: CyclicBarrier ->
+        val unsubscribeTask1 = { barrier: CyclicBarrier ->
             barrier.await(1, TimeUnit.SECONDS)
             subscriptionHandler.unsubscribeFromAllTopics(client)
             1
         }
 
+        val unsubscribeTask2 = { barrier: CyclicBarrier ->
+            barrier.await(1, TimeUnit.SECONDS)
+            subscriptionHandler.unsubscribe(client, GlowTopic.PATCH)
+            1
+        }
+
         val taskList = mutableListOf(setupTask).apply {
             repeat(4) {this.add(receiveTask)}
-            repeat(2) {this.add(unsubscribeTask)}
+            repeat(2) {this.add(unsubscribeTask1)}
+            repeat(2) {this.add(unsubscribeTask2)}
         }
 
         concurrentTaskListTest(2000, taskList)
