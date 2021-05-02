@@ -5,7 +5,7 @@ import org.cueglow.server.StateProvider
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.objects.messages.GlowPatch
 import org.cueglow.server.objects.messages.GlowTopic
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
@@ -18,51 +18,55 @@ class JsonSubscriptionHandlerTest {
     private val subscriptionHandler = JsonSubscriptionHandler()
 
     private val testMessage = GlowMessage.RemoveFixtures(listOf())
+    private val testMessageString = testMessage.toJsonString()
 
     private val expectedInitialState = GlowMessage.PatchInitialState(GlowPatch(listOf(), listOf()))
+    private val expectedInitialStateString = expectedInitialState.toJsonString()
 
-    // TODO we can probably refactor some often used operations into functions, like "does client receive messages?"
+    private fun isClientGettingMessage(): Boolean {
+        subscriptionHandler.receive(testMessage)
+        val receivedMessage = client.messages.poll() ?: return false
+        assertEquals(testMessageString, receivedMessage)
+        return true
+    }
+
+    private fun clientReceivedInitialState() {
+        assertEquals(expectedInitialStateString, client.messages.remove())
+    }
 
     @Test
     fun singleSubscriberLifecycle() {
-        subscriptionHandler.receive(testMessage)
         // without subscription, the message should not arrive
-        assertEquals(0, client.messages.size)
+        assertFalse(isClientGettingMessage())
 
         subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
 
         // client should get initial state
         assertEquals(1, client.messages.size)
-        assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
+        clientReceivedInitialState()
 
         // SubscriptionHandler should have put a sync message into the outEventQueue
         assertEquals(1, outEventQueue.size)
         val syncMessage = outEventQueue.remove() as GlowMessage.Sync
 
         // updates should not get delivered until sync is delivered to the SubscriptionHandler
-        subscriptionHandler.receive(testMessage)
-        assertEquals(0, client.messages.size)
+        assertFalse(isClientGettingMessage())
 
         // when a foreign sync message arrives, updates are still not delivered
         subscriptionHandler.receive(GlowMessage.Sync(UUID.randomUUID()))
-        subscriptionHandler.receive(testMessage)
-        assertEquals(0, client.messages.size)
+        assertFalse(isClientGettingMessage())
 
         // now feed the sync message to SubscriptionHandler to "activate" subscription
         subscriptionHandler.receive(syncMessage)
 
         // updates should now get delivered
-        subscriptionHandler.receive(testMessage)
-        // now the client should have gotten the message
-        assertEquals(1, client.messages.size)
-        assertEquals(testMessage.toJsonString(), client.messages.remove())
+        assertTrue(isClientGettingMessage())
 
         // unsubscribe
         subscriptionHandler.unsubscribe(client, GlowTopic.PATCH)
 
         // now the client should not get another message because he unsubscribed
-        subscriptionHandler.receive(testMessage)
-        assertEquals(0, client.messages.size)
+        assertFalse(isClientGettingMessage())
     }
 
     @Test
@@ -70,15 +74,14 @@ class JsonSubscriptionHandlerTest {
         subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
 
         assertEquals(1, client.messages.size)
-        assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
+        clientReceivedInitialState()
 
         subscriptionHandler.receive(outEventQueue.remove())
 
         // function under test - unsubscribe without specifying topic
         subscriptionHandler.unsubscribeFromAllTopics(client)
 
-        subscriptionHandler.receive(testMessage)
-        assertEquals(0, client.messages.size)
+        assertFalse(isClientGettingMessage())
     }
 
     @Test
@@ -90,46 +93,41 @@ class JsonSubscriptionHandlerTest {
         subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
 
         assertEquals(2, client.messages.size)
-        assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
-        assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
+        clientReceivedInitialState()
+        clientReceivedInitialState()
 
         // client should not get messages yet
-        subscriptionHandler.receive(testMessage)
-        assertEquals(0, client.messages.size)
+        assertFalse(isClientGettingMessage())
 
         // feed sync message
         subscriptionHandler.receive(outEventQueue.remove())
 
         // now client should get message
-        subscriptionHandler.receive(testMessage)
-        assertEquals(1, client.messages.size)
-        assertEquals(testMessage.toJsonString(), client.messages.remove())
+        assertTrue(isClientGettingMessage())
     }
 
     @Test
     fun unsubscribeAllBeforeSync() {
         subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
-        assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
+        clientReceivedInitialState()
         subscriptionHandler.unsubscribeFromAllTopics(client)
         // sync
         subscriptionHandler.receive(outEventQueue.remove())
 
         // client should not get updates
-        subscriptionHandler.receive(testMessage)
-        assertEquals(0, client.messages.size)
+        assertFalse(isClientGettingMessage())
     }
 
     @Test
     fun unsubscribeBeforeSync() {
         subscriptionHandler.subscribe(client, GlowTopic.PATCH, state)
-        assertEquals(expectedInitialState.toJsonString(), client.messages.remove())
+        clientReceivedInitialState()
         subscriptionHandler.unsubscribe(client, GlowTopic.PATCH)
         // sync
         subscriptionHandler.receive(outEventQueue.remove())
 
         // client should not get updates
-        subscriptionHandler.receive(testMessage)
-        assertEquals(0, client.messages.size)
+        assertFalse(isClientGettingMessage())
     }
 }
 

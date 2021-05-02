@@ -19,7 +19,7 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Loc
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
     private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 
-    // TODO move getters from copy-on-read to copy-on-write for possible performance improvement
+    // TODO maybe move getters from copy-on-read to copy-on-write for possible performance improvement
 
     /** Returns an immutable copy of the fixtures in the Patch. **/
     fun getFixtures() = lock.withLock{
