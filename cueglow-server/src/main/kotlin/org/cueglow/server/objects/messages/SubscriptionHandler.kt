@@ -15,7 +15,7 @@ import kotlin.concurrent.withLock
 abstract class SubscriptionHandler: OutEventReceiver, Logging {
     val lock = ReentrantLock()
 
-    private val activeSubscriptions = EnumMap<GlowTopic, MutableSet<AsyncClient>>(GlowTopic::class.java) // TODO synchronize (see JavaDoc for EnumMap)
+    private val activeSubscriptions = EnumMap<GlowTopic, MutableSet<AsyncClient>>(GlowTopic::class.java)
 
     /** Keeps subscriptions that were sent the initial state but do not get updates yet because older updates
      * in the OutEventQueue first need to be handled. Subscriptions move from pending to active once the sync message

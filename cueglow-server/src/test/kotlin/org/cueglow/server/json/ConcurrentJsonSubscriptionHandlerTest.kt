@@ -76,6 +76,9 @@ class ConcurrentJsonSubscriptionHandlerTest {
         })
     }
 
+    /** Tests SubscriptionHandler Lock in publish, internalUnsubscribe and unsubscribeFromAllTopics.
+     *  Unfortunately the performance impact is relatively large and the test isn't fully reliable.
+     */
     @Test
     fun unsubscribeWhileReceiving() {
         val setupTask = { barrier: CyclicBarrier ->
