@@ -71,7 +71,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
                 val syncUuid = UUID.randomUUID()
                 val syncMessage = GlowMessage.Sync(syncUuid)
                 val initialPatchState = lock.withLock {
-                    val initialPatchState = state.lock.withLock { // TODO there is no test that fails when this is missing
+                    val initialPatchState = state.lock.withLock {
                         // -> need to test multiple threads subscribing while changes are happening -> all threads should have same state in the end with their respective updates applied
                         state.outEventQueue.offer(syncMessage, 1, TimeUnit.SECONDS)
                         state.patch.getGlowPatch()
