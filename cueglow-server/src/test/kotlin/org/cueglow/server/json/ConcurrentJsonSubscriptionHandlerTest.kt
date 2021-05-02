@@ -1,12 +1,18 @@
 package org.cueglow.server.json
 
+import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
+import com.github.michaelbull.result.Ok
 import org.cueglow.server.StateProvider
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.objects.messages.GlowPatch
 import org.cueglow.server.objects.messages.GlowTopic
+import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.cueglow.server.test_utilities.concurrentTaskListTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.util.*
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
@@ -106,5 +112,84 @@ class ConcurrentJsonSubscriptionHandlerTest {
         }
 
         concurrentTaskListTest(2000, taskList)
+    }
+
+    /**
+     * Tests the state lock in SubscriptionHandler
+     */
+    @Test
+    fun subscribeWhileChangingPatch() {
+        // TODO clean up
+        // TODO too slow when it passes
+        patch.addFixtureTypes(listOf(ExampleFixtureType.esprite))
+        val fixtureList = List(10) {
+            ExampleFixtureType.esprite_fixture.copy(uuid = UUID.randomUUID())
+        }
+
+        val changePatchTask = { barrier: CyclicBarrier ->
+            val addResult = patch.addFixtures(fixtureList)
+            //println(addResult)
+            assertTrue(addResult is Ok)
+
+            barrier.await(1, TimeUnit.SECONDS)
+
+            fixtureList.forEach {
+                val removeResult = patch.removeFixtures(listOf(it.uuid))
+                //println(removeResult)
+                assertTrue(removeResult is Ok)
+            }
+            assertEquals(0, patch.getFixtures().size)
+
+            barrier.await(1, TimeUnit.SECONDS)
+
+            // dump message queue
+            var i = 0
+            while (true) {
+                i += 1
+                val msg = queue.poll() ?: break
+                //println(msg)
+                subscriptionHandler.receive(msg)
+            }
+            //println(i)
+
+            barrier.await(1, TimeUnit.SECONDS)
+            Unit
+        }
+
+        val subscribeTask = { barrier: CyclicBarrier ->
+            val localClient = TestClient()
+
+            barrier.await(1, TimeUnit.SECONDS)
+
+            subscriptionHandler.subscribe(localClient, GlowTopic.PATCH, state)
+
+            barrier.await(1, TimeUnit.SECONDS)
+            barrier.await(1, TimeUnit.SECONDS)
+
+            val initialJsonMessage = Parser.default().parse(StringBuilder(localClient.messages.remove())) as JsonObject
+            val fixtureData = (initialJsonMessage["data"] as JsonObject)["fixtures"] as JsonArray<*>
+            val initialFixtureUuids = fixtureData.map {
+                UUID.fromString((it as JsonObject)["uuid"] as String)
+            }.toSet()
+
+            val fixtureUuidsRemovedInMessages = mutableSetOf<UUID>()
+            var i = 0
+            while (localClient.messages.isNotEmpty()) {
+                i += 1
+                val glowMessage = GlowMessage.fromJsonString(localClient.messages.remove()) as GlowMessage.RemoveFixtures
+                fixtureUuidsRemovedInMessages.add(glowMessage.data[0])
+            }
+            //println(i)
+            println("initially got ${initialFixtureUuids.size} and removed ${fixtureUuidsRemovedInMessages.size}")
+            //assertThat(initialFixtureUuids).containsExactlyElementsIn(fixtureUuidsRemovedInMessages)
+            assertEquals(initialFixtureUuids, fixtureUuidsRemovedInMessages)
+        }
+
+        val taskList = mutableListOf(changePatchTask).apply {
+            repeat(4) {this.add(subscribeTask)}
+            repeat(0) {this.add(changePatchTask)}
+        }
+
+        concurrentTaskListTest(200, taskList)
     }
 }
