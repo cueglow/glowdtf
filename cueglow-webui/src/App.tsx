@@ -14,8 +14,6 @@ const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scs
 let ws = new ReconnectingWebSocket("ws://" + window.location.host + "/ws", [],
   { maxReconnectionDelay: 1000, minReconnectionDelay: 1000, debug: true });
 
-ws.send("connection established");
-
 // TODO install emotion (https://emotion.sh/docs/introduction), a CSS-in-JS library
 // in contrast to inline styles allows media queries, etc.
 
