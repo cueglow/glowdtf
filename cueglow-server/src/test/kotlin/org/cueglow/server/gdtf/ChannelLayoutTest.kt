@@ -1,16 +1,8 @@
 package org.cueglow.server.gdtf
 
-import com.github.michaelbull.result.unwrap
+import org.cueglow.server.test_utilities.fixtureTypeFromGdtfResource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.io.InputStream
-
-fun fixtureTypeFromGdtfResource(exampleGdtfFileName: String, cls: Class<*>): GdtfWrapper {
-    val exampleGdtfInputStream: InputStream =
-        cls.classLoader.getResourceAsStream(exampleGdtfFileName) ?: throw Error("inputStream is Null")
-    val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream).unwrap()
-    return GdtfWrapper(parsedExampleGdtf)
-}
 
 internal class ChannelLayoutTest {
     private val exampleFixtureType =

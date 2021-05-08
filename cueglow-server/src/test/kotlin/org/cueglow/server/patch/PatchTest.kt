@@ -2,23 +2,19 @@ package org.cueglow.server.patch
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.unwrap
-import org.cueglow.server.gdtf.GdtfWrapper
-import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
+import org.cueglow.server.objects.messages.GlowMessage
+import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.io.InputStream
 import java.util.*
+import java.util.concurrent.LinkedBlockingQueue
 
 internal class PatchTest {
 
-    private val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
-    private val inputStream: InputStream = javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?:
-        throw Error("inputStream is Null")
-    private val parsedGdtf = parseGdtf(inputStream).unwrap()
-    private val exampleFixtureType = GdtfWrapper(parsedGdtf)
+    private val exampleFixtureType = ExampleFixtureType.esprite
 
     private val exampleFixture = PatchFixture(UUID.randomUUID(),1, "", exampleFixtureType.fixtureTypeId,
         "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
@@ -28,7 +24,7 @@ internal class PatchTest {
     @Test
     fun patchList() {
         // instantiate
-        val patch = Patch()
+        val patch = Patch(LinkedBlockingQueue<GlowMessage>())
         assertTrue(patch.getFixtures().isEmpty())
         assertTrue(patch.getFixtureTypes().isEmpty())
 
@@ -83,7 +79,7 @@ internal class PatchTest {
 
     @Test
     fun getGlowPatchIsImmutable() {
-        val patch = Patch()
+        val patch = Patch(LinkedBlockingQueue<GlowMessage>())
         patch.addFixtureTypes(listOf(exampleFixtureType)).unwrap()
         patch.addFixtures(listOf(exampleFixture)).unwrap()
         val glowPatch = patch.getGlowPatch()

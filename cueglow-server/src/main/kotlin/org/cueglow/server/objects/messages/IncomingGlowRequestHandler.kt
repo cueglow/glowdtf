@@ -4,19 +4,16 @@ import com.github.michaelbull.result.getOrElse
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.StateProvider
 
-abstract class IncomingGlowRequestHandler(private val state: StateProvider): Logging {
+abstract class IncomingGlowRequestHandler(private val state: StateProvider, private val subscriptionHandler: SubscriptionHandler): Logging {
     fun handle(request: GlowRequest) {
         when (request.originalMessage.event) {
-            // TODO remove events that shouldn't come from outside and handle them with Error in else clause
-            GlowEvent.PATCH_SUBSCRIBE -> TODO()
-            GlowEvent.PATCH_INITIAL_STATE -> TODO()
-            GlowEvent.PATCH_UNSUBSCRIBE -> TODO()
-            GlowEvent.ERROR -> TODO()
+            GlowEvent.SUBSCRIBE -> subscriptionHandler.subscribe(request.client, (request.originalMessage as GlowMessage.Subscribe).data, state)
+            GlowEvent.UNSUBSCRIBE -> subscriptionHandler.unsubscribe(request.client, (request.originalMessage as GlowMessage.Unsubscribe).data)
             GlowEvent.ADD_FIXTURES -> handleAddFixtures(request)
             GlowEvent.UPDATE_FIXTURES -> handleUpdateFixture(request)
             GlowEvent.REMOVE_FIXTURES -> handleRemoveFixtures(request)
-            GlowEvent.FIXTURE_TYPE_ADDED -> TODO()
             GlowEvent.REMOVE_FIXTURE_TYPES -> handleRemoveFixtureTypes(request)
+            else -> logger.warn("Received a message with event ${request.originalMessage.event} which should not be sent by client. Discarding message. ")
         }
     }
 

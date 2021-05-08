@@ -1,4 +1,4 @@
-package org.cueglow.server.integration
+package org.cueglow.server.test_utilities
 
 import org.apache.logging.log4j.kotlin.Logging
 import org.awaitility.Awaitility
@@ -8,7 +8,7 @@ import java.net.URI
 
 /*** WebSocket client for Testing */
 class WsClient(uri: URI): WebSocketClient(uri), Logging {
-    private val receivedMessages = ArrayDeque<String>()
+    val receivedMessages = ArrayDeque<String>()
 
     override fun onOpen(handshakedata: ServerHandshake?) {
         logger.info("WsClient opened")

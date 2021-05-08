@@ -68,9 +68,9 @@ A DMX mode is an object with the following fields:
 The events that are associated with the `patch` topic are:
 
 
-- `patchSubscribe` (sent by client)
+- `subscribe` (sent by client)
 - `patchInitialState` (sent by server)
-- `patchUnsubscribe` (sent by client)
+- `unsubscribe` (sent by client)
 - `addFixtures` (sent by client/server)
 - `updateFixtures` (sent by client/server)
 - `removeFixtures` (sent by client/server)
@@ -80,12 +80,14 @@ The events that are associated with the `patch` topic are:
 
 ### Subscription Lifecycle 
 
-The client sends a `patchSubscribe` to the server: 
+The client sends a `subscribe` to the server and specifies the topic in the
+`data` field: 
 
 
 ```json
 {
-    "event": "patchSubscribe"
+    "event": "subscribe",
+    "data": "patch"
 }
 ```
 
@@ -280,16 +282,18 @@ re-subscribe.
 
 ### Unsubscribe
 
-To unsubscribe, the client sends:
+To unsubscribe from a topic, the client sends an `unsubscribe` and specifies the
+topic in the `data` field:
 
 ```json
 {
-    "event": "patchUnsubscribe"
+    "event": "unsubscribe",
+    "data": "patch"
 }
 ```
 
-If the server receives an unsubscribe from a client that is not subscribed, he
-should log the incident. 
+If the server receives an unsubscribe from a client that is not subscribed to
+the specified topic, it should log the incident. 
 
 ### Client-Driven Events
 

@@ -1,14 +1,12 @@
 package org.cueglow.server.json
 
-import com.beust.klaxon.Converter
-import com.beust.klaxon.JsonValue
-import com.beust.klaxon.Klaxon
-import com.beust.klaxon.TypeAdapter
+import com.beust.klaxon.*
 import com.github.michaelbull.result.*
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
+import org.cueglow.server.objects.messages.GlowTopic
 import java.io.StringReader
 import java.util.*
 import kotlin.reflect.KClass
@@ -17,21 +15,19 @@ import kotlin.reflect.KClass
 // Serialization and Parsing
 //--------------------------
 
-// TODO check if this works with the new GlowMessage design
-
 /** Convert GlowMessage to JSON String by Extension Function */
 fun GlowMessage.toJsonString(): String {
     return Klaxon()
         .fieldConverter(KlaxonArtNetAddressUpdate::class, ArtNetAddressResultConverter)
         .fieldConverter(KlaxonDmxAddressUpdate::class, DmxAddressResultConverter)
         .converter(KlaxonGlowEventConverter)
+        .converter(KlaxonGlowTopicConverter)
         .converter(UUIDConverter)
         .converter(DmxAddressConverter)
         .converter(ArtNetAddressConverter)
         .toJsonString(this)
 }
 
-// TODO check if this works with the new GlowMessage design
 /**
  * Parse JSON to the internal representation [GlowMessage]
  */
@@ -39,11 +35,12 @@ fun GlowMessage.Companion.fromJsonString(input: String): GlowMessage = Klaxon()
     .fieldConverter(KlaxonArtNetAddressUpdate::class, ArtNetAddressResultConverter)
     .fieldConverter(KlaxonDmxAddressUpdate::class, DmxAddressResultConverter)
     .converter(KlaxonGlowEventConverter)
+    .converter(KlaxonGlowTopicConverter)
     .converter(UUIDConverter)
     .converter(DmxAddressConverter)
     .converter(ArtNetAddressConverter)
     .parse<GlowMessage>(StringReader(input))
-    ?: TODO("Error Handling is WIP")
+    ?: throw KlaxonException("Klaxon Parser returned null after parsing '$input'")
 
 //-------------------------------
 // Klaxon Adapters and Converters
@@ -60,6 +57,14 @@ object KlaxonGlowEventConverter: Converter {
     override fun toJson(value: Any): String = "\"$value\""
 
     override fun fromJson(jv: JsonValue): GlowEvent? = GlowEvent.fromString(jv.inside.toString())
+}
+
+object KlaxonGlowTopicConverter: Converter {
+    override fun canConvert(cls: Class<*>): Boolean = cls == GlowTopic::class.java
+
+    override fun toJson(value: Any): String = "\"$value\""
+
+    override fun fromJson(jv: JsonValue): GlowTopic? = GlowTopic.fromString(jv.inside.toString())
 }
 
 object UUIDConverter: Converter {
