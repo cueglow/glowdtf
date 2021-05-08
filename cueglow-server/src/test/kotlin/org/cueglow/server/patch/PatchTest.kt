@@ -2,7 +2,7 @@ package org.cueglow.server.patch
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.unwrap
-import org.cueglow.server.gdtf.FixtureType
+import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.gdtf.parseGdtf
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
@@ -18,7 +18,7 @@ internal class PatchTest {
     private val inputStream: InputStream = javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?:
         throw Error("inputStream is Null")
     private val parsedGdtf = parseGdtf(inputStream).unwrap()
-    private val exampleFixtureType = FixtureType(parsedGdtf)
+    private val exampleFixtureType = GdtfWrapper(parsedGdtf)
 
     private val exampleFixture = PatchFixture(UUID.randomUUID(),1, "", exampleFixtureType.fixtureTypeId,
         "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())

@@ -8,8 +8,7 @@ import com.github.michaelbull.result.unwrap
 import org.awaitility.Awaitility
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.CueGlowServer
-import org.cueglow.server.gdtf.FixtureType
-import org.cueglow.server.gdtf.parseGdtf
+import org.cueglow.server.gdtf.fixtureTypeFromGdtfResource
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.Patch
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import java.io.File
-import java.io.InputStream
 import java.net.URI
 import java.time.Duration
 import java.util.*
@@ -53,11 +51,7 @@ internal class ApiIntegrationTest {
     // Helpers
     //-----------------------------------------------------
 
-    private val exampleGdtfFileName = "Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf"
-    private val exampleGdtfInputStream: InputStream =
-        javaClass.classLoader.getResourceAsStream(exampleGdtfFileName) ?: throw Error("inputStream is Null")
-    private val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream).unwrap()
-    private val exampleFixtureType = FixtureType(parsedExampleGdtf)
+    private val exampleFixtureType = fixtureTypeFromGdtfResource("Robe_Lighting@Robin_Esprite@20112020v1.7.gdtf", this.javaClass)
 
     private val examplePatchFixture = PatchFixture(
         UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
@@ -126,6 +120,12 @@ internal class ApiIntegrationTest {
 
     @Test
     fun gdtfWithoutDescriptionXml() = noDescriptionXmlUploadError(::uploadGdtfFile)
+
+    @Test
+    fun gdtfWithChannelClash() = gdtfWithChannelClash(::uploadGdtfFile)
+
+    @Test
+    fun gdtfWithMissingBreakInGeometryReference() = gdtfWithMissingBreakInGeometryReference(::uploadGdtfFile)
 
     @Test
     fun removeInvalidFixtureTypes() {

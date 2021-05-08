@@ -58,7 +58,10 @@ A fixture type is an object with the following fields:
 A DMX mode is an object with the following fields: 
 
 - `name`: String
-- `channelCount`: non-negative integer, number of channels in the mode
+- `channelCount`: non-negative integer, number of channels in the mode (summed
+  over all breaks)
+- `channelLayout`: An Array where each element represents a DMX Break. Each DMX
+  Break is again an Array of Channel names (String) or empty channels (null). 
 
 ### `patch` Events
 
@@ -124,11 +127,13 @@ The server answers to a subscribe with the initial state of the topic:
                 "modes": [
                     {
                       "name": "Standard",
-                      "channelCount": 21
+                      "channelCount": 21,
+                      "channelLayout": [["yoke_Pan", "head_Tilt", "head_Dimmer", "and so on ..."]]
                     },
                     {
                       "name": "Extended",
-                      "channelCount": 34
+                      "channelCount": 34,
+                      "channelLayout": [["yoke_Pan (1/2)", "yoke_Pan (2/2)", "head_Tilt (1/2)", "and so on ..."]]
                     }
                 ]
             },
@@ -139,11 +144,13 @@ The server answers to a subscribe with the initial state of the topic:
                 "modes": [
                     {
                       "name": "8-ch",
-                      "channelCount": 8
+                      "channelCount": 8,
+                      "channelLayout": [["yoke_Pan", "head_Tilt", "head_Dimmer", "and so on ..."]]
                     },
                     {
                       "name": "24-ch",
-                      "channelCount": 24
+                      "channelCount": 24,
+                      "channelLayout": [["yoke_Pan (1/2)", "yoke_Pan (2/2)", "head_Tilt (1/2)", "and so on ..."]]
                     }
                 ]
             }
@@ -243,7 +250,8 @@ the server sends an `addFixtureTypes`:
             "modes": [
                 {
                     "name": "mode1",
-                    "channelCount": 1
+                    "channelCount": 1,
+                    "channelLayout": [["head_Dimmer"]]
                 }
             ]
         }
