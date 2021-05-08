@@ -1,5 +1,6 @@
 package org.cueglow.server.patch
 
+import com.beust.klaxon.Json
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import java.util.*
@@ -24,7 +25,9 @@ data class PatchFixture(
     val name: String,
     val fixtureTypeId: UUID,
     val dmxMode: String,
+    @Json(serializeNull = false)
     val universe: ArtNetAddress?,
+    @Json(serializeNull = false)
     val address: DmxAddress?,
 ) {
     /** Returns true if both PatchFixtures contain the same values.

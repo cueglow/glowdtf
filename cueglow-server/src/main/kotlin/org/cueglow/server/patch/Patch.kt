@@ -3,6 +3,7 @@ package org.cueglow.server.patch
 import com.github.michaelbull.result.*
 import org.cueglow.server.gdtf.FixtureType
 import org.cueglow.server.objects.*
+import org.cueglow.server.objects.messages.*
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -18,6 +19,9 @@ class Patch {
     fun getFixtures() = ImmutableMap(this.fixtures)
 
     fun getFixtureTypes() = ImmutableMap(this.fixtureTypes)
+
+    /** Returns an immutable copy of the Patch */
+    fun getGlowPatch(): GlowPatch = GlowPatch(fixtures.values.toList(), fixtureTypes.values.toList())
 
     // -------------------
     // Modify Fixture List

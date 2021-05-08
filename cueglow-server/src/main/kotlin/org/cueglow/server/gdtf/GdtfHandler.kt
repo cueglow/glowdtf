@@ -4,7 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
-import org.cueglow.server.objects.GlowError
+import org.cueglow.server.objects.messages.GlowError
 import org.cueglow.server.patch.Patch
 import java.io.InputStream
 import java.util.*

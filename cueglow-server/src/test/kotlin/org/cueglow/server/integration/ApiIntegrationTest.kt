@@ -60,7 +60,7 @@ internal class ApiIntegrationTest {
     private val exampleFixtureType = FixtureType(parsedExampleGdtf)
 
     private val examplePatchFixture = PatchFixture(
-        UUID.randomUUID(),
+        UUID.fromString("91faaa61-624b-477a-a6c2-de00c717b3e6"),
         1,
         "exampleFixture",
         exampleFixtureType.fixtureTypeId,
@@ -128,15 +128,15 @@ internal class ApiIntegrationTest {
     fun gdtfWithoutDescriptionXml() = noDescriptionXmlUploadError(::uploadGdtfFile)
 
     @Test
-    fun deleteInvalidFixtureTypes() {
+    fun removeInvalidFixtureTypes() {
         setupExampleFixture()
-        deleteInvalidFixtureTypesTest(wsClient, patch)
+        removeInvalidFixtureTypesTest(wsClient, patch)
     }
 
     @Test
-    fun deleteGdtfFixtureType() {
+    fun removeFixtureType() {
         setupExampleFixture()
-        gdtfDeleteTest(wsClient, patch)
+        removeFixtureTypeTest(wsClient, patch)
     }
 
     // Add Fixture Tests
@@ -144,7 +144,13 @@ internal class ApiIntegrationTest {
     @Test
     fun addFixture() {
         setupExampleFixtureType()
-        addFixtureTest(wsClient, patch, exampleFixtureType, examplePatchFixture)
+        addFixtureTest(wsClient, patch, examplePatchFixture)
+    }
+
+    @Test
+    fun addFixtureDuplicateUuid() {
+        setupExampleFixture()
+        addFixtureDuplicateUuidTest(wsClient, patch)
     }
 
     @Test
@@ -185,17 +191,17 @@ internal class ApiIntegrationTest {
         updateNameAndFidTest(wsClient, patch)
     }
 
-    // Delete Fixture Tests
+    // Remove Fixture Tests
 
     @Test
-    fun deleteInvalidFixture() {
+    fun removeInvalidFixture() {
         setupExampleFixture()
-        deleteInvalidFixtureTest(wsClient, patch)
+        removeInvalidFixtureTest(wsClient, patch)
     }
 
     @Test
-    fun deleteFixture() {
+    fun removeFixture() {
         setupExampleFixture()
-        deleteFixtureTest(wsClient, patch)
+        removeFixtureTest(wsClient, patch)
     }
 }

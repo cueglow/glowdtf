@@ -4,9 +4,9 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import org.cueglow.gdtf.GDTF
-import org.cueglow.server.objects.GdtfUnmarshalError
-import org.cueglow.server.objects.GlowError
-import org.cueglow.server.objects.MissingDescriptionXmlInGdtfError
+import org.cueglow.server.objects.messages.GdtfUnmarshalError
+import org.cueglow.server.objects.messages.GlowError
+import org.cueglow.server.objects.messages.MissingDescriptionXmlInGdtfError
 import java.io.File
 import java.io.InputStream
 import java.util.zip.ZipInputStream

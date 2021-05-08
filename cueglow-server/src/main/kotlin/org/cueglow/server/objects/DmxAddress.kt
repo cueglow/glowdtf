@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import org.cueglow.server.objects.DmxAddress.Factory.tryFrom
+import org.cueglow.server.objects.messages.InvalidDmxAddress
 
 /**
  * Represents a DMX Address.
@@ -15,7 +16,7 @@ import org.cueglow.server.objects.DmxAddress.Factory.tryFrom
  *
  * @property[value] A Short representing the DMX Address.
  */
-class DmxAddress private constructor(val value: Short) {
+data class DmxAddress constructor(val value: Short) {
     companion object Factory {
         /**
          * Instantiate DmxAddress from Short.

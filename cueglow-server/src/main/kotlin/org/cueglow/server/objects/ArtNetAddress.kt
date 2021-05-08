@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import org.cueglow.server.objects.ArtNetAddress.Factory.tryFrom
+import org.cueglow.server.objects.messages.*
 
 /**
  * Represents an Art-Net v4 Port-Address.
@@ -12,7 +13,7 @@ import org.cueglow.server.objects.ArtNetAddress.Factory.tryFrom
  *
  * @property[value] A Short representing the 15-bit Port-Address.
  */
-class ArtNetAddress private constructor(val value: Short) {
+data class ArtNetAddress constructor(val value: Short) {
 
     companion object Factory {
         /**

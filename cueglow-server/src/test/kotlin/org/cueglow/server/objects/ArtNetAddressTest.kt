@@ -1,6 +1,9 @@
 package org.cueglow.server.objects
 
 import com.github.michaelbull.result.*
+import org.cueglow.server.objects.messages.InvalidArtNetNet
+import org.cueglow.server.objects.messages.InvalidArtNetSubNet
+import org.cueglow.server.objects.messages.InvalidArtNetUniverse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
