@@ -13,7 +13,7 @@ abstract class IncomingGlowRequestHandler(private val state: StateProvider, priv
             GlowEvent.UPDATE_FIXTURES -> handleUpdateFixture(request)
             GlowEvent.REMOVE_FIXTURES -> handleRemoveFixtures(request)
             GlowEvent.REMOVE_FIXTURE_TYPES -> handleRemoveFixtureTypes(request)
-            else -> logger.warn("Received a message with event ${request.originalMessage.event} which should not be sent by client. Discarding message. ")
+            else -> logger.warn("Received a message with event ${request.originalMessage.event} from ${request.client} which should not be sent by a client. Discarding message. ")
         }
     }
 

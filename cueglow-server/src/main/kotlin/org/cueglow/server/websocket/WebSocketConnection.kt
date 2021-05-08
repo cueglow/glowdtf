@@ -61,4 +61,8 @@ class WebSocketConnection(val state: StateProvider, val subscriptionHandler: Sub
         subscriptionHandler.unsubscribeFromAllTopics(this)
         session = null
     }
+
+    override fun toString(): String {
+        return super.toString() + "@" + session?.remoteAddress
+    }
 }
