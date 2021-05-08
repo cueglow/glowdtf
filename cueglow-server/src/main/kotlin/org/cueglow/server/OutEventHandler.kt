@@ -14,9 +14,13 @@ class OutEventHandler(receivers: Iterable<OutEventReceiver>): Logging {
     init {
         Executors.newSingleThreadExecutor().submit {
             while (true) {
-                val glowMessage = queue.take()
-                logger.info("Handling OutEvent: $glowMessage")
-                receivers.forEach { it.receive(glowMessage) }
+                try {
+                    val glowMessage = queue.take()
+                    logger.debug("Handling OutEvent: $glowMessage")
+                    receivers.forEach { it.receive(glowMessage) }
+                } catch (e: Throwable) {
+                    logger.error(e)
+                }
             }
         }
     }

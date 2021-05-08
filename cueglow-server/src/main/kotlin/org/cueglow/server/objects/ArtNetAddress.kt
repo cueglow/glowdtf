@@ -13,6 +13,7 @@ import org.cueglow.server.objects.messages.*
  *
  * @property[value] A Short representing the 15-bit Port-Address.
  */
+// TODO constructor cannot be private due to Klaxon, so do validation in constructor instead of companion object by throwing
 data class ArtNetAddress constructor(val value: Short) {
 
     companion object Factory {

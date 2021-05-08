@@ -16,6 +16,7 @@ import org.cueglow.server.objects.messages.InvalidDmxAddress
  *
  * @property[value] A Short representing the DMX Address.
  */
+// TODO constructor can't be private due to Klaxon, so move validation of input from companion object to throwing constructor
 data class DmxAddress constructor(val value: Short) {
     companion object Factory {
         /**

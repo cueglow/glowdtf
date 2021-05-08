@@ -5,12 +5,17 @@ import org.cueglow.server.OutEventReceiver
 import org.cueglow.server.StateProvider
 import org.cueglow.server.json.AsyncClient
 import java.util.*
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * Handles Subscribe/Unsubscribe Events. Receives OutEvents from the OutEventHandler and sends them to the subscribers.
  **/
 abstract class SubscriptionHandler: OutEventReceiver, Logging {
-    private val activeSubscriptions = EnumMap<GlowTopic, MutableSet<AsyncClient>>(GlowTopic::class.java) // TODO synchronize (see JavaDoc for EnumMap)
+    val lock = ReentrantLock()
+
+    private val activeSubscriptions = EnumMap<GlowTopic, MutableSet<AsyncClient>>(GlowTopic::class.java)
 
     /** Keeps subscriptions that were sent the initial state but do not get updates yet because older updates
      * in the OutEventQueue first need to be handled. Subscriptions move from pending to active once the sync message
@@ -27,7 +32,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
 
     /** Receive and handle messages from the OutEventQueue **/
     override fun receive(glowMessage: GlowMessage) {
-        logger.info("Receiving $glowMessage")
+        logger.debug("Receiving $glowMessage")
 
         when (glowMessage.event) {
             GlowEvent.ADD_FIXTURES, GlowEvent.UPDATE_FIXTURES,
@@ -41,17 +46,21 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
     }
 
     private fun publish(topic: GlowTopic, glowMessage: GlowMessage) {
-        val topicSubscribers = activeSubscriptions[topic]
-        if (topicSubscribers!!.isNotEmpty()) { // null asserted because all possible keys are initialized in init block
-            val messageString = serializeMessage(glowMessage)
-            topicSubscribers.forEach {it.send(messageString)}
+        lock.withLock {
+            val topicSubscribers = activeSubscriptions[topic]
+            if (topicSubscribers!!.isNotEmpty()) { // null asserted because all possible keys are initialized in init block
+                val messageString = serializeMessage(glowMessage)
+                topicSubscribers.forEach {it.send(messageString)}
+            }
         }
     }
 
     /** Check if [syncUuid] is known. If yes, move subscription from pending to active **/
     private fun activateSubscription(syncUuid: UUID) {
-        val (topic, subscriber) = pendingSubscriptions.remove(syncUuid) ?: return
-        activeSubscriptions[topic]!!.add(subscriber) // null asserted because all possible keys are initialized in init block
+        lock.withLock {
+            val (topic, subscriber) = pendingSubscriptions.remove(syncUuid) ?: return
+            activeSubscriptions[topic]!!.add(subscriber) // null asserted because all possible keys are initialized in init block
+        }
     }
 
     fun subscribe(subscriber: AsyncClient, topic: GlowTopic, state: StateProvider) {
@@ -61,12 +70,15 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
             GlowTopic.PATCH -> {
                 val syncUuid = UUID.randomUUID()
                 val syncMessage = GlowMessage.Sync(syncUuid)
-                pendingSubscriptions[syncUuid] = Pair(GlowTopic.PATCH, subscriber)
-                // TODO acquire state lock here
-                val initialPatchState = state.patch.getGlowPatch()
-                state.outEventQueue.put(syncMessage) // TODO possible deadlock because SubscriptionHandler is locked and cannot work to reduce message count in queue
-                // no deadlock problem if we don't have the SubscriptionHandler Lock here?
-                // TODO release state lock here
+                val initialPatchState = lock.withLock {
+                    val initialPatchState = state.lock.withLock {
+                        // -> need to test multiple threads subscribing while changes are happening -> all threads should have same state in the end with their respective updates applied
+                        state.outEventQueue.offer(syncMessage, 1, TimeUnit.SECONDS)
+                        state.patch.getGlowPatch()
+                    }
+                    pendingSubscriptions[syncUuid] = Pair(GlowTopic.PATCH, subscriber)
+                    initialPatchState
+                }
                 val initialMessage = GlowMessage.PatchInitialState(initialPatchState)
                 subscriber.send(initialMessage)
             }
@@ -79,19 +91,23 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
 
     /** Returns true if the subscriber was successfully unsubscribed and false if the subscriber wasn't subscribed */
     private fun internalUnsubscribe(subscriber: AsyncClient, topic: GlowTopic): Boolean {
-        val numberOfSubscriptionsRemovedFromPending = pendingSubscriptions
-            .filter {it.value.first == topic && it.value.second == subscriber}
-            .keys
-            .map {pendingSubscriptions.remove(it)}
-            .size
-        val removedFromActive = activeSubscriptions[topic]!!.remove(subscriber) // null asserted because all possible keys are initialized in init block
-        return removedFromActive || numberOfSubscriptionsRemovedFromPending > 0
+        lock.withLock {
+            val numberOfSubscriptionsRemovedFromPending = pendingSubscriptions
+                .filter {it.value.first == topic && it.value.second == subscriber}
+                .keys
+                .map {pendingSubscriptions.remove(it)}
+                .size
+            val removedFromActive = activeSubscriptions[topic]!!.remove(subscriber) // null asserted because all possible keys are initialized in init block
+            return removedFromActive || numberOfSubscriptionsRemovedFromPending > 0
+        }
     }
 
     fun unsubscribeFromAllTopics(subscriber: AsyncClient) {
-        pendingSubscriptions.filter {it.value.second == subscriber}.keys.map { pendingSubscriptions.remove(it) }
-        activeSubscriptions.values.forEach {
-            it.remove(subscriber)
+        lock.withLock {
+            pendingSubscriptions.filter {it.value.second == subscriber}.keys.map { pendingSubscriptions.remove(it) }
+            activeSubscriptions.values.forEach {
+                it.remove(subscriber)
+            }
         }
     }
 }

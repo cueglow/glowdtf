@@ -4,6 +4,7 @@ import org.cueglow.server.json.JsonHandler
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.patch.Patch
 import java.util.concurrent.BlockingQueue
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Provides a collection of state objects
@@ -11,5 +12,6 @@ import java.util.concurrent.BlockingQueue
  * The StateProvider is initialized by the main process and passed to e.g. a [JsonHandler] for mutation.
  */
 class StateProvider(val outEventQueue: BlockingQueue<GlowMessage>) {
-    val patch = Patch(outEventQueue)
+    val lock = ReentrantLock()
+    val patch = Patch(outEventQueue, lock)
 }

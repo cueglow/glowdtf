@@ -10,6 +10,7 @@ import org.eclipse.jetty.server.Server
 
 
 fun main(args: Array<String>) {
+    // TODO what happens if there is an exception in this main thread?
     CueGlowServer()
 }
 
