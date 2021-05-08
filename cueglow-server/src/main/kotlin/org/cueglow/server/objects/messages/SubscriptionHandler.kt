@@ -41,7 +41,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
 
             GlowEvent.SYNC -> activateSubscription((glowMessage as GlowMessage.Sync).data)
 
-            else -> return
+            else -> logger.info("Received GlowMessage with unhandled event type ${glowMessage.event}. Discarding Message.")
         }
     }
 
