@@ -1,13 +1,20 @@
-import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading } from "@blueprintjs/core";
+import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, useNavigate } from "@reach/router";
-import React from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import { useMemo } from "react";
 
 
 
 function MainWindow(props: RouteComponentProps) {
     const navigate = useNavigate();
-    useHotkeys('p', () => { navigate("patch"); });
+    const hotkeys = useMemo(() => [
+        {
+            combo: "shift+p",
+            global: true,
+            label: "Open Patch View",
+            onKeyDown: () => navigate("patch"),
+        }
+    ], []);
+    useHotkeys(hotkeys);
 
     return (
         <Navbar>
@@ -17,7 +24,7 @@ function MainWindow(props: RouteComponentProps) {
                 </NavbarHeading>
             </NavbarGroup>
             <NavbarGroup align={Alignment.RIGHT}>
-                <Button text={<span>Patch <kbd>P</kbd></span>} minimal={true} icon="th" onClick={() => navigate("patch")} />
+                <Button text={<span>Patch <kbd>⇧</kbd>+<kbd>P</kbd></span>} minimal={true} icon="th" onClick={() => navigate("patch")} />
             </NavbarGroup>
         </Navbar>
     );

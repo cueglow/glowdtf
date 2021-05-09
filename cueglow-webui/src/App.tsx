@@ -5,7 +5,7 @@ import { Router } from '@reach/router';
 import PatchWindow from './PatchWindow/PatchWindow';
 import MainWindow from './MainWindow';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { Dialog, UL } from '@blueprintjs/core';
+import { Dialog, HotkeysProvider, UL } from '@blueprintjs/core';
 import { bpVariables, bpNumVariables } from './BlueprintVariables/BlueprintVariables';
 
 let ws = new ReconnectingWebSocket("ws://" + window.location.host + "/ws", [],
@@ -129,16 +129,18 @@ export function App() {
     ws.addEventListener("open", () => (setWsConnectionState(ws.readyState)));
   
     return (
-      <PatchContext.Provider value={patchExampleData}>
-        <Router className="bp3-dark" style={{
-          height: "100vh",
-          background: bpVariables.ptDarkAppBackgroundColor,
-        }}>
-          <MainWindow path="/" default />
-          <PatchWindow path="patch/*" />
-        </Router>
-        <NoConnectionAlert isOpen={wsConnectionState === 3 || wsConnectionState === 2 /*only show when connection is CLOSING or CLOSED*/} />
-      </PatchContext.Provider >
+      <HotkeysProvider>
+        <PatchContext.Provider value={patchExampleData}>
+          <Router className="bp3-dark" style={{
+            height: "100vh",
+            background: bpVariables.ptDarkAppBackgroundColor,
+          }}>
+            <MainWindow path="/" default />
+            <PatchWindow path="patch/*" />
+          </Router>
+          <NoConnectionAlert isOpen={wsConnectionState === 3 || wsConnectionState === 2 /*only show when connection is CLOSING or CLOSED*/} />
+        </PatchContext.Provider >
+      </HotkeysProvider>
     );
   }
   

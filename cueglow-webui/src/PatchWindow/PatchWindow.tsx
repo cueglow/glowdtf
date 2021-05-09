@@ -1,7 +1,6 @@
-import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs } from "@blueprintjs/core";
+import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
-import React from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import { useMemo } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
@@ -21,7 +20,15 @@ function PatchWindow(props: RouteComponentProps) {
 function PatchTabWrapper(this: any, props: RouteComponentProps) {
     const navigate = useNavigate();
     const location = useLocation();
-    useHotkeys('esc', () => { navigate("/"); });
+    const hotkeys = useMemo(() => [
+        {
+            combo: "esc",
+            global: true,
+            label: "Go Back to Main View",
+            onKeyDown: () => navigate("/"),
+        }
+    ], []);
+    useHotkeys(hotkeys);
     return (
         <div style={{ height: "100%", }}>
             <Navbar>

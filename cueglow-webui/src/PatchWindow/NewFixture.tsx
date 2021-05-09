@@ -1,15 +1,22 @@
-import { Alignment, Button, FormGroup, InputGroup, MenuItem, Navbar, NavbarGroup, NavbarHeading, NumericInput } from '@blueprintjs/core';
+import { Alignment, Button, FormGroup, InputGroup, MenuItem, Navbar, NavbarGroup, NavbarHeading, NumericInput, useHotkeys } from '@blueprintjs/core';
 import { ItemPredicate } from '@blueprintjs/select';
 import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import React, { useContext, useState } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
+import React, { useContext, useMemo, useState } from 'react';
 import { PatchContext } from '../App';
 import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../FixtureType/FixtureTypeUtils';
 
 export default function NewFixture(props: RouteComponentProps) {
     const navigate = useNavigate();
-    useHotkeys('esc', () => { navigate("/patch"); });
+    const hotkeys = useMemo(() => [
+        {
+            combo: "esc",
+            global: true,
+            label: "Go Back to Patch",
+            onKeyDown: () => navigate("patch"),
+        }
+    ], []);
+    useHotkeys(hotkeys);
     const patchData = useContext(PatchContext);
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | { modes: [] }>({ modes: [] });
 
