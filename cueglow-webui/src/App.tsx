@@ -6,10 +6,7 @@ import PatchWindow from './PatchWindow/PatchWindow';
 import MainWindow from './MainWindow';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { Dialog, UL } from '@blueprintjs/core';
-
-// Import SASS-variables from blueprint.js
-/* eslint import/no-webpack-loader-syntax: off */
-const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
+import { bpVariables, bpNumVariables } from './BlueprintVariables/BlueprintVariables';
 
 let ws = new ReconnectingWebSocket("ws://" + window.location.host + "/ws", [],
   { maxReconnectionDelay: 1000, minReconnectionDelay: 1000, debug: true });
@@ -135,7 +132,7 @@ export function App() {
       <PatchContext.Provider value={patchExampleData}>
         <Router className="bp3-dark" style={{
           height: "100vh",
-          background: bp.global["$pt-dark-app-background-color"].value.hex
+          background: bpVariables.ptDarkAppBackgroundColor,
         }}>
           <MainWindow path="/" default />
           <PatchWindow path="patch/*" />
@@ -150,11 +147,11 @@ export function App() {
       <Dialog className="bp3-dark" isOpen={props.isOpen} icon="error" title="Connection Error"
         isCloseButtonShown={false} canOutsideClickClose={false} canEscapeKeyClose={false}>
         <div style={{
-          padding: bp.global["$pt-grid-size"].value,
+          padding: bpVariables.ptGridSize,
         }}>
-          <p style={{marginBottom: 2*bp.global["$pt-grid-size"].value,}}>Cannot connect to the server. Retrying every second...</p>
+          <p style={{marginBottom: 2*bpNumVariables.ptGridSizePx,}}>Cannot connect to the server. Retrying every second...</p>
           <p>Please check: </p>
-          <UL style={{marginBottom: 2*bp.global["$pt-grid-size"].value,}}>
+          <UL style={{marginBottom: 2*bpNumVariables.ptGridSizePx,}}>
             <li>that the CueGlow Server is running</li>
             <li>your network connection to the CueGlow Server</li>
           </UL>

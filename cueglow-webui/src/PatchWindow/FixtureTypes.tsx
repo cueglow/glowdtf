@@ -2,12 +2,9 @@ import { Button } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
+import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { PatchContext } from "../App";
 import { DmxModeString } from "../FixtureType/FixtureTypeUtils";
-
-// Import SASS-variables from blueprint.js
-/* eslint import/no-webpack-loader-syntax: off */
-const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [detailState, setDetailState] = useState({
@@ -19,10 +16,10 @@ export function FixtureTypes(props: RouteComponentProps) {
     return (
         <div style={{
             position: "absolute",
-            top: bp.global["$pt-navbar-height"].value,
+            top: bpVariables.ptNavbarHeight,
             bottom: "0px",
             width: "100%",
-            padding: bp.global["$pt-grid-size"].value,
+            padding: bpVariables.ptGridSize,
             display: "flex",
             flexDirection: "row",
         }}>
@@ -31,13 +28,13 @@ export function FixtureTypes(props: RouteComponentProps) {
                 minWidth: 0,
                 flexBasis: 0,
                 flexGrow: 1,
-                paddingRight: bp.global["$pt-grid-size"].value,
+                paddingRight: bpVariables.ptGridSize,
                 // as flex-container
                 display: "flex",
                 flexDirection: "column",
             }}>
                 <div style={{
-                    marginBottom: bp.global["$pt-grid-size"].value,
+                    marginBottom: bpVariables.ptGridSize,
                 }}>
                     <Button intent="success" icon="plus">Add GDTF</Button>
                 </div>

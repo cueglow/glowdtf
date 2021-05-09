@@ -2,13 +2,10 @@ import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs } from
 import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
 import React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
 import NewFixture from "./NewFixture";
-
-// Import SASS-variables from blueprint.js
-/* eslint import/no-webpack-loader-syntax: off */
-const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
 
 function PatchWindow(props: RouteComponentProps) {
     
@@ -56,7 +53,7 @@ function PatchTabWrapper(this: any, props: RouteComponentProps) {
                         <Tab id="fixtureTypes" title="Fixture Types" />
                         {/* horrible hack to get navbar-height to the same size as Tabs-size
                     see  https://github.com/palantir/blueprint/issues/3727 */}
-                        <div style={{ height: bp.global["$pt-navbar-height"].value, }}></div>
+                        <div style={{ height: bpVariables.ptNavbarHeight, }}></div>
                     </Tabs>
                 </NavbarGroup>
             </Navbar>

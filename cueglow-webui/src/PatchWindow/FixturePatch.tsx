@@ -8,27 +8,24 @@ import { ReactTabulator } from 'react-tabulator'
 import { PatchContext } from "../App";
 import { RouteComponentProps, useNavigate } from "@reach/router";
 import { fixtureTypeString } from "../FixtureType/FixtureTypeUtils";
-
-// Import SASS-variables from blueprint.js
-/* eslint import/no-webpack-loader-syntax: off */
-const bp = require('sass-extract-loader!@blueprintjs/core/lib/scss/variables.scss');
+import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 
 export function FixturePatch(props: RouteComponentProps) {
     const navigate = useNavigate();
     return (
         <div style={{
             position: "absolute",
-            top: bp.global["$pt-navbar-height"].value,
+            top: bpVariables.ptNavbarHeight,
             bottom: "0px",
             width: "100%",
-            padding: bp.global["$pt-grid-size"].value,
+            padding: bpVariables.ptGridSize,
             display: "flex",
             flexDirection: "column",
         }}>
             <div style={{
                 display: "flex",
                 justifyContent: "flex-start", //flex-end for right-align
-                marginBottom: bp.global["$pt-grid-size"].value,
+                marginBottom: bpVariables.ptGridSize,
             }}>
                 <Button intent="success" icon="plus"
                     onClick={() => navigate("/patch/newFixture")}>
