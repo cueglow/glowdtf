@@ -9,7 +9,7 @@ export { bpVariables }
 
 // derived numeric variables
 function pixelStringToNumber(inputString: string): number {
-    return Number(inputString.slice(0, -3));
+    return Number(inputString.slice(0, -2));
 }
 
 export const bpNumVariables = {

@@ -1,15 +1,12 @@
-import React, { createContext, useState } from 'react';
-import { v4 as uuidv4, NIL as uuidNilString, parse as uuidParse } from 'uuid';
+import { Dialog, HotkeysProvider, Spinner, UL } from '@blueprintjs/core';
 // import ReconnectingWebSocket from 'reconnecting-websocket';
 import { Router } from '@reach/router';
-import PatchWindow from './PatchWindow/PatchWindow';
+import React, { createContext } from 'react';
+import { NIL as uuidNilString, parse as uuidParse, v4 as uuidv4 } from 'uuid';
+import { bpNumVariables, bpVariables } from './BlueprintVariables/BlueprintVariables';
+import { ConnectionState, useConnection } from './ConnectionProvider/ConnectionProvider';
 import MainWindow from './MainWindow';
-import ReconnectingWebSocket from 'reconnecting-websocket';
-import { Dialog, HotkeysProvider, UL } from '@blueprintjs/core';
-import { bpVariables, bpNumVariables } from './BlueprintVariables/BlueprintVariables';
-
-let ws = new ReconnectingWebSocket("ws://" + window.location.host + "/ws", [],
-  { maxReconnectionDelay: 1000, minReconnectionDelay: 1000, debug: true });
+import PatchWindow from './PatchWindow/PatchWindow';
 
 // TODO install emotion (https://emotion.sh/docs/introduction), a CSS-in-JS library
 // in contrast to inline styles allows media queries, etc.
@@ -122,12 +119,8 @@ const patchExampleData = {
 export const PatchContext = createContext(patchExampleData);
 
 export function App() {
-    const [wsConnectionState, setWsConnectionState] = useState(ws.readyState);
-    ws.addEventListener(
-      "close", () => { setTimeout(() => setWsConnectionState(ws.readyState)) }
-    );
-    ws.addEventListener("open", () => (setWsConnectionState(ws.readyState)));
-  
+    const connectionState = useConnection()  
+
     return (
       <HotkeysProvider>
         <PatchContext.Provider value={patchExampleData}>
@@ -138,7 +131,8 @@ export function App() {
             <MainWindow path="/" default />
             <PatchWindow path="patch/*" />
           </Router>
-          <NoConnectionAlert isOpen={wsConnectionState === 3 || wsConnectionState === 2 /*only show when connection is CLOSING or CLOSED*/} />
+          <NoConnectionAlert isOpen={connectionState === ConnectionState.Closed} />
+          <ConnectingAlert isOpen={connectionState === ConnectionState.Connecting} />
         </PatchContext.Provider >
       </HotkeysProvider>
     );
@@ -151,14 +145,23 @@ export function App() {
         <div style={{
           padding: bpVariables.ptGridSize,
         }}>
-          <p style={{marginBottom: 2*bpNumVariables.ptGridSizePx,}}>Cannot connect to the server. Retrying every second...</p>
+          <p style={{marginBottom: 2*bpNumVariables.ptGridSizePx,}}>Cannot connect to the server.</p>
           <p>Please check: </p>
           <UL style={{marginBottom: 2*bpNumVariables.ptGridSizePx,}}>
             <li>that the CueGlow Server is running</li>
             <li>your network connection to the CueGlow Server</li>
           </UL>
-          <p>You can also try reloading the page. </p>
+          <p>Then reload the page to try connecting.  </p>
         </div>
+      </Dialog>
+    )
+  }
+
+  function ConnectingAlert(props: { isOpen: boolean }) {
+    return (
+      <Dialog className="bp3-dark" isOpen={props.isOpen} title="Connecting..."
+        isCloseButtonShown={false} canOutsideClickClose={false} canEscapeKeyClose={false}>
+        <Spinner />
       </Dialog>
     )
   }
