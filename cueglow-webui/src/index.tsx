@@ -1,4 +1,3 @@
-import './index.css';
 import './index.scss'
 import { AppWrapper } from './App/AppWrapper';
 import ReactDOM from 'react-dom';

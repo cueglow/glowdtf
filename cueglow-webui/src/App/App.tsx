@@ -3,7 +3,7 @@ import { Router } from '@reach/router';
 import React, { createContext } from 'react';
 import { NIL as uuidNilString, parse as uuidParse, v4 as uuidv4 } from 'uuid';
 import { bpVariables } from '../BlueprintVariables/BlueprintVariables';
-import MainWindow from '../MainWindow';
+import MainWindow from './MainWindow';
 import PatchWindow from '../PatchWindow/PatchWindow';
 
 // TODO install emotion (https://emotion.sh/docs/introduction), a CSS-in-JS library
