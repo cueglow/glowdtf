@@ -13,7 +13,7 @@ function MainWindow(props: RouteComponentProps) {
             label: "Open Patch View",
             onKeyDown: () => navigate("patch"),
         }
-    ], []);
+    ], [navigate]);
     useHotkeys(hotkeys);
 
     return (

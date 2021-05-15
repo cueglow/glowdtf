@@ -15,7 +15,7 @@ export default function NewFixture(props: RouteComponentProps) {
             label: "Go Back to Patch",
             onKeyDown: () => navigate("patch"),
         }
-    ], []);
+    ], [navigate]);
     useHotkeys(hotkeys);
     const patchData = useContext(PatchContext);
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | { modes: [] }>({ modes: [] });

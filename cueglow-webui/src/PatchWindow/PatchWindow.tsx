@@ -27,7 +27,7 @@ function PatchTabWrapper(this: any, props: RouteComponentProps) {
             label: "Go Back to Main View",
             onKeyDown: () => navigate("/"),
         }
-    ], []);
+    ], [navigate]);
     useHotkeys(hotkeys);
     return (
         <div style={{ height: "100%", }}>
