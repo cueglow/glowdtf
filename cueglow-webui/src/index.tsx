@@ -1,6 +1,6 @@
 import './index.css';
 import './index.scss'
-import { AppWrapper } from './App/App';
+import { AppWrapper } from './App/AppWrapper';
 import ReactDOM from 'react-dom';
 import React from 'react';
 
