@@ -20,7 +20,7 @@ function mapReadyStateToConnectionState(readyState: Number) {
         case 3: return ConnectionState.Closed;
     }
 }
-
+/** use this hook only once in the entire app */
 export function useConnection() {
     const [connectionState, setConnectionState] = 
         useState(mapReadyStateToConnectionState(webSocketConnection.readyState));

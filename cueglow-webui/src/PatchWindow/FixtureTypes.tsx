@@ -3,7 +3,7 @@ import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
-import { PatchContext } from "../App";
+import { PatchContext } from "../App/App";
 import { DmxModeString } from "../FixtureType/FixtureTypeUtils";
 
 export function FixtureTypes(props: RouteComponentProps) {

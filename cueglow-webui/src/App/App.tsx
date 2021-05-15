@@ -3,10 +3,10 @@ import { Dialog, HotkeysProvider, Spinner, UL } from '@blueprintjs/core';
 import { Router } from '@reach/router';
 import React, { createContext } from 'react';
 import { NIL as uuidNilString, parse as uuidParse, v4 as uuidv4 } from 'uuid';
-import { bpNumVariables, bpVariables } from './BlueprintVariables/BlueprintVariables';
-import { ConnectionState, useConnection } from './ConnectionProvider/ConnectionProvider';
-import MainWindow from './MainWindow';
-import PatchWindow from './PatchWindow/PatchWindow';
+import { bpNumVariables, bpVariables } from '../BlueprintVariables/BlueprintVariables';
+import { ConnectionState, useConnection } from '../ConnectionProvider/ConnectionProvider';
+import MainWindow from '../MainWindow';
+import PatchWindow from '../PatchWindow/PatchWindow';
 
 // TODO install emotion (https://emotion.sh/docs/introduction), a CSS-in-JS library
 // in contrast to inline styles allows media queries, etc.
@@ -118,50 +118,70 @@ const patchExampleData = {
 
 export const PatchContext = createContext(patchExampleData);
 
-export function App() {
-    const connectionState = useConnection()  
+export function AppWrapper() {
+  const connectionState = useConnection()
 
-    return (
-      <HotkeysProvider>
-        <PatchContext.Provider value={patchExampleData}>
-          <Router className="bp3-dark" style={{
-            height: "100vh",
-            background: bpVariables.ptDarkAppBackgroundColor,
-          }}>
-            <MainWindow path="/" default />
-            <PatchWindow path="patch/*" />
-          </Router>
-          <NoConnectionAlert isOpen={connectionState === ConnectionState.Closed} />
-          <ConnectingAlert isOpen={connectionState === ConnectionState.Connecting} />
-        </PatchContext.Provider >
-      </HotkeysProvider>
-    );
+  if (connectionState === ConnectionState.Open) {
+    return <App />
+  } else if (connectionState === ConnectionState.Connecting) {
+    return <EstablishingConnectionPage isOpen={connectionState === ConnectionState.Connecting} />
+  } else { // connectionState === ConnectionState.Closed
+    return <NoConnectionPage isOpen={connectionState === ConnectionState.Closed} />
   }
-  
-  function NoConnectionAlert(props: { isOpen: boolean }) {
-    return (
+}
+
+function App() {
+  return (
+    <HotkeysProvider>
+      <PatchContext.Provider value={patchExampleData}>
+        <Router className="bp3-dark" style={{
+          height: "100vh",
+          background: bpVariables.ptDarkAppBackgroundColor,
+        }}>
+          <MainWindow path="/" default />
+          <PatchWindow path="patch/*" />
+        </Router>
+      </PatchContext.Provider >
+    </HotkeysProvider>
+  )
+}
+
+function NoConnectionPage(props: { isOpen: boolean }) {
+  return (
+    <div className="bp3-dark" style={{
+      height: "100vh",
+      background: bpVariables.ptDarkAppBackgroundColor,
+    }}>
       <Dialog className="bp3-dark" isOpen={props.isOpen} icon="error" title="Connection Error"
         isCloseButtonShown={false} canOutsideClickClose={false} canEscapeKeyClose={false}>
         <div style={{
           padding: bpVariables.ptGridSize,
         }}>
-          <p style={{marginBottom: 2*bpNumVariables.ptGridSizePx,}}>Cannot connect to the server.</p>
+          <p style={{ marginBottom: 2 * bpNumVariables.ptGridSizePx, }}>Cannot connect to the server.</p>
           <p>Please check: </p>
-          <UL style={{marginBottom: 2*bpNumVariables.ptGridSizePx,}}>
+          <UL style={{ marginBottom: 2 * bpNumVariables.ptGridSizePx, }}>
             <li>that the CueGlow Server is running</li>
             <li>your network connection to the CueGlow Server</li>
           </UL>
           <p>Then reload the page to try connecting.  </p>
         </div>
       </Dialog>
-    )
-  }
+    </div>
+  )
+}
 
-  function ConnectingAlert(props: { isOpen: boolean }) {
-    return (
-      <Dialog className="bp3-dark" isOpen={props.isOpen} title="Connecting..."
+function EstablishingConnectionPage(props: { isOpen: boolean }) {
+  return (
+    <div className="bp3-dark" style={{
+      height: "100vh",
+      background: bpVariables.ptDarkAppBackgroundColor,
+    }}>
+      <Dialog className="bp3-dark" isOpen={props.isOpen} title="Connecting to CueGlow Server..."
         isCloseButtonShown={false} canOutsideClickClose={false} canEscapeKeyClose={false}>
-        <Spinner />
+        <div style={{ marginTop: 2 * bpNumVariables.ptGridSizePx, }}>
+          <Spinner />
+        </div>
       </Dialog>
-    )
-  }
+    </div>
+  )
+}
