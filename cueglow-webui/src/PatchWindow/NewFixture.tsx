@@ -4,7 +4,7 @@ import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useContext, useMemo, useState } from 'react';
 import { PatchContext } from '../App/App';
-import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../FixtureType/FixtureTypeUtils';
+import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
 
 export default function NewFixture(props: RouteComponentProps) {
     const navigate = useNavigate();

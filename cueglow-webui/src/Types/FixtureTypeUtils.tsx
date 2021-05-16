@@ -17,4 +17,7 @@ export type FixtureType = {
 export type DmxMode = {
     name: string;
     channelCount: number;
+    channelLayout: DmxBreak[];
 };
+
+export type DmxBreak = (string | null)[]

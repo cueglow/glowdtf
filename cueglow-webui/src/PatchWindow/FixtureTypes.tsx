@@ -4,13 +4,13 @@ import React, { useContext, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { PatchContext } from "../App/App";
-import { DmxModeString } from "../FixtureType/FixtureTypeUtils";
+import { DmxMode, DmxModeString, FixtureType } from "../Types/FixtureTypeUtils";
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [detailState, setDetailState] = useState({
         name: "",
         manufacturer: "",
-        modes: [] as {name: string, channelCount: number}[],
+        modes: [] as DmxMode[],
     });
 
     return (

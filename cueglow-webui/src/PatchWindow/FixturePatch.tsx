@@ -7,7 +7,7 @@ import 'react-tabulator/lib/css/tabulator_midnight.min.css'; // theme
 import { ReactTabulator } from 'react-tabulator'
 import { PatchContext } from "../App/App";
 import { RouteComponentProps, useNavigate } from "@reach/router";
-import { fixtureTypeString } from "../FixtureType/FixtureTypeUtils";
+import { fixtureTypeString } from "../Types/FixtureTypeUtils";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 
 export function FixturePatch(props: RouteComponentProps) {

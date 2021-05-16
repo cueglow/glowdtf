@@ -1,6 +1,6 @@
 import { HotkeysProvider } from '@blueprintjs/core';
 import { Router } from '@reach/router';
-import React, { createContext } from 'react';
+import React, { createContext, useEffect } from 'react';
 import { NIL as uuidNilString, parse as uuidParse, v4 as uuidv4 } from 'uuid';
 import { bpVariables } from '../BlueprintVariables/BlueprintVariables';
 import MainWindow from './MainWindow';
@@ -88,10 +88,12 @@ export const patchExampleData = {
         {
           name: "Standard",
           channelCount: 21,
+          channelLayout: [],
         },
         {
           name: "Extended",
           channelCount: 34,
+          channelLayout: [],
         }
       ],
     },
@@ -103,10 +105,12 @@ export const patchExampleData = {
         {
           name: "8-bit",
           channelCount: 1,
+          channelLayout: [],
         },
         {
           name: "16-bit",
           channelCount: 2,
+          channelLayout: [],
         }
       ],
     },

@@ -12,7 +12,9 @@ export const connectionProvider = new class {
     private readonly webSocketPath = "ws://" + window.location.host + "/ws";
     private readonly webSocketConnection = new WebSocket(this.webSocketPath);
 
-    private _connectionState = mapReadyStateToConnectionState(this.webSocketConnection.readyState)
+    private _connectionState = mapReadyStateToConnectionState(
+        this.webSocketConnection.readyState
+    )
     get connectionState() { return this._connectionState; }
 
     onConnectionChange = (newConnectionState: ConnectionState) => { };
