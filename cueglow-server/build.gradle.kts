@@ -15,6 +15,7 @@ plugins {
     kotlin("jvm") version "1.4.10"
     application
     id("com.github.node-gradle.node") version "2.2.4"
+    id("com.dorongold.task-tree") version "1.5"
 }
 
 group = "org.cueglow"

@@ -18,3 +18,9 @@ processResources {
     }
     dependsOn npm_run_build
 }
+
+//
+task runNoNpm {
+    gradle.startParameter.excludedTaskNames += "processResources"
+    dependsOn run
+}
