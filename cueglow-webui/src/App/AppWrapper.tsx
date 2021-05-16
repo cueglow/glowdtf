@@ -1,14 +1,22 @@
 // import ReconnectingWebSocket from 'reconnecting-websocket';
-import React from 'react';
-import { ConnectionState, useConnection } from '../ConnectionProvider/ConnectionProvider';
+import React, { useEffect, useState } from 'react';
+import { connectionProvider, ConnectionState } from '../ConnectionProvider/ConnectionProvider';
 import { App } from './App';
 import { EstablishingConnectionPage } from './EstablishingConnectionPage';
 import { NoConnectionPage } from './NoConnectionPage';
 
+function useConnectionState() {
+  const [connectionState, setConnectionState] = useState(connectionProvider.connectionState);
 
+  useEffect(() => {
+    connectionProvider.onConnectionChange = (newConnectionState) => setConnectionState(newConnectionState)
+  }, [])
+
+  return connectionState;
+}
 
 export function AppWrapper() {
-  const connectionState = useConnection()
+  const connectionState = useConnectionState()
 
   if (connectionState === ConnectionState.Open) {
     return <App />

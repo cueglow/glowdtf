@@ -1,16 +1,39 @@
-import { useEffect, useState } from "react"
 
 // TODO this module should provide automatic reconnection in the future
 // see https://github.com/cueglow/cueglow/issues/52
-
-const webSocketPath = "ws://" + window.location.host + "/ws"
-const webSocketConnection = new WebSocket(webSocketPath)
 
 export enum ConnectionState {
     Connecting,
     Open,
     Closed,
 }
+
+export const connectionProvider = new class {
+    private readonly webSocketPath = "ws://" + window.location.host + "/ws";
+    private readonly webSocketConnection = new WebSocket(this.webSocketPath);
+
+    private _connectionState = mapReadyStateToConnectionState(this.webSocketConnection.readyState)
+    get connectionState() { return this._connectionState; }
+
+    onConnectionChange = (newConnectionState: ConnectionState) => { };
+
+    constructor() {
+        // add webSocket event listeners
+        this.webSocketConnection.addEventListener(
+            "open", () => {
+                this._connectionState = ConnectionState.Open;
+                this.onConnectionChange(ConnectionState.Open);
+            }
+        );
+        this.webSocketConnection.addEventListener(
+            "close", () => {
+                this._connectionState = ConnectionState.Closed;
+                this.onConnectionChange(ConnectionState.Closed);
+            }
+        );
+    }
+
+}()
 
 function mapReadyStateToConnectionState(readyState: Number) {
     switch (readyState) {
@@ -19,21 +42,4 @@ function mapReadyStateToConnectionState(readyState: Number) {
         case 2: return ConnectionState.Closed;
         case 3: return ConnectionState.Closed;
     }
-}
-/** use this hook only once in the entire app */
-export function useConnection() {
-    const [connectionState, setConnectionState] = 
-        useState(mapReadyStateToConnectionState(webSocketConnection.readyState));
-    
-    // add event handlers to WebSocket once
-    useEffect(() => {
-        webSocketConnection.addEventListener(
-            "open", () => {setConnectionState(ConnectionState.Open)}
-        );
-        webSocketConnection.addEventListener(
-            "close", () => {setConnectionState(ConnectionState.Closed)}
-        );
-    }, [])
-
-    return connectionState;
 }
