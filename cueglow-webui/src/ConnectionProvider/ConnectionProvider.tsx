@@ -2,18 +2,28 @@
 // TODO this module should provide automatic reconnection in the future
 // see https://github.com/cueglow/cueglow/issues/52
 
+import { MessageHandler } from "./MessageHandler";
+import { SubscriptionProvider } from "./SubscriptionProvider";
+
 export enum ConnectionState {
     Connecting,
     Open,
     Closed,
 }
 
+const webSocketPath = "ws://" + window.location.host + "/ws";
+
+class Connection {
+    readonly webSocket = new WebSocket(webSocketPath);
+    readonly subscriptions = new SubscriptionProvider(this.webSocket);
+    readonly messageHandler = new MessageHandler(this.webSocket);
+}
+
 export const connectionProvider = new class {
-    private readonly webSocketPath = "ws://" + window.location.host + "/ws";
-    private readonly webSocketConnection = new WebSocket(this.webSocketPath);
+    readonly connection = new Connection();
 
     private _connectionState = mapReadyStateToConnectionState(
-        this.webSocketConnection.readyState
+        this.connection.webSocket.readyState
     )
     get connectionState() { return this._connectionState; }
 
@@ -21,13 +31,13 @@ export const connectionProvider = new class {
 
     constructor() {
         // add webSocket event listeners
-        this.webSocketConnection.addEventListener(
+        this.connection.webSocket.addEventListener(
             "open", () => {
                 this._connectionState = ConnectionState.Open;
                 this.onConnectionChange(ConnectionState.Open);
             }
         );
-        this.webSocketConnection.addEventListener(
+        this.connection.webSocket.addEventListener(
             "close", () => {
                 this._connectionState = ConnectionState.Closed;
                 this.onConnectionChange(ConnectionState.Closed);

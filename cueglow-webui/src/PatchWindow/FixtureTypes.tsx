@@ -3,8 +3,8 @@ import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
-import { PatchContext } from "../App/App";
-import { DmxMode, DmxModeString, FixtureType } from "../Types/FixtureTypeUtils";
+import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
+import { DmxMode, DmxModeString } from "../Types/FixtureTypeUtils";
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [detailState, setDetailState] = useState({
