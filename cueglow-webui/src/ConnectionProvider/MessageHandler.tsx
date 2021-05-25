@@ -1,3 +1,4 @@
+import { FixtureType } from "src/Types/FixtureTypeUtils";
 import { PatchData } from "src/Types/Patch";
 
 export class MessageHandler {
@@ -11,8 +12,11 @@ export class MessageHandler {
         const event = message.event;
         if (event === "patchInitialState") {
             this.onPatchInitialState(message.data)
+        } else if (event === "addFixtureTypes") {
+            this.onAddFixtureTypes(message.data)
         }
     };
 
     onPatchInitialState = (patchInitialState: PatchData) => { };
+    onAddFixtureTypes = (fixtureTypes: FixtureType[]) => { };
 }
