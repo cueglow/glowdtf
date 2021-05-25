@@ -1,6 +1,6 @@
 import { Button } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
@@ -36,7 +36,7 @@ export function FixtureTypes(props: RouteComponentProps) {
                 <div style={{
                     marginBottom: bpVariables.ptGridSize,
                 }}>
-                    <Button intent="success" icon="plus">Add GDTF</Button>
+                    <AddGdtfButton />
                 </div>
                 <div style={{
                     flexGrow: 1,
@@ -91,4 +91,28 @@ function FixtureTypeTable(props: { rowSelected: any; }) {
                 rowSelected: props.rowSelected,
             }} />
     );
+}
+
+function AddGdtfButton() {
+    const fileInput = useRef<HTMLInputElement>(null);
+
+    function selectFile() {
+        fileInput.current?.click()
+    }
+
+    function uploadFile() {
+        const file = fileInput.current?.files?.[0]
+        if (file == null) {return}
+        const formData = new FormData();    
+        formData.append("file", file);
+        fetch('/api/fixturetype', {method: "POST", body: formData});
+    }
+
+    return (
+        <Button intent="success" icon="plus" onClick={selectFile}>
+            Add GDTF
+            <input type="file" id="gdtfFileInput" ref={fileInput} accept=".gdtf" 
+            onChange={uploadFile} hidden/>
+        </Button>
+    )
 }
