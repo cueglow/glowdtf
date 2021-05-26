@@ -1,3 +1,6 @@
+import { ClientMessage, GlowTopic } from "./ClientMessage"
+import { connectionProvider } from "./ConnectionProvider"
+
 export class SubscriptionProvider {
     constructor (private webSocket: WebSocket) {
         webSocket.addEventListener("open", () => {
@@ -6,10 +9,7 @@ export class SubscriptionProvider {
     }
     
     openSubscriptions() {
-        const patchSubscribe = {
-            event: "subscribe",
-            data: "patch",
-        }
-        this.webSocket.send(JSON.stringify(patchSubscribe))
+        const msg = new ClientMessage.Subscribe(GlowTopic.Patch)
+        connectionProvider.send(msg)
     }
 }

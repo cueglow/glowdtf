@@ -6,13 +6,14 @@ export class MessageHandler {
     };
     
     handleMessage(e: MessageEvent) {
-        const message = JSON.parse(e.data)
-        console.log("Received", message)
+        const message = JSON.parse(e.data);
         const event = message.event;
+        const data = message.data;
+        
         if (event === "patchInitialState") {
-            patchDataHandler.onPatchInitialState(message.data)
+            patchDataHandler.onPatchInitialState(data)
         } else if (event === "addFixtureTypes") {
-            patchDataHandler.onAddFixtureTypes(message.data)
+            patchDataHandler.onAddFixtureTypes(data)
         }
     };
 }

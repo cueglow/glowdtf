@@ -2,6 +2,7 @@
 // TODO this module should provide automatic reconnection in the future
 // see https://github.com/cueglow/cueglow/issues/52
 
+import { ClientMessage } from "./ClientMessage";
 import { MessageHandler } from "./MessageHandler";
 import { SubscriptionProvider } from "./SubscriptionProvider";
 
@@ -21,6 +22,11 @@ class Connection {
 
 export const connectionProvider = new class {
     readonly connection = new Connection();
+
+    send(message: ClientMessage) {
+        const str = JSON.stringify(message)
+        this.connection.webSocket.send(str)
+    }
 
     private _connectionState = mapReadyStateToConnectionState(
         this.connection.webSocket.readyState
