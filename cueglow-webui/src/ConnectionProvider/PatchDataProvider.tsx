@@ -1,35 +1,35 @@
-import { createContext, ReactNode, useEffect, useRef, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
+import { FixtureType } from "src/Types/FixtureTypeUtils";
 import { PatchData } from "src/Types/Patch";
-import { connectionProvider } from "./ConnectionProvider";
 
 const emptyPatch: PatchData = {fixtures: [], fixtureTypes: []}
 export const PatchContext = createContext(emptyPatch);
 
-const messageHandler = connectionProvider.connection.messageHandler
+export const patchDataHandler = new class {
+    private currentPatchData = emptyPatch
+    get current() {return this.currentPatchData}
 
-let currentPatchData = emptyPatch
+    onPatchInitialState(initialPatchState: PatchData) {
+        this.currentPatchData = initialPatchState
+        this.onPatchChange(this.currentPatchData)
+    }
 
-// callback that PatchDataProvider component hooks into
-let onPatchChange = (newPatchData: PatchData) => { }
+    onAddFixtureTypes (fixtureTypesToAdd: FixtureType[]) {
+        this.currentPatchData.fixtureTypes.push(...fixtureTypesToAdd)
+        // shallow copy required for react setState
+        this.currentPatchData = {...this.currentPatchData}
+        this.onPatchChange(this.currentPatchData)
+    }
 
-// TODO once messageHandler is destroyed on re-connect, 
-// this needs to happen after every re-connect
-messageHandler.onPatchInitialState = (initialPatchState: PatchData) => {
-    currentPatchData = initialPatchState
-    onPatchChange(currentPatchData)
-}
-messageHandler.onAddFixtureTypes = (fixtureTypesToAdd) => {
-    currentPatchData.fixtureTypes.push(...fixtureTypesToAdd)
-    // shallow copy required for react setState
-    currentPatchData = {...currentPatchData}
-    onPatchChange(currentPatchData)
-}
+    // callback that PatchDataProvider component hooks into
+    onPatchChange = (newPatchData: PatchData) => { }
+}()
 
 export function PatchDataProvider(props: {children: ReactNode}) {
-    const [patchData, setPatchData] = useState(currentPatchData)
+    const [patchData, setPatchData] = useState(patchDataHandler.current)
 
     useEffect(() => {
-        onPatchChange = setPatchData
+        patchDataHandler.onPatchChange = setPatchData
     }, [])
 
     return (

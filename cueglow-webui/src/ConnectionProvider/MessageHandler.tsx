@@ -1,5 +1,4 @@
-import { FixtureType } from "src/Types/FixtureTypeUtils";
-import { PatchData } from "src/Types/Patch";
+import { patchDataHandler } from "./PatchDataProvider";
 
 export class MessageHandler {
     constructor (private webSocket: WebSocket) {
@@ -11,14 +10,9 @@ export class MessageHandler {
         console.log("Received", message)
         const event = message.event;
         if (event === "patchInitialState") {
-            this.onPatchInitialState(message.data)
+            patchDataHandler.onPatchInitialState(message.data)
         } else if (event === "addFixtureTypes") {
-            this.onAddFixtureTypes(message.data)
+            patchDataHandler.onAddFixtureTypes(message.data)
         }
     };
-
-
-    // TODO is there a way to not write these manually for every event?
-    onPatchInitialState = (patchInitialState: PatchData) => { };
-    onAddFixtureTypes = (fixtureTypes: FixtureType[]) => { };
 }
