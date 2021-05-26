@@ -1,17 +1,29 @@
 import { Button } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
-import React, { useContext, useRef, useState } from "react";
+import React, { useCallback, useContext, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
+import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
+import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { DmxMode, DmxModeString } from "../Types/FixtureTypeUtils";
 
+const emptyDetails = {
+    fixtureTypeId: "",
+    name: "",
+    manufacturer: "",
+    modes: [] as DmxMode[],
+}
+
 export function FixtureTypes(props: RouteComponentProps) {
-    const [detailState, setDetailState] = useState({
-        name: "",
-        manufacturer: "",
-        modes: [] as DmxMode[],
-    });
+    const [detailState, setDetailState] = useState(emptyDetails);
+    const removeFixtureType = useCallback(() => {
+        const msg = new ClientMessage.RemoveFixtureTypes([detailState.fixtureTypeId])
+        connectionProvider.send(msg)
+        setDetailState(emptyDetails)
+        // TODO if patched fixtures were removed in this operation, show toast
+        // with how many fixtures were removed and with undo button
+    }, [detailState])
 
     return (
         <div style={{
@@ -50,7 +62,14 @@ export function FixtureTypes(props: RouteComponentProps) {
                 </div>
             </div>
             <div style={{ flexGrow: 1, flexBasis: 0, }}>
-                <h4>Details</h4>
+                <div style={{ display: "flex", }}>
+                    <h4>Details</h4>
+                    <div style={{ flexGrow: 1, }} />
+                    {/* TODO this remove button should probably be moved inline into the table, 
+                    but not sure how to do that */}
+                    <Button minimal={true} icon="trash" 
+                        disabled={detailState.name === ""} onClick={removeFixtureType}/>
+                </div>
                 <div>
                     Manufacturer: {detailState.manufacturer}
                 </div>

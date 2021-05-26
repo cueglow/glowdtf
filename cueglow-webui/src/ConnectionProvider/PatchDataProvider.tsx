@@ -14,9 +14,25 @@ export const patchDataHandler = new class {
         this.onPatchChange(this.currentPatchData)
     }
 
-    onAddFixtureTypes (fixtureTypesToAdd: FixtureType[]) {
+    onAddFixtureTypes(fixtureTypesToAdd: FixtureType[]) {
         this.currentPatchData.fixtureTypes.push(...fixtureTypesToAdd)
         // shallow copy required for react setState
+        this.currentPatchData = {...this.currentPatchData}
+        this.onPatchChange(this.currentPatchData)
+    }
+
+    onRemoveFixtureTypes(fixtureTypesToRemove: string[]) {
+        fixtureTypesToRemove.forEach((uuidString) => {
+            const index = this.currentPatchData.fixtureTypes.findIndex((fixtureType) => {
+                return fixtureType.fixtureTypeId === uuidString
+            })
+            if (index === -1) {
+                console.error("server wanted to remove unknown fixture type"); 
+                // TODO re-subscribe
+                return
+            }
+            this.currentPatchData.fixtureTypes.splice(index, 1)
+        })
         this.currentPatchData = {...this.currentPatchData}
         this.onPatchChange(this.currentPatchData)
     }

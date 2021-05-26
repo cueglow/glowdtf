@@ -9,11 +9,13 @@ export class MessageHandler {
         const message = JSON.parse(e.data);
         const event = message.event;
         const data = message.data;
-        
+
         if (event === "patchInitialState") {
             patchDataHandler.onPatchInitialState(data)
         } else if (event === "addFixtureTypes") {
             patchDataHandler.onAddFixtureTypes(data)
+        } else if (event === "removeFixtureTypes") {
+            patchDataHandler.onRemoveFixtureTypes(data)
         }
     };
 }

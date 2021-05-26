@@ -8,7 +8,7 @@ export function DmxModeString(mode: DmxMode) {
 
 
 export type FixtureType = {
-    fixtureTypeId: Uint8Array;
+    fixtureTypeId: string;
     manufacturer: string;
     name: string;
     modes: DmxMode[];

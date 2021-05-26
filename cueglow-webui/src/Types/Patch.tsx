@@ -6,10 +6,10 @@ export type PatchData = {
 }
 
 export type PatchFixture = {
-    uuid: Uint8Array;
+    uuid: string;
     fid: number;
     name: string;
-    fixtureTypeId: Uint8Array;
+    fixtureTypeId: string;
     dmxMode: string;
     universe: number;
     address: number;
