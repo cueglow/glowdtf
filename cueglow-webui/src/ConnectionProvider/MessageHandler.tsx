@@ -17,6 +17,8 @@ export class MessageHandler {
         }
     };
 
+
+    // TODO is there a way to not write these manually for every event?
     onPatchInitialState = (patchInitialState: PatchData) => { };
     onAddFixtureTypes = (fixtureTypes: FixtureType[]) => { };
 }
