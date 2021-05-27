@@ -1,6 +1,10 @@
+import { PatchFixture } from "src/Types/Patch"
+
 export enum ClientEvent {
     Subscribe = "subscribe",
     RemoveFixtureTypes = "removeFixtureTypes",
+    AddFixtures = "addFixtures",
+    RemoveFixtures = "removeFixtures",
 }
 
 export enum GlowTopic {
@@ -19,6 +23,18 @@ export class ClientMessage {
     static RemoveFixtureTypes = class extends ClientMessage {
         constructor(readonly data: string[]) {
             super(ClientEvent.RemoveFixtureTypes)
+        }
+    }
+
+    static AddFixtures = class extends ClientMessage {
+        constructor(readonly data: PatchFixture[]) {
+            super(ClientEvent.AddFixtures)
+        }
+    }
+
+    static RemoveFixtures = class extends ClientMessage {
+        constructor(readonly data: string[]) {
+            super(ClientEvent.RemoveFixtures)
         }
     }
 }

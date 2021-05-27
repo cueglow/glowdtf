@@ -1,3 +1,5 @@
+import { NIL as uuid_NIL } from "uuid";
+
 export function fixtureTypeString(fixtureType: FixtureType | undefined) {
     return fixtureType?.manufacturer + " " + fixtureType?.name;
 }
@@ -13,6 +15,13 @@ export type FixtureType = {
     name: string;
     modes: DmxMode[];
 };
+
+export const emptyFixtureType: FixtureType = {
+    fixtureTypeId: uuid_NIL,
+    manufacturer: "",
+    name: "",
+    modes: [],
+}
 
 export type DmxMode = {
     name: string;

@@ -1,5 +1,5 @@
 
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Button } from "@blueprintjs/core";
 
 import 'react-tabulator/lib/styles.css'; // required styles
@@ -9,9 +9,19 @@ import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { RouteComponentProps, useNavigate } from "@reach/router";
 import { fixtureTypeString } from "../Types/FixtureTypeUtils";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
+import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
+import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 
 export function FixturePatch(props: RouteComponentProps) {
     const navigate = useNavigate();
+    const [selectedFixtureUuid, setSelectedFixtureUuid] = useState<string>("");
+
+    function removeFixtures() {
+        const msg = new ClientMessage.RemoveFixtures([selectedFixtureUuid]);
+        connectionProvider.send(msg)
+        setSelectedFixtureUuid("")
+    }
+
     return (
         <div style={{
             position: "absolute",
@@ -30,18 +40,23 @@ export function FixturePatch(props: RouteComponentProps) {
                 <Button intent="success" icon="plus"
                     onClick={() => navigate("/patch/newFixture")}>
                     Add New Fixtures</Button>
+                <div style={{flexGrow: 1}} />
+                {/* TODO this remove button should probably be moved inline into the table, 
+                but not sure how to do that */}
+                <Button minimal={true} icon="trash" 
+                    disabled={selectedFixtureUuid === ""} onClick={removeFixtures}/>
             </div>
             <div style={{
                 flexGrow: 1,
                 minHeight: 0,
             }}>
-                <PatchTable />
+                <PatchTable onRowSelect={(row)=>{setSelectedFixtureUuid(row._row.data.uuid)}}/>
             </div>
         </div>
     );
 }
 
-function PatchTable() {
+function PatchTable(props: {onRowSelect: (row: any) => void}) {
     const patchData = useContext(PatchContext);
 
     const columns = [
@@ -63,7 +78,12 @@ function PatchTable() {
         <ReactTabulator
             data={data}
             columns={columns}
-            options={{ height: "100%", layout: "fitDataStretch", }}
+            options={{ 
+                height: "100%", 
+                layout: "fitDataStretch", 
+                selectable: 1,
+                rowSelected: props.onRowSelect,
+            }}
             />
     );
 }

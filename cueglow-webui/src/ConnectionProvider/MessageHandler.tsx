@@ -16,6 +16,10 @@ export class MessageHandler {
             patchDataHandler.onAddFixtureTypes(data)
         } else if (event === "removeFixtureTypes") {
             patchDataHandler.onRemoveFixtureTypes(data)
+        } else if (event === "addFixtures") {
+            patchDataHandler.onAddFixtures(data)
+        } else if (event === "removeFixtures") {
+            patchDataHandler.onRemoveFixtures(data)
         }
     };
 }
