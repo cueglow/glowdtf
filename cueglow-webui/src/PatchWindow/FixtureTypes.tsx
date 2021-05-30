@@ -68,7 +68,8 @@ export function FixtureTypes(props: RouteComponentProps) {
                     {/* TODO this remove button should probably be moved inline into the table, 
                     but not sure how to do that */}
                     <Button minimal={true} icon="trash" 
-                        disabled={detailState.name === ""} onClick={removeFixtureType}/>
+                        disabled={detailState.name === ""} onClick={removeFixtureType}
+                        data-cy="remove_selected_fixture_type_button"/>
                 </div>
                 <div>
                     Manufacturer: {detailState.manufacturer}
@@ -131,7 +132,7 @@ function AddGdtfButton() {
         <Button intent="success" icon="plus" onClick={selectFile}>
             Add GDTF
             <input type="file" id="gdtfFileInput" ref={fileInput} accept=".gdtf" 
-            onChange={uploadFile} hidden/>
+            onChange={uploadFile} data-cy="gdtf_hidden_input" hidden/>
         </Button>
     )
 }

@@ -44,7 +44,8 @@ export function FixturePatch(props: RouteComponentProps) {
                 {/* TODO this remove button should probably be moved inline into the table, 
                 but not sure how to do that */}
                 <Button minimal={true} icon="trash" 
-                    disabled={selectedFixtureUuid === ""} onClick={removeFixtures}/>
+                    disabled={selectedFixtureUuid === ""} onClick={removeFixtures}
+                    data-cy="remove_selected_fixture_button"/>
             </div>
             <div style={{
                 flexGrow: 1,

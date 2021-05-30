@@ -34,18 +34,20 @@ export default function NewFixture(props: RouteComponentProps) {
     function handleSubmit(event: FormEvent) {
         event.preventDefault()
         const mode = (dmxModeInput.current?.props.selectedItem ?? selectedFixtureType.modes[0]).name
-        const name = nameInput.current?.value ?? "no name"
-        const quantity = parseInt(quantityInput.current?.value as string)
-        const fid = parseInt(fidInput.current?.value as string)
-        const universe = parseInt(universeInput.current?.value as string)
-        const address = parseInt(addressInput.current?.value as string)
+        const name = nameInput.current?.value ?? ""
+        const quantity = parseInputWithDefault(quantityInput, 1)
+        const fid = parseInputWithDefault(fidInput, 1)
+        const universe = parseInputWithDefault(universeInput, 1)
+        const address = parseInputWithDefault(addressInput, 1)
+
+        const names = generateNames(name, quantity)
 
         const fixtureArray: PatchFixture[] = []
         for (let i = 0; i < quantity; i++) {
             fixtureArray.push({
                 uuid: uuidv4(),
                 fid: fid,
-                name: name,
+                name: names[i],
                 fixtureTypeId: selectedFixtureType.fixtureTypeId,
                 dmxMode: mode,
                 universe: universe,
@@ -74,7 +76,7 @@ export default function NewFixture(props: RouteComponentProps) {
             }}>
                 <form onSubmit={handleSubmit}>
                     {/* TODO missing default handling for all fields */}
-                    <FormGroup label="Fixture Type">
+                    <FormGroup label="Fixture Type" labelFor="addFixture_fixtureTypeInput">
                         {/* TODO */}
                         {/* should we really use this one from blueprint.js? It is barely documented...
                     use select2 or selectize.js instead? */}
@@ -100,9 +102,11 @@ export default function NewFixture(props: RouteComponentProps) {
                             popoverProps={{ minimal: true, }}
                             itemPredicate={filterFixtureType}
                             resetOnClose={true}
-                            noResults={<MenuItem disabled={true} text="No results." />} />
+                            noResults={<MenuItem disabled={true} text="No results." />} 
+                            inputProps={{id: "addFixture_fixtureTypeInput"}}
+                        />
                     </FormGroup>
-                    <FormGroup label="DMX Mode">
+                    <FormGroup label="DMX Mode" labelFor="addFixture_modeInput">
                         <Suggest
                             // TODO does not reset current selection when changing fixture type
                             // works when opening dialog again though
@@ -128,33 +132,47 @@ export default function NewFixture(props: RouteComponentProps) {
                             resetOnClose={true}
                             noResults={<MenuItem disabled={true} text="No results." />}
                             ref = {dmxModeInput}
+                            inputProps={{id: "addFixture_modeInput"}}
                         />
                     </FormGroup>
-                    <FormGroup label="Name">
-                        <InputGroup  inputRef={nameInput}/>
+                    <FormGroup label="Name" labelFor="addFixture_nameInput">
+                        <InputGroup  inputRef={nameInput} id="addFixture_nameInput"/>
                     </FormGroup>
                     {/* TODO disallow floating point numbers and out of bound numbers by parsing step after enter or un-focus -> see docs or examples*/}
-                    <FormGroup label="Quantity">
+                    <FormGroup label="Quantity" labelFor="addFixture_quantityInput">
                         <NumericInput defaultValue={1} min={1} minorStepSize={null} 
-                            inputRef={quantityInput} selectAllOnFocus selectAllOnIncrement />
+                            inputRef={quantityInput} 
+                            selectAllOnFocus selectAllOnIncrement 
+                            id="addFixture_quantityInput"/>
                     </FormGroup>
-                    <FormGroup label="FID">
-                        <NumericInput min={0} minorStepSize={null} selectAllOnFocus selectAllOnIncrement inputRef={fidInput}/>
+                    <FormGroup label="FID" labelFor="addFixture_fidInput">
+                        <NumericInput min={0} minorStepSize={null} 
+                        selectAllOnFocus selectAllOnIncrement 
+                        inputRef={fidInput}
+                        id="addFixture_fidInput"/>
                     </FormGroup>
-                    <FormGroup label="Universe">
-                        <NumericInput min={0} max={32767} minorStepSize={null} selectAllOnFocus selectAllOnIncrement inputRef={universeInput}/>
+                    <FormGroup label="Universe" labelFor="addFixture_universeInput">
+                        <NumericInput min={0} max={32767} minorStepSize={null} 
+                        selectAllOnFocus selectAllOnIncrement 
+                        inputRef={universeInput}
+                        id="addFixture_universeInput"/>
                     </FormGroup>
-                    <FormGroup label="Address">
-                        <NumericInput min={1} max={512} minorStepSize={null} selectAllOnFocus selectAllOnIncrement inputRef={addressInput}/>
+                    <FormGroup label="Address" labelFor="addFixture_addressInput">
+                        <NumericInput min={1} max={512} minorStepSize={null} 
+                        selectAllOnFocus selectAllOnIncrement 
+                        inputRef={addressInput}
+                        id="addFixture_addressInput"/>
                     </FormGroup>
                     <div style={{
                         display: "flex",
                         justifyContent: "flex-end",
                         paddingTop: "1em",
                     }}>
+                        {/* Prevent implicit submission of form by hitting Enter */}
+                        <Button type="submit" disabled style={{display: "none"}}/>
                         <Button intent="success" type="submit">
                             Add Fixtures
-                    </Button>
+                        </Button>
                     </div>
                 </form>
             </div>
@@ -221,3 +239,25 @@ const filterDmxMode: ItemPredicate<DmxMode> =
             return normalizedItem.indexOf(normalizedQuery) >= 0;
         }
     };
+
+function generateNames(name: string, quantity: number): string[] {
+    if (quantity === 1) {
+        return [name]
+    } else {
+        return Array.from({length: quantity}, (_, index) => `${name} ${index+1}`)
+    }
+}
+
+function parseInputWithDefault(
+    ref: React.RefObject<HTMLInputElement>, 
+    defaultNumber: number
+    ): number {
+    const str = ref.current?.value ?? ""
+    if (str === "") {
+        return defaultNumber
+    } else {
+        const parsed = parseInt(str)
+        if (!isNaN(parsed)) {return parsed}
+        else {return defaultNumber}
+    }
+}
