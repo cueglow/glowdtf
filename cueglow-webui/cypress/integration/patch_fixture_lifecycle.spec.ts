@@ -1,38 +1,38 @@
 describe("Patch Fixture Lifecycle", () => {
-    beforeEach(async () => {
+    beforeEach(() => {
         // setup: remove all patched fixture types
-        // TODO Cypress Functions in async function create warning
         const urlWithoutProtocol = Cypress.config().baseUrl.replace(/(^\w+:|^)\/\//, '');
         const ws = new WebSocket(`ws://${urlWithoutProtocol}/ws`)
-        const debugNames = await new Promise<string[]>((resolve, reject) => {
-            ws.onopen = () => {
-                ws.send(JSON.stringify({
-                    event: "subscribe",
-                    data: "patch",
-                }))
-            }
-            ws.onmessage = (event) => {
-                console.log(event.data)
-                const parsed = JSON.parse(event.data)
-                const uuids = parsed.data.fixtureTypes.map((ft) => {
-                    return ft.fixtureTypeId
-                })
-                const debugNames = parsed.data.fixtureTypes.map((ft) => {
-                    return `${ft.manufacturer} ${ft.name} (${ft.fixtureTypeId})`
-                })
-                ws.send(JSON.stringify({
-                    event: "removeFixtureTypes",
-                    data: uuids,
-                    messageId: 827
-                }))
-                ws.close()
-                resolve(debugNames)
-            }
-        })
-        if (!(debugNames.length === 0)) {
-            // TODO Cypress functions in async function create warning
-            cy.log("Removed Fixture Types before test: " + debugNames)
+        ws.onopen = () => {
+            ws.send(JSON.stringify({
+                event: "subscribe",
+                data: "patch",
+            }))
         }
+        // this is how to await a Cypress.Promise (https://docs.cypress.io/api/utilities/promise#Waiting-for-Promises)
+        cy.wrap(null, {log: false}).then(() => {
+            return new Cypress.Promise<void>((resolve, reject) => {
+                ws.onmessage = (event) => {
+                    const parsed = JSON.parse(event.data)
+                    const uuids = parsed.data.fixtureTypes.map((ft) => {
+                        return ft.fixtureTypeId
+                    })
+                    if (!(uuids.length === 0)) {
+                        ws.send(JSON.stringify({
+                            event: "removeFixtureTypes",
+                            data: uuids,
+                            messageId: 827
+                        }))
+                        const debugNames = parsed.data.fixtureTypes.map((ft) => {
+                            return `${ft.manufacturer} ${ft.name} (${ft.fixtureTypeId})`
+                        })
+                        cy.log("Removed Fixture Types before test: " + debugNames)
+                    }
+                    ws.close()
+                    resolve()
+                }
+            })
+        })
     })
 
     it("adds Fixture Type, adds Fixtures, removes Fixtures and removes Fixture Type", () => {
@@ -83,7 +83,7 @@ describe("Patch Fixture Lifecycle", () => {
         cy.visit("/patch/fixtureTypes")
         cy.contains(fixtureTypeName).click()
         cy.get("[data-cy='remove_selected_fixture_type_button']").click()
-        
+
         // check GDTF is gone
         cy.contains(fixtureTypeName).should("not.exist")
 
