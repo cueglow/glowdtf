@@ -51,13 +51,13 @@ export function FixturePatch(props: RouteComponentProps) {
                 flexGrow: 1,
                 minHeight: 0,
             }}>
-                <PatchTable onRowSelect={(row)=>{setSelectedFixtureUuid(row._row.data.uuid)}}/>
+                <PatchTable onRowSelect={(row) => setSelectedFixtureUuid(row.getData().uuid)}/>
             </div>
         </div>
     );
 }
 
-function PatchTable(props: {onRowSelect: (row: any) => void}) {
+function PatchTable(props: {onRowSelect: (row: Tabulator.RowComponent) => void}) {
     const patchData = useContext(PatchContext);
 
     const columns = [

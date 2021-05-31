@@ -6,7 +6,7 @@ import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
-import { DmxModeString, emptyFixtureType, FixtureType, fixtureTypeString } from "../Types/FixtureTypeUtils";
+import { DmxModeString, emptyFixtureType, FixtureType } from "../Types/FixtureTypeUtils";
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [selectedFixtureType, setSelectedFixtureType] = useState(emptyFixtureType);
@@ -49,10 +49,7 @@ export function FixtureTypes(props: RouteComponentProps) {
                     minHeight: 0,
                 }}>
                     <FixtureTypeTable
-                        rowSelected={(row: any) => {
-                            console.log(row);
-                            setSelectedFixtureType(row._row.data)
-                        }} />
+                        rowSelected={(row) => setSelectedFixtureType(row.getData())} />
                 </div>
             </div>
             <div style={{ flexGrow: 1, flexBasis: 0, }}>
@@ -72,7 +69,7 @@ export function FixtureTypes(props: RouteComponentProps) {
     );
 }
 
-function FixtureTypeTable(props: { rowSelected: any; }) {
+function FixtureTypeTable(props: { rowSelected: (row: Tabulator.RowComponent) => void }) {
     const patchData = useContext(PatchContext);
 
     const columns = [

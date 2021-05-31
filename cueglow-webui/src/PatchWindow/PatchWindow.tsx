@@ -17,7 +17,7 @@ function PatchWindow(props: RouteComponentProps) {
     );
 }
 
-function PatchTabWrapper(this: any, props: RouteComponentProps) {
+function PatchTabWrapper(props: RouteComponentProps) {
     const navigate = useNavigate();
     const location = useLocation();
     const hotkeys = useMemo(() => [
