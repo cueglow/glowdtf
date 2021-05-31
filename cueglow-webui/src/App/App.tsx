@@ -6,9 +6,6 @@ import { bpVariables } from '../BlueprintVariables/BlueprintVariables';
 import PatchWindow from '../PatchWindow/PatchWindow';
 import MainWindow from './MainWindow';
 
-// TODO install emotion (https://emotion.sh/docs/introduction), a CSS-in-JS library
-// in contrast to inline styles allows media queries, etc.
-
 export function App() {
   return (
     <HotkeysProvider>

@@ -15,7 +15,8 @@ export function FixtureTypes(props: RouteComponentProps) {
         const msg = new ClientMessage.RemoveFixtureTypes([selectedFixtureType.fixtureTypeId])
         connectionProvider.send(msg)
         setSelectedFixtureType(emptyFixtureType)
-        // TODO if patched fixtures were removed in this operation, show toast
+        // TODO once we have undo/redo
+        // if patched fixtures were removed in this operation, show toast
         // with how many fixtures were removed and with undo button
     }, [selectedFixtureType])
 

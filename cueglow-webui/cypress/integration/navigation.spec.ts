@@ -35,6 +35,4 @@ describe("Navigation", () => {
         cy.contains("Esc").click()
         pathEquals("/")
     })
-
-    // TODO test keyboard navigation
 })
