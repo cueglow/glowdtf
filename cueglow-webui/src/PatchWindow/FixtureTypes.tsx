@@ -6,24 +6,18 @@ import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
-import { DmxMode, DmxModeString } from "../Types/FixtureTypeUtils";
-
-const emptyDetails = {
-    fixtureTypeId: "",
-    name: "",
-    manufacturer: "",
-    modes: [] as DmxMode[],
-}
+import { DmxModeString, emptyFixtureType, FixtureType, fixtureTypeString } from "../Types/FixtureTypeUtils";
 
 export function FixtureTypes(props: RouteComponentProps) {
-    const [detailState, setDetailState] = useState(emptyDetails);
+    const [selectedFixtureType, setSelectedFixtureType] = useState(emptyFixtureType);
+    
     const removeFixtureType = useCallback(() => {
-        const msg = new ClientMessage.RemoveFixtureTypes([detailState.fixtureTypeId])
+        const msg = new ClientMessage.RemoveFixtureTypes([selectedFixtureType.fixtureTypeId])
         connectionProvider.send(msg)
-        setDetailState(emptyDetails)
+        setSelectedFixtureType(emptyFixtureType)
         // TODO if patched fixtures were removed in this operation, show toast
         // with how many fixtures were removed and with undo button
-    }, [detailState])
+    }, [selectedFixtureType])
 
     return (
         <div style={{
@@ -57,7 +51,7 @@ export function FixtureTypes(props: RouteComponentProps) {
                     <FixtureTypeTable
                         rowSelected={(row: any) => {
                             console.log(row);
-                            setDetailState(row._row.data)
+                            setSelectedFixtureType(row._row.data)
                         }} />
                 </div>
             </div>
@@ -67,27 +61,13 @@ export function FixtureTypes(props: RouteComponentProps) {
                     <div style={{ flexGrow: 1, }} />
                     {/* TODO this remove button should probably be moved inline into the table, 
                     but not sure how to do that */}
-                    <Button minimal={true} icon="trash" 
-                        disabled={detailState.name === ""} onClick={removeFixtureType}
-                        data-cy="remove_selected_fixture_type_button"/>
+                    <Button minimal={true} icon="trash"
+                        disabled={selectedFixtureType.name === ""} onClick={removeFixtureType}
+                        data-cy="remove_selected_fixture_type_button" />
                 </div>
-                <div>
-                    Manufacturer: {detailState.manufacturer}
-                </div>
-                <div>
-                    Name: {detailState.name}
-                </div>
-                <div>
-                    <h5>Modes</h5>
-                    {detailState.modes.map((mode) => {
-                        return (
-                            <div key={mode.name}>
-                                {DmxModeString(mode)}
-                            </div>);
-                    })}
-                </div>
+                <FixtureTypeDetails fixtureType={selectedFixtureType}/>
             </div>
-
+            
         </div>
     );
 }
@@ -122,17 +102,45 @@ function AddGdtfButton() {
 
     function uploadFile() {
         const file = fileInput.current?.files?.[0]
-        if (file == null) {return}
-        const formData = new FormData();    
+        if (file == null) { return }
+        const formData = new FormData();
         formData.append("file", file);
-        fetch('/api/fixturetype', {method: "POST", body: formData});
+        fetch('/api/fixturetype', { method: "POST", body: formData });
+        // TODO handle response, especially error responses
     }
 
     return (
         <Button intent="success" icon="plus" onClick={selectFile}>
             Add GDTF
-            <input type="file" id="gdtfFileInput" ref={fileInput} accept=".gdtf" 
-            onChange={uploadFile} data-cy="gdtf_hidden_input" hidden/>
+            <input type="file" id="gdtfFileInput" ref={fileInput} accept=".gdtf"
+                onChange={uploadFile} data-cy="gdtf_hidden_input" hidden />
         </Button>
+    )
+}
+
+function FixtureTypeDetails(props: {fixtureType: FixtureType}) {
+    const fixtureType = props.fixtureType
+    if (fixtureType.name === "") {
+        return <div>Select a Fixture Type to show Details</div>
+    }
+
+    return (
+        <div>
+            <div>
+                Manufacturer: {fixtureType.manufacturer}
+            </div>
+            <div>
+                Name: {fixtureType.name}
+            </div>
+            <div>
+                <h5>Modes</h5>
+                {fixtureType.modes.map((mode) => {
+                    return (
+                        <div key={mode.name}>
+                            {DmxModeString(mode)}
+                        </div>);
+                })}
+            </div>
+        </div>
     )
 }
