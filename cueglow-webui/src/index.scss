@@ -5,6 +5,10 @@
 
 @import "~@blueprintjs/core/lib/scss/variables";
 
+// Tabulator Imports
+@import "react-tabulator/lib/styles.css";
+@import 'react-tabulator/lib/css/tabulator_midnight.min.css';
+
 kbd {
     display: inline-block;
     color: 50%;

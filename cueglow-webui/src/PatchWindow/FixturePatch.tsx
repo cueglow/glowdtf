@@ -1,9 +1,6 @@
 
 import React, { useContext, useState } from "react";
 import { Button } from "@blueprintjs/core";
-
-import 'react-tabulator/lib/styles.css'; // required styles
-import 'react-tabulator/lib/css/tabulator_midnight.min.css'; // theme
 import { ReactTabulator } from 'react-tabulator'
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { RouteComponentProps, useNavigate } from "@reach/router";
