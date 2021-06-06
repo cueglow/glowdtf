@@ -75,12 +75,7 @@ export default function NewFixture(props: RouteComponentProps) {
                 margin: "auto",
             }}>
                 <form onSubmit={handleSubmit}>
-                    {/* TODO missing default handling for all fields */}
                     <FormGroup label="Fixture Type" labelFor="addFixture_fixtureTypeInput">
-                        {/* TODO */}
-                        {/* should we really use this one from blueprint.js? It is barely documented...
-                    use select2 or selectize.js instead? */}
-                        {/* Little Triangle at end of input to indicate selection style behaviour? */}
                         <Suggest
                             items={patchData.fixtureTypes}
                             itemRenderer={(fixtureType, { handleClick, modifiers, query }) => {
