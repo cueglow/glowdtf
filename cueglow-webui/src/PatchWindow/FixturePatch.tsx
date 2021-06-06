@@ -9,15 +9,16 @@ import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { GlowTabulator } from "src/Utilities/GlowTabulator";
 import { useMemo } from "react";
+import { PatchFixture } from "src/Types/Patch";
 
 export function FixturePatch(props: RouteComponentProps) {
     const navigate = useNavigate();
-    const [selectedFixtureUuid, setSelectedFixtureUuid] = useState<string>("");
+    const [selectedFixtureUuids, setSelectedFixtureUuids] = useState<string[]>([]);
 
     function removeFixtures() {
-        const msg = new ClientMessage.RemoveFixtures([selectedFixtureUuid]);
+        const msg = new ClientMessage.RemoveFixtures(selectedFixtureUuids);
         connectionProvider.send(msg)
-        setSelectedFixtureUuid("")
+        setSelectedFixtureUuids([])
     }
 
     return (
@@ -39,23 +40,23 @@ export function FixturePatch(props: RouteComponentProps) {
                     onClick={() => navigate("/patch/newFixture")}>
                     Add New Fixtures</Button>
                 <div style={{ flexGrow: 1 }} />
-                {/* TODO this remove button should probably be moved inline into the table, 
-                but not sure how to do that */}
                 <Button minimal={true} icon="trash"
-                    disabled={selectedFixtureUuid === ""} onClick={removeFixtures}
+                    disabled={selectedFixtureUuids.length === 0} onClick={removeFixtures}
                     data-cy="remove_selected_fixture_button" />
             </div>
             <div style={{
                 flexGrow: 1,
                 minHeight: 0,
             }}>
-                <PatchTable onRowSelect={(row) => setSelectedFixtureUuid(row.getData().uuid)} />
+                <PatchTable rowSelectionChanged={
+                    (selectedData) => setSelectedFixtureUuids(
+                        selectedData.map((fixture) => fixture.uuid))} />
             </div>
         </div>
     );
 }
 
-function PatchTable(props: { onRowSelect: Tabulator.RowChangedCallback }) {
+function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[]) => void }) {
     const patchData = useContext(PatchContext);
 
     const columns = [
@@ -84,8 +85,9 @@ function PatchTable(props: { onRowSelect: Tabulator.RowChangedCallback }) {
             options={{
                 height: "100%",
                 layout: "fitDataStretch",
-                selectable: 1,
-                rowSelected: props.onRowSelect,
+                selectable: true,
+                selectableRangeMode: "click",
+                rowSelectionChanged: props.rowSelectionChanged,
             }}
         />
     );

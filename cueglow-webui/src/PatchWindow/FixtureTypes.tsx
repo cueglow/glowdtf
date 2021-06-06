@@ -9,15 +9,17 @@ import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { DmxModeString, emptyFixtureType, FixtureType } from "../Types/FixtureTypeUtils";
 
 export function FixtureTypes(props: RouteComponentProps) {
-    const [selectedFixtureType, setSelectedFixtureType] = useState(emptyFixtureType);
+    const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType|undefined>(undefined);
     
     const removeFixtureType = useCallback(() => {
-        const msg = new ClientMessage.RemoveFixtureTypes([selectedFixtureType.fixtureTypeId])
-        connectionProvider.send(msg)
-        setSelectedFixtureType(emptyFixtureType)
-        // TODO once we have undo/redo
-        // if patched fixtures were removed in this operation, show toast
-        // with how many fixtures were removed and with undo button
+        if (selectedFixtureType !== undefined) {
+            const msg = new ClientMessage.RemoveFixtureTypes([selectedFixtureType.fixtureTypeId])
+            connectionProvider.send(msg)
+            setSelectedFixtureType(emptyFixtureType)
+            // TODO once we have undo/redo
+            // if patched fixtures were removed in this operation, show toast
+            // with how many fixtures were removed and with undo button
+        }
     }, [selectedFixtureType])
 
     return (
@@ -50,17 +52,16 @@ export function FixtureTypes(props: RouteComponentProps) {
                     minHeight: 0,
                 }}>
                     <FixtureTypeTable
-                        rowSelected={(row) => setSelectedFixtureType(row.getData())} />
+                        rowSelectionChanged={
+                            (selectedData) => setSelectedFixtureType(selectedData[0])} />
                 </div>
             </div>
             <div style={{ flexGrow: 1, flexBasis: 0, }}>
                 <div style={{ display: "flex", }}>
                     <h4>Details</h4>
                     <div style={{ flexGrow: 1, }} />
-                    {/* TODO this remove button should probably be moved inline into the table, 
-                    but not sure how to do that */}
                     <Button minimal={true} icon="trash"
-                        disabled={selectedFixtureType.name === ""} onClick={removeFixtureType}
+                        disabled={selectedFixtureType === undefined} onClick={removeFixtureType}
                         data-cy="remove_selected_fixture_type_button" />
                 </div>
                 <FixtureTypeDetails fixtureType={selectedFixtureType}/>
@@ -70,7 +71,7 @@ export function FixtureTypes(props: RouteComponentProps) {
     );
 }
 
-function FixtureTypeTable(props: { rowSelected: Tabulator.RowChangedCallback }) {
+function FixtureTypeTable(props: { rowSelectionChanged: (data: FixtureType[]) => void }) {
     const patchData = useContext(PatchContext);
 
     const columns = [
@@ -88,7 +89,7 @@ function FixtureTypeTable(props: { rowSelected: Tabulator.RowChangedCallback }) 
                 height: "100%", 
                 layout: "fitDataStretch", 
                 selectable: 1,
-                rowSelected: props.rowSelected,
+                rowSelectionChanged: props.rowSelectionChanged,
             }} />
     );
 }
@@ -118,9 +119,9 @@ function AddGdtfButton() {
     )
 }
 
-function FixtureTypeDetails(props: {fixtureType: FixtureType}) {
+function FixtureTypeDetails(props: {fixtureType?: FixtureType}) {
     const fixtureType = props.fixtureType
-    if (fixtureType.name === "") {
+    if (fixtureType === undefined) {
         return <div>Select a Fixture Type to show Details</div>
     }
 
