@@ -1,10 +1,10 @@
 import { Button } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext, useRef, useState } from "react";
-import { ReactTabulator } from "react-tabulator";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
+import { GlowTabulator } from "src/Utilities/GlowTabulator";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { DmxModeString, emptyFixtureType, FixtureType } from "../Types/FixtureTypeUtils";
 
@@ -70,7 +70,7 @@ export function FixtureTypes(props: RouteComponentProps) {
     );
 }
 
-function FixtureTypeTable(props: { rowSelected: (row: Tabulator.RowComponent) => void }) {
+function FixtureTypeTable(props: { rowSelected: Tabulator.RowChangedCallback }) {
     const patchData = useContext(PatchContext);
 
     const columns = [
@@ -79,7 +79,7 @@ function FixtureTypeTable(props: { rowSelected: (row: Tabulator.RowComponent) =>
     ];
 
     return (
-        <ReactTabulator
+        <GlowTabulator
             data={patchData.fixtureTypes}
             columns={columns}
             // fitDataStretch: When making window narrow, not all data is visible in column width 

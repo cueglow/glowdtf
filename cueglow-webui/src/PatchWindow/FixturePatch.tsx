@@ -1,13 +1,13 @@
 
 import React, { useContext, useState } from "react";
 import { Button } from "@blueprintjs/core";
-import { ReactTabulator } from 'react-tabulator'
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { RouteComponentProps, useNavigate } from "@reach/router";
 import { fixtureTypeString } from "../Types/FixtureTypeUtils";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
+import { GlowTabulator } from "src/Utilities/GlowTabulator";
 
 export function FixturePatch(props: RouteComponentProps) {
     const navigate = useNavigate();
@@ -73,7 +73,7 @@ function PatchTable(props: {onRowSelect: (row: Tabulator.RowComponent) => void})
     });
 
     return (
-        <ReactTabulator
+        <GlowTabulator
             data={data}
             columns={columns}
             options={{ 
