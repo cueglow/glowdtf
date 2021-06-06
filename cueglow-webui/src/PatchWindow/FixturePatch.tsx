@@ -8,6 +8,7 @@ import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { GlowTabulator } from "src/Utilities/GlowTabulator";
+import { useMemo } from "react";
 
 export function FixturePatch(props: RouteComponentProps) {
     const navigate = useNavigate();
@@ -37,24 +38,24 @@ export function FixturePatch(props: RouteComponentProps) {
                 <Button intent="success" icon="plus"
                     onClick={() => navigate("/patch/newFixture")}>
                     Add New Fixtures</Button>
-                <div style={{flexGrow: 1}} />
+                <div style={{ flexGrow: 1 }} />
                 {/* TODO this remove button should probably be moved inline into the table, 
                 but not sure how to do that */}
-                <Button minimal={true} icon="trash" 
+                <Button minimal={true} icon="trash"
                     disabled={selectedFixtureUuid === ""} onClick={removeFixtures}
-                    data-cy="remove_selected_fixture_button"/>
+                    data-cy="remove_selected_fixture_button" />
             </div>
             <div style={{
                 flexGrow: 1,
                 minHeight: 0,
             }}>
-                <PatchTable onRowSelect={(row) => setSelectedFixtureUuid(row.getData().uuid)}/>
+                <PatchTable onRowSelect={(row) => setSelectedFixtureUuid(row.getData().uuid)} />
             </div>
         </div>
     );
 }
 
-function PatchTable(props: {onRowSelect: (row: Tabulator.RowComponent) => void}) {
+function PatchTable(props: { onRowSelect: Tabulator.RowChangedCallback }) {
     const patchData = useContext(PatchContext);
 
     const columns = [
@@ -66,23 +67,27 @@ function PatchTable(props: {onRowSelect: (row: Tabulator.RowComponent) => void})
         { field: "address", title: "Address" },
     ];
 
-    const data = patchData.fixtures.map((fixture) => {
-        const associatedFixtureType = patchData.fixtureTypes.find(fixtureType => fixtureType.fixtureTypeId === fixture.fixtureTypeId);
-        const associatedFixtureTypeString = fixtureTypeString(associatedFixtureType);
-        return { ...fixture, fixtureType: associatedFixtureTypeString }
-    });
+    const data = useMemo(() => {
+        return patchData.fixtures.map((fixture) => {
+            const associatedFixtureType = patchData.fixtureTypes.find(
+                fixtureType => fixtureType.fixtureTypeId === fixture.fixtureTypeId
+            );
+            const associatedFixtureTypeString = fixtureTypeString(associatedFixtureType);
+            return { ...fixture, fixtureType: associatedFixtureTypeString }
+        });
+    }, [patchData])
 
     return (
         <GlowTabulator
             data={data}
             columns={columns}
-            options={{ 
-                height: "100%", 
-                layout: "fitDataStretch", 
+            options={{
+                height: "100%",
+                layout: "fitDataStretch",
                 selectable: 1,
                 rowSelected: props.onRowSelect,
             }}
-            />
+        />
     );
 }
 
