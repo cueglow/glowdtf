@@ -5,11 +5,18 @@ export enum ClientEvent {
     RemoveFixtureTypes = "removeFixtureTypes",
     AddFixtures = "addFixtures",
     RemoveFixtures = "removeFixtures",
+    UpdateFixtures = "updateFixtures"
 }
 
 export enum GlowTopic {
     Patch = "patch",
 }
+
+// In Updates, uuid must be contained and fixtureTypeId/dmxMode must not be
+// contained (currently immutable after creation). 
+export type PatchFixtureUpdate = 
+    Pick<PatchFixture, "uuid"> &
+    Partial<Omit<PatchFixture, "fixtureTypeId"|"dmxMode">>
 
 export class ClientMessage {
     private constructor(readonly event: ClientEvent) {}
@@ -29,6 +36,12 @@ export class ClientMessage {
     static AddFixtures = class extends ClientMessage {
         constructor(readonly data: PatchFixture[]) {
             super(ClientEvent.AddFixtures)
+        }
+    }
+
+    static UpdateFixtures = class extends ClientMessage {
+        constructor(readonly data: PatchFixtureUpdate[]) {
+            super(ClientEvent.UpdateFixtures)
         }
     }
 

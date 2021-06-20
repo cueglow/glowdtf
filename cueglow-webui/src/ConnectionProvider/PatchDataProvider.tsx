@@ -1,6 +1,8 @@
+import _ from "lodash";
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { FixtureType } from "src/Types/FixtureTypeUtils";
 import { PatchData, PatchFixture } from "src/Types/Patch";
+import { PatchFixtureUpdate } from "./ClientMessage";
 
 const emptyPatch: PatchData = { fixtures: [], fixtureTypes: [] }
 export const PatchContext = createContext(emptyPatch);
@@ -42,6 +44,21 @@ export const patchDataHandler = new class {
 
     onAddFixtures(fixturesToAdd: PatchFixture[]) {
         this.currentPatchData.fixtures.push(...fixturesToAdd)
+        this.notify()
+    }
+
+    onUpdateFixtures(fixtureUpdates: PatchFixtureUpdate[]) {
+        fixtureUpdates.forEach((fixtureUpdate) => {
+            const oldFixture = this.currentPatchData.fixtures.find(
+                (fixture) => fixtureUpdate.uuid === fixture.uuid)
+            if (oldFixture === undefined) {
+                console.error("Server wanted to update unknown Fixture")
+                // TODO re-subscribe and stop updating fixtures
+                return
+            }
+            _.mergeWith(oldFixture, fixtureUpdate, 
+                (oldValue, updateValue) => updateValue ?? oldValue)
+        })
         this.notify()
     }
 

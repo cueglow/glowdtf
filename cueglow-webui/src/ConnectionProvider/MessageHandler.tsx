@@ -18,8 +18,12 @@ export class MessageHandler {
             patchDataHandler.onRemoveFixtureTypes(data)
         } else if (event === "addFixtures") {
             patchDataHandler.onAddFixtures(data)
+        } else if (event === "updateFixtures") {
+            patchDataHandler.onUpdateFixtures(data)
         } else if (event === "removeFixtures") {
             patchDataHandler.onRemoveFixtures(data)
+        } else {
+            console.log("Received unhandled WebSocket Message", message)
         }
     };
 }

@@ -3,7 +3,7 @@ import { Button, Toaster, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, useNavigate } from "@reach/router";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
-import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
+import { ClientMessage, PatchFixtureUpdate } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchFixture } from "src/Types/Patch";
 import { GlowTabulator } from "src/Utilities/GlowTabulator";
@@ -152,9 +152,18 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
     }, []);
 
     const cellEdited = useCallback((cell: Tabulator.CellComponent) => {
+        // validation failed toasts are now obsolete
         validationFailToaster.current?.clear()
 
-        // TODO send update to server
+        const newData = cell.getData() as PatchFixtureUpdate
+        const changedField = cell.getField() as keyof PatchFixtureUpdate
+        const patchFixtureUpdate: PatchFixtureUpdate = {
+            uuid: newData.uuid,
+            [changedField]: newData[changedField]
+        }
+        // send update to server
+        const msg = new ClientMessage.UpdateFixtures([patchFixtureUpdate])
+        connectionProvider.send(msg)
     }, [])
 
     return (
