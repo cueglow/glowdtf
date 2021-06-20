@@ -1,6 +1,6 @@
-import { Button } from "@blueprintjs/core";
+import { Button, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
-import React, { useCallback, useContext, useRef, useState } from "react";
+import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
@@ -21,6 +21,17 @@ export function FixtureTypes(props: RouteComponentProps) {
             // with how many fixtures were removed and with undo button
         }
     }, [selectedFixtureType])
+
+    const hotkeys = useMemo(() => [
+        {
+            combo: "del",
+            global: true,
+            label: "Remove the selected fixtures",
+            onKeyDown: () => removeFixtureType(),
+            disabled: selectedFixtureType === undefined,
+        }
+    ], [removeFixtureType, selectedFixtureType]);
+    useHotkeys(hotkeys);
 
     return (
         <div style={{
@@ -62,7 +73,9 @@ export function FixtureTypes(props: RouteComponentProps) {
                     <div style={{ flexGrow: 1, }} />
                     <Button minimal={true} icon="trash"
                         disabled={selectedFixtureType === undefined} onClick={removeFixtureType}
-                        data-cy="remove_selected_fixture_type_button" />
+                        data-cy="remove_selected_fixture_type_button" >
+                    Remove <kbd>Del</kbd>
+                    </Button>
                 </div>
                 <FixtureTypeDetails fixtureType={selectedFixtureType}/>
             </div>
@@ -83,7 +96,7 @@ function FixtureTypeTable(props: { rowSelectionChanged: (data: FixtureType[]) =>
         <GlowTabulator
             data={patchData.fixtureTypes}
             columns={columns}
-            // fitDataStretch: When making window narrow, not all data is visible in column width 
+            // TODO fitDataStretch: When making window narrow, not all data is visible in column width 
             // and table-internal horizontal scrolling does not activate even though it should
             options={{
                 height: "100%", 
