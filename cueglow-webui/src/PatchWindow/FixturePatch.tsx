@@ -89,8 +89,32 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
         { field: "name", title: "Name", editor: "input" as Tabulator.Editor },
         { field: "fixtureType", title: "Fixture Type" },
         { field: "dmxMode", title: "DMX Mode" },
-        { field: "universe", title: "Universe" },
-        { field: "address", title: "Address" },
+        { 
+            field: "universe", title: "Universe", 
+            editor: "number" as Tabulator.Editor,
+            editorParams: {
+                min: 0,
+                max: 32767,
+            },
+            validator: [
+                "integer",
+                "min:0",
+                "max:32767",
+            ]
+        },
+        { 
+            field: "address", title: "Address",
+            editor: "number" as Tabulator.Editor,
+            editorParams: {
+                min: 1,
+                max: 512,
+            },
+            validator: [
+                "integer",
+                "min:1",
+                "max:512",
+            ]
+        },
     ], []);
 
     const data = useMemo(() => {
