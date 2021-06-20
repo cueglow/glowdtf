@@ -40,7 +40,9 @@ describe("Patch Fixture Lifecycle", () => {
 
         // we should see the two names
         cy.contains(`${testFixtureName} 1`)
-        cy.contains(`${testFixtureName} 2`).click()
+        // TODO remove force: true once issue fixed in Cypress: 
+        // https://github.com/cypress-io/cypress/issues/7306
+        cy.contains(`${testFixtureName} 2`).click({ force: true })
 
         // Remove One Fixture
         cy.dataCy("remove_selected_fixture_button").click()
