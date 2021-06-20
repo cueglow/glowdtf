@@ -21,6 +21,8 @@ processResources {
 
 //
 task runNoNpm {
-    gradle.startParameter.excludedTaskNames += "processResources"
-    dependsOn run
+    doFirst {
+        npm_run_build.enabled = false
+    }
+    finalizedBy run
 }
