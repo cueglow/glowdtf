@@ -10,11 +10,15 @@ export function GlowTabulator(props: GlowTabulatorProps) {
     )
 }
 
+interface GlowTabulatorColumnDefinition extends Omit<Tabulator.ColumnDefinition, "validator"> {
+    validator?: Tabulator.Validator | Tabulator.Validator[] | string | string[]
+}
+
 /**
  * Overwrite some any-typed properties with types from @types/tabulator-tables
  */
  interface GlowTabulatorProps extends IProps {
     options?: Tabulator.Options;
     data: unknown[];
-    columns: Tabulator.ColumnDefinition[];
+    columns: GlowTabulatorColumnDefinition[];
 }

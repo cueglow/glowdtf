@@ -1,16 +1,14 @@
 
-import React, { useContext, useState } from "react";
-import { Button, useHotkeys } from "@blueprintjs/core";
-import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
+import { Button, Toaster, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, useNavigate } from "@reach/router";
-import { fixtureTypeString } from "../Types/FixtureTypeUtils";
+import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
-import { GlowTabulator } from "src/Utilities/GlowTabulator";
-import { useMemo } from "react";
 import { PatchFixture } from "src/Types/Patch";
-import { useCallback } from "react";
+import { GlowTabulator } from "src/Utilities/GlowTabulator";
+import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
+import { fixtureTypeString } from "../Types/FixtureTypeUtils";
 
 export function FixturePatch(props: RouteComponentProps) {
     const navigate = useNavigate();
@@ -72,15 +70,28 @@ export function FixturePatch(props: RouteComponentProps) {
 
 function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[]) => void }) {
     const patchData = useContext(PatchContext);
+    const validationFailToaster = useRef<Toaster>(null);
 
-    const columns = [
-        { field: "fid", title: "FID" },
-        { field: "name", title: "Name" },
+    const columns = useMemo(() => [
+        {
+            field: "fid", title: "FID",
+            editor: "number" as Tabulator.Editor,
+            editorParams: {
+                min: -2147483648,
+                max: 2147483647,
+            },
+            validator: [
+                "integer",
+                "min:-2147483648",
+                "max:2147483647",
+            ],
+        },
+        { field: "name", title: "Name", editor: "input" as Tabulator.Editor },
         { field: "fixtureType", title: "Fixture Type" },
         { field: "dmxMode", title: "DMX Mode" },
         { field: "universe", title: "Universe" },
         { field: "address", title: "Address" },
-    ];
+    ], []);
 
     const data = useMemo(() => {
         return patchData.fixtures.map((fixture) => {
@@ -92,18 +103,53 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
         });
     }, [patchData])
 
+    const showValidationFailPopover = useCallback((
+        cell: Tabulator.CellComponent,
+        value: unknown,
+        validators: unknown,
+    ) => {
+        const errorMessages = (validators as { type: string, parameters: unknown }[])
+            .map((validator) => {
+                if (validator.type === "integer") {
+                    return "Value must be an integer."
+                } else if (validator.type === "max") {
+                    return `Value must not be bigger than ${validator.parameters}.`
+                } else if (validator.type === "min") {
+                    return `Value must not be smaller than ${validator.parameters}`
+                } else {
+                    return "Value is invalid."
+                }
+            })
+        const errorMessage = errorMessages.join("\n");
+
+        validationFailToaster.current?.clear()
+
+        validationFailToaster.current?.show({ intent: "danger", message: errorMessage })
+    }, []);
+
+    const cellEdited = useCallback((cell: Tabulator.CellComponent) => {
+        validationFailToaster.current?.clear()
+
+        // TODO send update to server
+    }, [])
+
     return (
-        <GlowTabulator
-            data={data}
-            columns={columns}
-            options={{
-                height: "100%",
-                layout: "fitDataStretch",
-                selectable: true,
-                selectableRangeMode: "click",
-                rowSelectionChanged: props.rowSelectionChanged,
-            }}
-        />
+        <>
+            <GlowTabulator
+                data={data}
+                columns={columns}
+                options={{
+                    height: "100%",
+                    layout: "fitDataStretch",
+                    selectable: true,
+                    selectableRangeMode: "click",
+                    rowSelectionChanged: props.rowSelectionChanged,
+                    validationFailed: showValidationFailPopover,
+                    cellEdited: cellEdited,
+                    cellEditCancelled: () => validationFailToaster.current?.clear(),
+                }}
+            />
+            <Toaster ref={validationFailToaster} />
+        </>
     );
 }
-
