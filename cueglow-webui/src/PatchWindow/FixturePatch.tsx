@@ -131,26 +131,12 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
     const showValidationFailPopover = useCallback((
         cell: Tabulator.CellComponent,
         value: unknown,
-        validators: unknown,
+        _validators: unknown,
     ) => {
-        const errorMessages = (validators as { type: string, parameters: unknown }[])
-            .map((validator) => {
-                if (validator.type === "integer") {
-                    return "Value must be an integer."
-                } else if (validator.type === "max") {
-                    return `Value must not be bigger than ${validator.parameters}.`
-                } else if (validator.type === "min") {
-                    return `Value must not be smaller than ${validator.parameters}`
-                } else if (validator.type === "required") {
-                    return `Value must not be empty.`
-                } else {
-                    return "Value is invalid."
-                }
-            })
-        const errorMessage = errorMessages.join("\n");
+        const validators = _validators as TabulatorValidator[]
+        const errorMessage = errorMessageFromValidators(validators);
 
         validationFailToaster.current?.clear()
-
         validationFailToaster.current?.show({ intent: "danger", message: errorMessage })
     }, []);
 
@@ -188,4 +174,27 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
             <Toaster ref={validationFailToaster} />
         </>
     );
+}
+
+type TabulatorValidator = {
+    type: string; 
+    parameters: unknown;
+}
+
+function errorMessageFromValidators(validators: TabulatorValidator[]) {
+    return validators
+        .map((validator) => {
+            if (validator.type === "integer") {
+                return "Value must be an integer.";
+            } else if (validator.type === "max") {
+                return `Value must not be bigger than ${validator.parameters}.`;
+            } else if (validator.type === "min") {
+                return `Value must not be smaller than ${validator.parameters}`;
+            } else if (validator.type === "required") {
+                return `Value must not be empty.`;
+            } else {
+                return "Value is invalid.";
+            }
+        })
+        .join("\n")
 }
