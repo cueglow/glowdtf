@@ -84,6 +84,7 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                 "integer",
                 "min:-2147483648",
                 "max:2147483647",
+                "required"
             ],
         },
         { field: "name", title: "Name", editor: "input" as Tabulator.Editor },
@@ -140,6 +141,8 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                     return `Value must not be bigger than ${validator.parameters}.`
                 } else if (validator.type === "min") {
                     return `Value must not be smaller than ${validator.parameters}`
+                } else if (validator.type === "required") {
+                    return `Value must not be empty.`
                 } else {
                     return "Value is invalid."
                 }
@@ -156,7 +159,7 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
         validationFailToaster.current?.clear()
 
         const newData = cell.getData() as PatchFixtureUpdate
-        const changedField = cell.getField() as keyof PatchFixtureUpdate
+        const changedField = cell.getField() as keyof PatchFixtureUpdate 
         const patchFixtureUpdate: PatchFixtureUpdate = {
             uuid: newData.uuid,
             [changedField]: newData[changedField]
