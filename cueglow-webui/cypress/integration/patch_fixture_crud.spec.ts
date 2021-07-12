@@ -49,6 +49,54 @@ describe("Patch Fixture Lifecycle", () => {
         cy.contains(`${testFixtureName} 1`)
         cy.contains(`${testFixtureName} 2`).should("not.exist")
 
+        // Edit FID
+        cy.get('.tabulator-cell[tabulator-field=fid]')
+            .click()
+            .type("{backspace}2{enter}")
+        cy.get('.tabulator-cell[tabulator-field=fid]') // new element - re-get
+            .should("have.text", "2")
+
+        // Edit Name
+        cy.get('.tabulator-cell[tabulator-field=name]')
+            .click()
+            .type("{selectall}{backspace}bizaar{enter}")
+        cy.get('.tabulator-cell[tabulator-field=name]')
+            .should("have.text", "bizaar")
+
+        // Edit Universe - invalid
+        cy.get('.tabulator-cell[tabulator-field=universe]')
+            .click()
+            .type("{backspace}-1{enter}")
+        // error shown
+        cy.contains("must not be smaller than 0")
+        // correct to something valid
+        cy.get('.tabulator-cell[tabulator-field=universe]')
+            .type("{selectall}{backspace}0{enter}")
+        cy.get('.tabulator-cell[tabulator-field=universe]')
+            .should("have.text", "0")
+        
+        // Edit DMX Address
+        cy.get('.tabulator-cell[tabulator-field=address]')
+            .click()
+            .type("{backspace}{enter}")
+        cy.get('.tabulator-cell[tabulator-field=address]')
+            .invoke("text")
+            .then((text) => text.trim())
+            .should("equal", "")
+
+        // Changes should persist through reload
+        cy.reload()
+        cy.get('.tabulator-cell[tabulator-field=fid]') // new element - re-get
+            .should("have.text", "2")
+        cy.get('.tabulator-cell[tabulator-field=name]')
+            .should("have.text", "bizaar")
+        cy.get('.tabulator-cell[tabulator-field=universe]')
+            .should("have.text", "0")
+        cy.get('.tabulator-cell[tabulator-field=address]')
+            .invoke("text")
+            .then((text) => text.trim())
+            .should("equal", "")
+
         // Remove GDTF
         cy.visit("/patch/fixtureTypes")
         cy.contains(fixtureTypeName).click()
