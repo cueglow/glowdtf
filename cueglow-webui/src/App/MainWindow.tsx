@@ -24,7 +24,7 @@ function MainWindow(props: RouteComponentProps) {
                 </NavbarHeading>
             </NavbarGroup>
             <NavbarGroup align={Alignment.RIGHT}>
-                <Button text={<span>Patch <kbd>⇧</kbd>+<kbd>P</kbd></span>} minimal={true} icon="th" onClick={() => navigate("patch")} />
+                <Button text={<span>Patch <kbd className="hotkey-hint">⇧</kbd>+<kbd className="hotkey-hint">P</kbd></span>} minimal={true} icon="th" onClick={() => navigate("patch")} />
             </NavbarGroup>
         </Navbar>
     );

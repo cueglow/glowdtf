@@ -29,7 +29,7 @@ export function FixtureTypes(props: RouteComponentProps) {
             label: "Remove the selected fixtures",
             onKeyDown: () => removeFixtureType(),
             disabled: selectedFixtureType === undefined,
-        }
+        },
     ], [removeFixtureType, selectedFixtureType]);
     useHotkeys(hotkeys);
 
@@ -74,7 +74,7 @@ export function FixtureTypes(props: RouteComponentProps) {
                     <Button minimal={true} icon="trash"
                         disabled={selectedFixtureType === undefined} onClick={removeFixtureType}
                         data-cy="remove_selected_fixture_type_button" >
-                    Remove <kbd>Del</kbd>
+                    Remove <kbd className="hotkey-hint">Del</kbd>
                     </Button>
                 </div>
                 <FixtureTypeDetails fixtureType={selectedFixtureType}/>
@@ -108,6 +108,17 @@ function FixtureTypeTable(props: { rowSelectionChanged: (data: FixtureType[]) =>
 }
 
 function AddGdtfButton() {
+
+    const hotkeys = useMemo(() => [
+        {
+            combo: "a",
+            global: true,
+            label: "Add New GDTF Fixture Type",
+            onKeyDown: selectFile
+        }
+    ], []);
+    useHotkeys(hotkeys);
+
     const fileInput = useRef<HTMLInputElement>(null);
 
     function selectFile() {
@@ -125,7 +136,7 @@ function AddGdtfButton() {
 
     return (
         <Button intent="success" icon="plus" onClick={selectFile}>
-            Add GDTF
+            Add GDTF <kbd className="hotkey-hint">A</kbd>
             <input type="file" id="gdtfFileInput" ref={fileInput} accept=".gdtf"
                 onChange={uploadFile} data-cy="gdtf_hidden_input" hidden />
         </Button>

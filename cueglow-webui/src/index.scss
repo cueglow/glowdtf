@@ -9,7 +9,7 @@
 @import "react-tabulator/lib/styles.css";
 @import 'react-tabulator/lib/css/tabulator_midnight.min.css';
 
-kbd {
+.hotkey-hint {
     display: inline-block;
     color: 50%;
     font-family: $pt-font-family;
@@ -19,6 +19,7 @@ kbd {
     padding: 1px 3px;
     position: relative;
     bottom: 0.3px;
+    line-height: 1.15;
 }
 
 input {

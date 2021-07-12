@@ -11,7 +11,7 @@ export function GlowTabulator(props: GlowTabulatorProps) {
 }
 
 interface GlowTabulatorColumnDefinition extends Omit<Tabulator.ColumnDefinition, "validator"> {
-    validator?: Tabulator.Validator | Tabulator.Validator[] | string | string[]
+    validator?: Tabulator.Validator | Tabulator.Validator[] | string | string[];
 }
 
 /**

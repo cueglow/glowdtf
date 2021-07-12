@@ -26,14 +26,26 @@ function PatchTabWrapper(props: RouteComponentProps) {
             global: true,
             label: "Go Back to Main View",
             onKeyDown: () => navigate("/"),
-        }
+        },
+        {
+            combo: "i",
+            global: true,
+            label: "Navigate to the Fixture Patch",
+            onKeyDown: () => navigate("/patch/fixtures"),
+        },
+        {
+            combo: "p",
+            global: true,
+            label: "Navigate to Fixture Types",
+            onKeyDown: () => navigate("/patch/fixtureTypes"),
+        },
     ], [navigate]);
     useHotkeys(hotkeys);
     return (
         <div style={{ height: "100%", }}>
             <Navbar>
                 <NavbarGroup align={Alignment.LEFT}>
-                    <Button text={<kbd>Esc</kbd>}
+                    <Button text={<kbd className="hotkey-hint">Esc</kbd>}
                         icon="cross" minimal={true} onClick={() => navigate("/")} />
                     <NavbarHeading style={{ paddingLeft: "6vw" }}>
                         <strong>Patch</strong>
@@ -48,7 +60,7 @@ function PatchTabWrapper(props: RouteComponentProps) {
                                 navigate("/patch/" + newTabId)
                             }
                         }}
-                        defaultSelectedTabId={(() => {
+                        selectedTabId={(() => {
                             const lastPath = location.pathname.split("/").pop();
                             if (lastPath === "patch") {
                                 return "fixtures";
@@ -56,8 +68,8 @@ function PatchTabWrapper(props: RouteComponentProps) {
                                 return lastPath;
                             }
                         })()}>
-                        <Tab id="fixtures" title="Fixtures" />
-                        <Tab id="fixtureTypes" title="Fixture Types" />
+                        <Tab id="fixtures">Fixtures <kbd className="hotkey-hint">I</kbd></Tab>
+                        <Tab id="fixtureTypes">Fixture Types <kbd className="hotkey-hint">P</kbd></Tab>
                         {/* horrible hack to get navbar-height to the same size as Tabs-size
                     see  https://github.com/palantir/blueprint/issues/3727 */}
                         <div style={{ height: bpVariables.ptNavbarHeight, }}></div>

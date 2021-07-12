@@ -63,7 +63,7 @@ export default function NewFixture(props: RouteComponentProps) {
         <div style={{ height: "100%", }}>
             <Navbar>
                 <NavbarGroup align={Alignment.LEFT}>
-                    <Button text={<kbd>Esc</kbd>}
+                    <Button text={<kbd className="hotkey-hint">Esc</kbd>}
                         icon="cross" minimal={true} onClick={() => navigate("/patch")} />
                     <NavbarHeading style={{ paddingLeft: "6vw" }}>
                         <strong>Add New Fixtures</strong>

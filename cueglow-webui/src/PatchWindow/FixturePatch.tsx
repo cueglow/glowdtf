@@ -27,8 +27,14 @@ export function FixturePatch(props: RouteComponentProps) {
             label: "Remove the selected fixtures",
             onKeyDown: () => removeSelectedFixtures(),
             disabled: selectedFixtureUuids.length === 0,
+        },
+        {
+            combo: "a",
+            global: true,
+            label: "Add New Fixtures",
+            onKeyDown: () => navigate("/patch/newFixture"),
         }
-    ], [removeSelectedFixtures, selectedFixtureUuids]);
+    ], [removeSelectedFixtures, selectedFixtureUuids, navigate]);
     useHotkeys(hotkeys);
 
     return (
@@ -48,12 +54,12 @@ export function FixturePatch(props: RouteComponentProps) {
             }}>
                 <Button intent="success" icon="plus"
                     onClick={() => navigate("/patch/newFixture")}>
-                    Add New Fixtures</Button>
+                    Add New Fixtures <kbd className="hotkey-hint">A</kbd></Button>
                 <div style={{ flexGrow: 1 }} />
                 <Button minimal={true} icon="trash"
                     disabled={selectedFixtureUuids.length === 0} onClick={removeSelectedFixtures}
                     data-cy="remove_selected_fixture_button">
-                    Remove <kbd>Del</kbd>
+                    Remove <kbd className="hotkey-hint">Del</kbd>
                 </Button>
             </div>
             <div style={{
@@ -173,6 +179,11 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                     validationFailed: showValidationFailPopover,
                     cellEdited: cellEdited,
                     cellEditCancelled: () => validationFailToaster.current?.clear(),
+                    keybindings: {
+                        navPrev: "shift+9",
+                        navUp: "38",
+                        navDown: "40",  
+                    },
                 }}
             />
             <Toaster ref={validationFailToaster} />
