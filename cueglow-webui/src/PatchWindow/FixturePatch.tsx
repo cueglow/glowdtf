@@ -98,10 +98,12 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                 max: 32767,
             },
             validator: [
+                "required",
                 "integer",
                 "min:0",
                 "max:32767",
-            ]
+            ],
+            formatter: displayNegativeAddressAsEmptyString
         },
         { 
             field: "address", title: "Address",
@@ -114,7 +116,8 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                 "integer",
                 "min:1",
                 "max:512",
-            ]
+            ],
+            mutator: translateBetweenNegativeAddressAndEmptyString
         },
     ], []);
 
@@ -145,10 +148,11 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
         validationFailToaster.current?.clear()
 
         const newData = cell.getData() as PatchFixtureUpdate
-        const changedField = cell.getField() as keyof PatchFixtureUpdate 
+        const changedField = cell.getField() as keyof PatchFixtureUpdate
+        var newValue = newData[changedField]
         const patchFixtureUpdate: PatchFixtureUpdate = {
             uuid: newData.uuid,
-            [changedField]: newData[changedField]
+            [changedField]: newValue
         }
         // send update to server
         const msg = new ClientMessage.UpdateFixtures([patchFixtureUpdate])
@@ -174,6 +178,29 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
             <Toaster ref={validationFailToaster} />
         </>
     );
+}
+
+function displayNegativeAddressAsEmptyString(cell: Tabulator.CellComponent, formatterParams: {}, onRendered: Tabulator.EmptyCallback): string | HTMLElement {
+    const val = cell.getValue()
+    if (val === -1) {
+        return ""
+    } 
+    return val
+}
+
+function translateBetweenNegativeAddressAndEmptyString(value: number | string): string | number {
+    // coming from server
+    if (value === -1) {
+        return "" // to user
+    }
+
+    // coming from user
+    if (value === "") {
+        return -1 // to server
+    }
+
+    // default case
+    return value
 }
 
 type TabulatorValidator = {

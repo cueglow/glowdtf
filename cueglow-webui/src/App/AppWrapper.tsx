@@ -1,4 +1,3 @@
-// import ReconnectingWebSocket from 'reconnecting-websocket';
 import React, { useEffect, useState } from 'react';
 import { connectionProvider, ConnectionState } from '../ConnectionProvider/ConnectionProvider';
 import { App } from './App';
