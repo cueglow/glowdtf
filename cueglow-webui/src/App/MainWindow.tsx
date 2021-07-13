@@ -1,6 +1,7 @@
 import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, useNavigate } from "@reach/router";
 import { useMemo } from "react";
+import { LabelWithHotkey } from "src/Utilities/HotkeyHint";
 
 
 
@@ -24,7 +25,9 @@ function MainWindow(props: RouteComponentProps) {
                 </NavbarHeading>
             </NavbarGroup>
             <NavbarGroup align={Alignment.RIGHT}>
-                <Button text={<span>Patch <kbd className="hotkey-hint">⇧</kbd>+<kbd className="hotkey-hint">P</kbd></span>} minimal={true} icon="th" onClick={() => navigate("patch")} />
+                <Button minimal={true} icon="th" onClick={() => navigate("patch")} >
+                    <LabelWithHotkey label="Patch" combo={["⇧", "P"]} />
+                </Button>
             </NavbarGroup>
         </Navbar>
     );

@@ -1,7 +1,8 @@
-import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
+import { Alignment, Button, Label, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
 import { useMemo } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
+import { HotkeyHint, LabelWithHotkey } from "src/Utilities/HotkeyHint";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
 import NewFixture from "./NewFixture";
@@ -45,8 +46,9 @@ function PatchTabWrapper(props: RouteComponentProps) {
         <div style={{ height: "100%", }}>
             <Navbar>
                 <NavbarGroup align={Alignment.LEFT}>
-                    <Button text={<kbd className="hotkey-hint">Esc</kbd>}
-                        icon="cross" minimal={true} onClick={() => navigate("/")} />
+                    <Button icon="cross" minimal={true} onClick={() => navigate("/")}>
+                        <HotkeyHint combo="Esc" />
+                    </Button>
                     <NavbarHeading style={{ paddingLeft: "6vw" }}>
                         <strong>Patch</strong>
                     </NavbarHeading>
@@ -68,8 +70,12 @@ function PatchTabWrapper(props: RouteComponentProps) {
                                 return lastPath;
                             }
                         })()}>
-                        <Tab id="fixtures">Fixtures <kbd className="hotkey-hint">I</kbd></Tab>
-                        <Tab id="fixtureTypes">Fixture Types <kbd className="hotkey-hint">P</kbd></Tab>
+                        <Tab id="fixtures">
+                            <LabelWithHotkey label="Fixtures" combo="I" />
+                        </Tab>
+                        <Tab id="fixtureTypes">
+                            <LabelWithHotkey label="FixtureTypes" combo="P" />
+                        </Tab>
                         {/* horrible hack to get navbar-height to the same size as Tabs-size
                     see  https://github.com/palantir/blueprint/issues/3727 */}
                         <div style={{ height: bpVariables.ptNavbarHeight, }}></div>

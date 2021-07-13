@@ -6,6 +6,7 @@ import React, { FormEvent, useContext, useMemo, useRef, useState } from 'react';
 import { ClientMessage } from 'src/ConnectionProvider/ClientMessage';
 import { connectionProvider } from 'src/ConnectionProvider/ConnectionProvider';
 import { PatchFixture } from 'src/Types/Patch';
+import { HotkeyHint } from 'src/Utilities/HotkeyHint';
 import { v4 as uuidv4 } from 'uuid';
 import { PatchContext } from '../ConnectionProvider/PatchDataProvider';
 import { DmxMode, DmxModeString, emptyFixtureType, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
@@ -63,8 +64,9 @@ export default function NewFixture(props: RouteComponentProps) {
         <div style={{ height: "100%", }}>
             <Navbar>
                 <NavbarGroup align={Alignment.LEFT}>
-                    <Button text={<kbd className="hotkey-hint">Esc</kbd>}
-                        icon="cross" minimal={true} onClick={() => navigate("/patch")} />
+                    <Button icon="cross" minimal={true} onClick={() => navigate("/patch")}>
+                        <HotkeyHint combo="Esc" />
+                    </Button>
                     <NavbarHeading style={{ paddingLeft: "6vw" }}>
                         <strong>Add New Fixtures</strong>
                     </NavbarHeading>

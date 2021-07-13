@@ -5,6 +5,7 @@ import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { GlowTabulator } from "src/Utilities/GlowTabulator";
+import { LabelWithHotkey } from "src/Utilities/HotkeyHint";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { DmxModeString, emptyFixtureType, FixtureType } from "../Types/FixtureTypeUtils";
 
@@ -74,7 +75,7 @@ export function FixtureTypes(props: RouteComponentProps) {
                     <Button minimal={true} icon="trash"
                         disabled={selectedFixtureType === undefined} onClick={removeFixtureType}
                         data-cy="remove_selected_fixture_type_button" >
-                    Remove <kbd className="hotkey-hint">Del</kbd>
+                        <LabelWithHotkey label="Remove" combo="Del" />
                     </Button>
                 </div>
                 <FixtureTypeDetails fixtureType={selectedFixtureType}/>
@@ -136,7 +137,7 @@ function AddGdtfButton() {
 
     return (
         <Button intent="success" icon="plus" onClick={selectFile}>
-            Add GDTF <kbd className="hotkey-hint">A</kbd>
+            <LabelWithHotkey label="Add GDTF" combo="A" />
             <input type="file" id="gdtfFileInput" ref={fileInput} accept=".gdtf"
                 onChange={uploadFile} data-cy="gdtf_hidden_input" hidden />
         </Button>

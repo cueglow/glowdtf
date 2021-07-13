@@ -7,6 +7,7 @@ import { ClientMessage, PatchFixtureUpdate } from "src/ConnectionProvider/Client
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchFixture } from "src/Types/Patch";
 import { GlowTabulator } from "src/Utilities/GlowTabulator";
+import { LabelWithHotkey } from "src/Utilities/HotkeyHint";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { fixtureTypeString } from "../Types/FixtureTypeUtils";
 
@@ -54,12 +55,13 @@ export function FixturePatch(props: RouteComponentProps) {
             }}>
                 <Button intent="success" icon="plus"
                     onClick={() => navigate("/patch/newFixture")}>
-                    Add New Fixtures <kbd className="hotkey-hint">A</kbd></Button>
+                    <LabelWithHotkey label="Add New Fixtures" combo="A" />
+                </Button>
                 <div style={{ flexGrow: 1 }} />
                 <Button minimal={true} icon="trash"
                     disabled={selectedFixtureUuids.length === 0} onClick={removeSelectedFixtures}
                     data-cy="remove_selected_fixture_button">
-                    Remove <kbd className="hotkey-hint">Del</kbd>
+                    <LabelWithHotkey label="Remove" combo="Del" />
                 </Button>
             </div>
             <div style={{
