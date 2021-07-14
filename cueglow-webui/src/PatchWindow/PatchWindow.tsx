@@ -74,7 +74,7 @@ function PatchTabWrapper(props: RouteComponentProps) {
                             <LabelWithHotkey label="Fixtures" combo="I" />
                         </Tab>
                         <Tab id="fixtureTypes">
-                            <LabelWithHotkey label="FixtureTypes" combo="P" />
+                            <LabelWithHotkey label="Fixture Types" combo="P" />
                         </Tab>
                         {/* horrible hack to get navbar-height to the same size as Tabs-size
                     see  https://github.com/palantir/blueprint/issues/3727 */}
