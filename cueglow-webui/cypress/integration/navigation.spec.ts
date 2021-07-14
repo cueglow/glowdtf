@@ -1,6 +1,4 @@
-function pathEquals(x: string) {
-    return cy.location("pathname").should("equal", x)
-}
+import { pathEquals } from "../support/utilities"
 
 describe("Navigation", () => {
     it("navigates through specified URLs when clicking Buttons", () => {
