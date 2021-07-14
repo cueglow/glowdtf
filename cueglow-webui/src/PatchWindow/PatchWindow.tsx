@@ -1,4 +1,4 @@
-import { Alignment, Button, Label, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
+import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
 import { useMemo } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
