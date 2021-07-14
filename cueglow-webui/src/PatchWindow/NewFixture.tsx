@@ -10,12 +10,13 @@ import { PatchFixture } from 'src/Types/Patch';
 import { HotkeyHint, LabelWithHotkey } from 'src/Utilities/HotkeyHint';
 import { v4 as uuidv4 } from 'uuid';
 import { PatchContext } from '../ConnectionProvider/PatchDataProvider';
-import { DmxMode, DmxModeString, emptyFixtureType, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
+import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
 
 export default function NewFixture(props: RouteComponentProps) {
     const navigate = useNavigate();
 
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType|undefined>(undefined);
+    const [selectedDmxMode, setSelectedDmxMode] = useState<DmxMode|null>(null);
 
     const validationToaster = useRef<Toaster>(null);
 
@@ -28,8 +29,7 @@ export default function NewFixture(props: RouteComponentProps) {
             })
             return
         }
-        console.log(dmxModeInput.current?.props.selectedItem)
-        const mode = (dmxModeInput.current?.props.selectedItem ?? selectedFixtureType.modes[0]).name
+        const mode = (selectedDmxMode ?? selectedFixtureType.modes[0]).name
         const name = nameInput.current?.value ?? ""
         const quantity = parseInputWithDefault(quantityInput, 1)
         const fid = parseInputWithDefault(fidInput, 1)
@@ -53,7 +53,7 @@ export default function NewFixture(props: RouteComponentProps) {
         const msg = new ClientMessage.AddFixtures(fixtureArray)
         connectionProvider.send(msg)
         navigate("patch")
-    }, [navigate, selectedFixtureType])
+    }, [navigate, selectedDmxMode, selectedFixtureType])
 
     const hotkeys = useMemo(() => [
         {
@@ -74,7 +74,6 @@ export default function NewFixture(props: RouteComponentProps) {
     const patchData = useContext(PatchContext);
 
     const fixtureTypeHtmlInput = useRef<HTMLInputElement>(null);
-    const dmxModeInput = useRef<Suggest<DmxMode>>(null);
     const dmxModeHtmlInput = useRef<HTMLInputElement>(null);
     const nameInput = useRef<HTMLInputElement>(null);
     const quantityInput = useRef<HTMLInputElement>(null);
@@ -122,7 +121,8 @@ export default function NewFixture(props: RouteComponentProps) {
                             }}
                             inputValueRenderer={fixtureTypeString}
                             onItemSelect={(item) => { 
-                                setSelectedFixtureType(item); 
+                                setSelectedFixtureType(item);
+                                setSelectedDmxMode(item.modes[0]);
                                 dmxModeHtmlInput.current?.focus() 
                             }}
                             popoverProps={{ minimal: true, }}
@@ -154,12 +154,15 @@ export default function NewFixture(props: RouteComponentProps) {
                                 );
                             }}
                             inputValueRenderer={DmxModeString}
-                            onItemSelect={() => { nameInput.current?.focus() }}
+                            selectedItem={selectedDmxMode}
+                            onItemSelect={(item) => { 
+                                setSelectedDmxMode(item);
+                                nameInput.current?.focus(); 
+                            }}
                             popoverProps={{ minimal: true, }}
                             itemPredicate={filterDmxMode}
                             resetOnClose={true}
                             noResults={<MenuItem disabled={true} text="No results." />}
-                            ref = {dmxModeInput}
                             inputProps={{
                                 id: "addFixture_modeInput", 
                                 inputRef: dmxModeHtmlInput, 
