@@ -1,3 +1,4 @@
+import { Fragment } from "react"
 
 /**
  * Render a Label with Hotkey Hint behind
@@ -19,9 +20,9 @@ export function HotkeyHint(props: {combo?: string|string[]|string[][]}) {
     const hotkeyElements = combo.map((combo, index) => {
         const comboElements = combo.map((key, index) => {
             if (index === 0) {
-                return <kbd className="hotkey-hint">{key}</kbd>
+                return <kbd key={key+index} className="hotkey-hint">{key}</kbd>
             } else {
-                return <>+<kbd className="hotkey-hint">{key}</kbd></>
+                return <Fragment key={key+index}>+<kbd className="hotkey-hint">{key}</kbd></Fragment>
             }
         })
         if (index === 0) {
