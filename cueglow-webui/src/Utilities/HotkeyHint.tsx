@@ -26,9 +26,13 @@ export function HotkeyHint(props: {combo?: string|string[]|string[][]}) {
             }
         })
         if (index === 0) {
-            return comboElements
+            return <Fragment key={combo.join()+index}>
+                {comboElements}
+            </Fragment>
         } else {
-            return <> <NonBreakingSpace /> {comboElements} </>
+            return <Fragment key={combo.join()+index}>
+                <NonBreakingSpace/><NonBreakingSpace/>{comboElements}
+            </Fragment>
         }
     })
     return <>{hotkeyElements}</>
