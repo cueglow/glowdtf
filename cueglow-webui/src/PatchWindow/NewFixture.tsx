@@ -1,4 +1,4 @@
-import { Alignment, Button, FormGroup, InputGroup, MenuItem, Navbar, NavbarGroup, NavbarHeading, NumericInput, useHotkeys } from '@blueprintjs/core';
+import { Alignment, Button, FormGroup, InputGroup, MenuItem, Navbar, NavbarGroup, NavbarHeading, NumericInput, Toaster, useHotkeys } from '@blueprintjs/core';
 import { ItemPredicate } from '@blueprintjs/select';
 import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
 import { RouteComponentProps, useNavigate } from '@reach/router';
@@ -15,10 +15,20 @@ import { DmxMode, DmxModeString, emptyFixtureType, FixtureType, fixtureTypeStrin
 export default function NewFixture(props: RouteComponentProps) {
     const navigate = useNavigate();
 
-    const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType>(emptyFixtureType);
+    const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType|undefined>(undefined);
+
+    const validationToaster = useRef<Toaster>(null);
 
     const handleSubmit = useCallback((event?: FormEvent) => {
         event?.preventDefault()
+        if (selectedFixtureType === undefined) {
+            validationToaster.current?.show({
+                intent: "danger",
+                 message: "Please choose a Fixture Type"
+            })
+            return
+        }
+        console.log(dmxModeInput.current?.props.selectedItem)
         const mode = (dmxModeInput.current?.props.selectedItem ?? selectedFixtureType.modes[0]).name
         const name = nameInput.current?.value ?? ""
         const quantity = parseInputWithDefault(quantityInput, 1)
@@ -43,7 +53,7 @@ export default function NewFixture(props: RouteComponentProps) {
         const msg = new ClientMessage.AddFixtures(fixtureArray)
         connectionProvider.send(msg)
         navigate("patch")
-    }, [navigate, selectedFixtureType.fixtureTypeId, selectedFixtureType.modes])
+    }, [navigate, selectedFixtureType])
 
     const hotkeys = useMemo(() => [
         {
@@ -128,9 +138,7 @@ export default function NewFixture(props: RouteComponentProps) {
                     </FormGroup>
                     <FormGroup label="DMX Mode" labelFor="addFixture_modeInput">
                         <Suggest
-                            // TODO does not reset current selection when changing fixture type
-                            // works when opening dialog again though
-                            items={selectedFixtureType?.modes}
+                            items={selectedFixtureType?.modes ?? []}
                             itemRenderer={(mode, { handleClick, modifiers, query }) => {
                                 if (!modifiers.matchesPredicate) {
                                     return null;
@@ -162,7 +170,6 @@ export default function NewFixture(props: RouteComponentProps) {
                     <FormGroup label="Name" labelFor="addFixture_nameInput">
                         <InputGroup  inputRef={nameInput} id="addFixture_nameInput" tabIndex={3}/>
                     </FormGroup>
-                    {/* TODO disallow floating point numbers and out of bound numbers by parsing step after enter or un-focus -> see docs or examples*/}
                     <FormGroup label="Quantity" labelFor="addFixture_quantityInput">
                         <NumericInput defaultValue={1} min={1} minorStepSize={null} 
                             inputRef={quantityInput} 
@@ -203,6 +210,7 @@ export default function NewFixture(props: RouteComponentProps) {
                         </Button>
                     </div>
                 </form>
+                <Toaster ref={validationToaster} />
             </div>
 
         </div>
