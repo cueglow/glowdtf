@@ -12,6 +12,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { PatchContext } from '../ConnectionProvider/PatchDataProvider';
 import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
 
+const maxQuantity = 256
+
 export default function NewFixture(props: RouteComponentProps) {
     const navigate = useNavigate();
 
@@ -174,29 +176,37 @@ export default function NewFixture(props: RouteComponentProps) {
                         <InputGroup  inputRef={nameInput} id="addFixture_nameInput" tabIndex={3}/>
                     </FormGroup>
                     <FormGroup label="Quantity" labelFor="addFixture_quantityInput">
-                        <NumericInput defaultValue={1} min={1} minorStepSize={null} 
+                        <NumericInput defaultValue={1} 
+                            min={1} max={maxQuantity} 
+                            minorStepSize={null} 
                             inputRef={quantityInput} 
                             selectAllOnFocus selectAllOnIncrement 
                             id="addFixture_quantityInput"
                             tabIndex={4}/>
                     </FormGroup>
                     <FormGroup label="FID" labelFor="addFixture_fidInput">
-                        <NumericInput min={0} minorStepSize={null} 
+                        <NumericInput 
+                        min={-2147483648} max={2147483647}
+                        minorStepSize={null} 
                         selectAllOnFocus selectAllOnIncrement 
                         inputRef={fidInput}
                         id="addFixture_fidInput"
                         tabIndex={5}/>
                     </FormGroup>
                     <FormGroup label="Universe" labelFor="addFixture_universeInput">
-                        <NumericInput min={0} max={32767} minorStepSize={null} 
+                        <NumericInput 
+                        min={0} max={32767} 
+                        minorStepSize={null} 
                         selectAllOnFocus selectAllOnIncrement 
                         inputRef={universeInput}
                         id="addFixture_universeInput"
                         tabIndex={6}/>
                     </FormGroup>
                     <FormGroup label="Address" labelFor="addFixture_addressInput">
-                        <NumericInput min={1} max={512} minorStepSize={null} 
-                        selectAllOnFocus selectAllOnIncrement 
+                        <NumericInput 
+                        min={1} max={512} 
+                        minorStepSize={null} 
+                        selectAllOnFocus selectAllOnIncrement
                         inputRef={addressInput}
                         id="addFixture_addressInput"
                         tabIndex={7}/>
