@@ -1,3 +1,4 @@
+/// <reference types="styled-components/cssprop" />
 import './index.scss'
 import { AppWrapper } from './App/AppWrapper';
 import ReactDOM from 'react-dom';

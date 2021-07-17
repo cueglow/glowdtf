@@ -11,19 +11,6 @@
 @import "react-tabulator/lib/styles.css";
 @import 'react-tabulator/lib/css/tabulator_midnight.min.css';
 
-.hotkey-hint {
-    display: inline-block;
-    color: 50%;
-    font-family: $pt-font-family;
-    font-size: 85%;
-    border: 1px solid;
-    border-radius: 3px;
-    padding: 1px 3px;
-    position: relative;
-    bottom: 0.3px;
-    line-height: 1.15;
-}
-
 input {
     color: inherit;
 }

@@ -1,4 +1,6 @@
 import { Fragment } from "react"
+import { bpVariables } from "src/BlueprintVariables/BlueprintVariables"
+import styled from 'styled-components/macro'
 
 /**
  * Render a Label with Hotkey Hint behind
@@ -20,9 +22,9 @@ export function HotkeyHint(props: {combo?: string|string[]|string[][]}) {
     const hotkeyElements = combo.map((combo, index) => {
         const comboElements = combo.map((key, index) => {
             if (index === 0) {
-                return <kbd key={key+index} className="hotkey-hint">{key}</kbd>
+                return <HotkeyKbd key={key+index}>{key}</HotkeyKbd>
             } else {
-                return <Fragment key={key+index}>+<kbd className="hotkey-hint">{key}</kbd></Fragment>
+                return <Fragment key={key+index}>+<HotkeyKbd>{key}</HotkeyKbd></Fragment>
             }
         })
         if (index === 0) {
@@ -37,6 +39,19 @@ export function HotkeyHint(props: {combo?: string|string[]|string[][]}) {
     })
     return <>{hotkeyElements}</>
 }
+
+const HotkeyKbd = styled.kbd`
+    display: inline-block;
+    font-family: ${bpVariables.ptFontFamily};
+    font-size: 85%;
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 1px 3px;
+    position: relative;
+    bottom: 0.3px;
+    line-height: 1.15;
+`
+
 
 export function NonBreakingSpace() {
     return <>{"\u00A0"}</>
