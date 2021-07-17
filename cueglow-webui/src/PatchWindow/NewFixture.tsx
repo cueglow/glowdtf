@@ -100,7 +100,10 @@ export default function NewFixture(props: RouteComponentProps) {
     // focus first field at the start
     useEffect(() => {
         setFocus("fixtureType")
-    }, [setFocus]);
+        // Initialize to null so error messages don't mention the default empty string
+        setValue("fixtureType", null)
+        setValue("dmxMode", null)
+    }, [setFocus, setValue]);
 
     return (
         <div style={{ height: "100%", }}>

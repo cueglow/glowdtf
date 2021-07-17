@@ -35,7 +35,16 @@ describe("Patch with Keyboard", () => {
             .type("{enter}")
             .type("{enter}")
             .type(testFixtureName)
-            .type("{ctrl}{enter}")
+        cy.focused()
+            .tab()
+            .type("{backspace}1.5") // wrong entry for quantity
+            .type("{ctrl}{enter}") // try submitting
+        cy.contains("Expected integer") // shows errors
+        cy.contains("Patch").should("not.exist") // we shouldn't be on the Patch page yet
+        cy.get("body")
+            .type("{backspace}") // delete the "5" in "1.5"
+            .type("{ctrl}{enter}") // submitting with quantity "1." should work
+        cy.contains("Patch")
 
         // Select Fixture
         cy.contains(testFixtureName)

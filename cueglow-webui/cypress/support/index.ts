@@ -13,5 +13,6 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-import './commands'
+import './commands';
 import 'cypress-file-upload';
+import 'cypress-plugin-tab';
