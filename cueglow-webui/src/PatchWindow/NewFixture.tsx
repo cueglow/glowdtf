@@ -94,8 +94,8 @@ export default function NewFixture(props: RouteComponentProps) {
             combo: "esc",
             global: true,
             label: "Go Back to Patch",
+            allowInInput: true,
             onKeyDown: () => navigate("patch"),
-            /* TODO Esc does not work when in some Inputs, but it should exit out of the input */
         },
         {
             combo: "ctrl+enter",
@@ -221,6 +221,7 @@ export default function NewFixture(props: RouteComponentProps) {
                             }}
                         />
                     </FormGroup>
+                    {/* TODO enter on numeric fields should advance to the next field */}
                     <FormGroup label="Name" labelFor="addFixture_nameInput">
                         <InputGroup  inputRef={nameRef} 
                         id="addFixture_nameInput" tabIndex={3}
