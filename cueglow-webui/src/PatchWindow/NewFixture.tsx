@@ -2,8 +2,11 @@ import { Alignment, Button, FormGroup, InputGroup, MenuItem, Navbar, NavbarGroup
 import { ItemPredicate } from '@blueprintjs/select';
 import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import React, { FormEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {z} from 'zod';
 import { ClientMessage } from 'src/ConnectionProvider/ClientMessage';
 import { connectionProvider } from 'src/ConnectionProvider/ConnectionProvider';
 import { PatchFixture } from 'src/Types/Patch';
@@ -11,19 +14,48 @@ import { HotkeyHint, LabelWithHotkey } from 'src/Utilities/HotkeyHint';
 import { v4 as uuidv4 } from 'uuid';
 import { PatchContext } from '../ConnectionProvider/PatchDataProvider';
 import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
+import { Tooltip2 } from '@blueprintjs/popover2';
+
+// TODO clean everything up and split into smaller components if possible
 
 const maxQuantity = 256
 
+export const artnetMaxUniverse = 32767
+
+export const i32MinValue = -2147483648
+export const i32MaxValue = 2147483647
+
+const newFixtureSchema = z.object({
+    fixtureTypeId: z.string().min(1, {message: "You must specify a Fixture Type"}),
+    dmxMode: z.string(),
+    name: z.string(),
+    quantity: z.number().int().positive().max(maxQuantity),
+    fid: z.number().int().min(i32MinValue).max(i32MaxValue),
+    universe: z.number().int().min(0).max(artnetMaxUniverse).nullish(),
+    address: z.number().int().min(1).max(512).nullish(),
+})
+
 export default function NewFixture(props: RouteComponentProps) {
+    const {register, handleSubmit, setFocus, setValue, getValues, trigger, control, formState: {errors}} = useForm({
+        mode: "onTouched",
+        reValidateMode: "onChange",
+        resolver: zodResolver(newFixtureSchema),
+    });
+
+    console.log("values", getValues())
+    console.log(errors)
+
     const navigate = useNavigate();
 
+     // TODO maybe we can get rid of these now that we use react-hook-form?
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType|undefined>(undefined);
     const [selectedDmxMode, setSelectedDmxMode] = useState<DmxMode|null>(null);
 
+    // TODO get rid of this in favor of tooltips next to the issue
     const validationToaster = useRef<Toaster>(null);
 
-    const handleSubmit = useCallback((event?: FormEvent) => {
-        event?.preventDefault()
+    // TODO clean up now that we use react-hook-form
+    const onSubmit = useCallback((data) => {
         if (selectedFixtureType === undefined) {
             validationToaster.current?.show({
                 intent: "danger",
@@ -32,11 +64,11 @@ export default function NewFixture(props: RouteComponentProps) {
             return
         }
         const mode = (selectedDmxMode ?? selectedFixtureType.modes[0]).name
-        const name = nameInput.current?.value ?? ""
-        const quantity = parseInputWithDefault(quantityInput, 1)
-        const fid = parseInputWithDefault(fidInput, 1)
-        const universe = parseInputWithDefault(universeInput, 1)
-        const address = parseInputWithDefault(addressInput, 1)
+        const name = data.name
+        const quantity = data.quantity
+        const fid = data.fid
+        const universe = data.universe
+        const address = data.address
 
         const names = generateNames(name, quantity)
 
@@ -63,29 +95,42 @@ export default function NewFixture(props: RouteComponentProps) {
             global: true,
             label: "Go Back to Patch",
             onKeyDown: () => navigate("patch"),
+            /* TODO Esc does not work when in some Inputs, but it should exit out of the input */
         },
         {
             combo: "ctrl+enter",
             global: true,
             label: "Submit Form to Add Fixtures",
             allowInInput: true,
-            onKeyDown: () => handleSubmit(),
+            onKeyDown: () => {
+                console.log("running hotkey submit")
+                handleSubmit(onSubmit)()
+            },
         }
-    ], [navigate, handleSubmit]);
+    ], [handleSubmit, navigate, onSubmit]);
     useHotkeys(hotkeys);
     const patchData = useContext(PatchContext);
 
+    // TODO maybe we can get rid of these now that we use react-hook-form?
     const fixtureTypeHtmlInput = useRef<HTMLInputElement>(null);
     const dmxModeHtmlInput = useRef<HTMLInputElement>(null);
-    const nameInput = useRef<HTMLInputElement>(null);
-    const quantityInput = useRef<HTMLInputElement>(null);
-    const fidInput = useRef<HTMLInputElement>(null);
-    const universeInput = useRef<HTMLInputElement>(null);
-    const addressInput = useRef<HTMLInputElement>(null);
+    // const nameInput = useRef<HTMLInputElement>(null);
+    // const quantityInput = useRef<HTMLInputElement>(null);
+    // const fidInput = useRef<HTMLInputElement>(null);
+    // const universeInput = useRef<HTMLInputElement>(null);
+    // const addressInput = useRef<HTMLInputElement>(null);
+
+    const {ref: nameRef, ...nameRegister} = register("name")
 
     useEffect(() => {
         fixtureTypeHtmlInput.current?.focus()
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        register("fixtureTypeId");
+
+        register("dmxMode")
+    }, [register]);
 
     return (
         <div style={{ height: "100%", }}>
@@ -103,8 +148,9 @@ export default function NewFixture(props: RouteComponentProps) {
                 maxWidth: "25em",
                 margin: "auto",
             }}>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <FormGroup label="Fixture Type" labelFor="addFixture_fixtureTypeInput">
+                        {/* TODO show error for missing fixture type and dmxmode */}
                         <Suggest
                             items={patchData.fixtureTypes}
                             itemRenderer={(fixtureType, { handleClick, modifiers, query }) => {
@@ -123,17 +169,19 @@ export default function NewFixture(props: RouteComponentProps) {
                             }}
                             inputValueRenderer={fixtureTypeString}
                             onItemSelect={(item) => { 
+                                setValue("fixtureTypeId", item.fixtureTypeId)
                                 setSelectedFixtureType(item);
                                 setSelectedDmxMode(item.modes[0]);
+                                setValue("dmxMode", item.modes[0].name);
                                 dmxModeHtmlInput.current?.focus() 
                             }}
                             popoverProps={{ minimal: true, }}
                             itemPredicate={filterFixtureType}
                             resetOnClose={true}
-                            noResults={<MenuItem disabled={true} text="No results." />} 
+                            noResults={<MenuItem disabled={true} text="No results." />}
                             inputProps={{
                                 id: "addFixture_fixtureTypeInput", 
-                                inputRef: fixtureTypeHtmlInput, 
+                                inputRef: fixtureTypeHtmlInput,
                                 tabIndex: 1
                             }}
                         />
@@ -158,8 +206,9 @@ export default function NewFixture(props: RouteComponentProps) {
                             inputValueRenderer={DmxModeString}
                             selectedItem={selectedDmxMode}
                             onItemSelect={(item) => { 
+                                setValue("dmxMode", item.name)
                                 setSelectedDmxMode(item);
-                                nameInput.current?.focus(); 
+                                setFocus("name"); 
                             }}
                             popoverProps={{ minimal: true, }}
                             itemPredicate={filterDmxMode}
@@ -173,44 +222,49 @@ export default function NewFixture(props: RouteComponentProps) {
                         />
                     </FormGroup>
                     <FormGroup label="Name" labelFor="addFixture_nameInput">
-                        <InputGroup  inputRef={nameInput} id="addFixture_nameInput" tabIndex={3}/>
+                        <InputGroup  inputRef={nameRef} 
+                        id="addFixture_nameInput" tabIndex={3}
+                        {...nameRegister}
+                        />
                     </FormGroup>
-                    <FormGroup label="Quantity" labelFor="addFixture_quantityInput">
-                        <NumericInput defaultValue={1} 
-                            min={1} max={maxQuantity} 
-                            minorStepSize={null} 
-                            inputRef={quantityInput} 
-                            selectAllOnFocus selectAllOnIncrement 
-                            id="addFixture_quantityInput"
-                            tabIndex={4}/>
-                    </FormGroup>
-                    <FormGroup label="FID" labelFor="addFixture_fidInput">
-                        <NumericInput 
-                        min={-2147483648} max={2147483647}
-                        minorStepSize={null} 
-                        selectAllOnFocus selectAllOnIncrement 
-                        inputRef={fidInput}
+                    <ValidatedNumericInput 
+                        label="Quantity"
+                        name="quantity" 
+                        defaultValue={1}
+                        min={1}
+                        max={maxQuantity}
+                        tabIndex={4}
+                        id="addFixture_quantityInput"
+                        control={control}
+                    />
+                    <ValidatedNumericInput 
+                        label="FID"
+                        name="fid"
+                        defaultValue={1}
+                        min={i32MinValue}
+                        max={i32MaxValue}
+                        tabIndex={5}
                         id="addFixture_fidInput"
-                        tabIndex={5}/>
-                    </FormGroup>
-                    <FormGroup label="Universe" labelFor="addFixture_universeInput">
-                        <NumericInput 
-                        min={0} max={32767} 
-                        minorStepSize={null} 
-                        selectAllOnFocus selectAllOnIncrement 
-                        inputRef={universeInput}
+                        control={control}
+                    />
+                    <ValidatedNumericInput 
+                        label="Universe"
+                        name="universe"
+                        min={0}
+                        max={artnetMaxUniverse}
+                        tabIndex={6}
                         id="addFixture_universeInput"
-                        tabIndex={6}/>
-                    </FormGroup>
-                    <FormGroup label="Address" labelFor="addFixture_addressInput">
-                        <NumericInput 
-                        min={1} max={512} 
-                        minorStepSize={null} 
-                        selectAllOnFocus selectAllOnIncrement
-                        inputRef={addressInput}
+                        control={control}
+                    />
+                    <ValidatedNumericInput 
+                        label="Address"
+                        name="address"
+                        min={1}
+                        max={512}
+                        tabIndex={7}
                         id="addFixture_addressInput"
-                        tabIndex={7}/>
-                    </FormGroup>
+                        control={control}
+                    />                       
                     <div style={{
                         display: "flex",
                         justifyContent: "flex-end",
@@ -228,6 +282,40 @@ export default function NewFixture(props: RouteComponentProps) {
 
         </div>
     );
+}
+
+function ValidatedNumericInput(props: any) {
+    return <Controller name={props.name} control={props.control} defaultValue={props.defaultValue}
+    render={ ({field, fieldState}) => 
+        <FormGroup label={props.label} labelFor={props.id}>
+            <Tooltip2 
+                /* need to provide some content at all times, otherwise Tooltip
+                will unmount and once it re-renders the numeric input will reset
+                to default value  */
+                content={fieldState.error?.message ?? "-"}
+                isOpen={fieldState.invalid} 
+                enforceFocus={false} 
+                autoFocus={false}
+                placement="right"
+                intent="danger"
+                lazy={false}
+                usePortal={false}
+            >
+                <NumericInput
+                    defaultValue={props.defaultValue}
+                    min={props.min} max={props.max} 
+                    minorStepSize={null} 
+                    intent={fieldState.invalid ? "danger" : "none"}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    selectAllOnFocus selectAllOnIncrement 
+                    id={props.id}
+                    tabIndex={props.tabIndex}
+                />
+            </Tooltip2>
+        </FormGroup>
+    }/>
 }
 
 function highlightText(text: string, query: string) {
@@ -294,19 +382,5 @@ function generateNames(name: string, quantity: number): string[] {
         return [name]
     } else {
         return Array.from({length: quantity}, (_, index) => `${name} ${index+1}`)
-    }
-}
-
-function parseInputWithDefault(
-    ref: React.RefObject<HTMLInputElement>, 
-    defaultNumber: number
-    ): number {
-    const str = ref.current?.value ?? ""
-    if (str === "") {
-        return defaultNumber
-    } else {
-        const parsed = parseInt(str)
-        if (!isNaN(parsed)) {return parsed}
-        else {return defaultNumber}
     }
 }
