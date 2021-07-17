@@ -3,7 +3,7 @@ describe("Patch Fixture Lifecycle", () => {
         cy.clearFixtureTypes()
     })
 
-    it("adds Fixture Type, adds Fixtures, removes Fixtures and removes Fixture Type", () => {
+    it("adds, updates and removes Fixture Types and Fixtures", () => {
         cy.visit("/patch/fixtureTypes")
 
         // Add GDTF
