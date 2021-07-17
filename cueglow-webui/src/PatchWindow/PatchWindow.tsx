@@ -1,13 +1,14 @@
-import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
+import { Alignment, Navbar, NavbarGroup, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
 import { useMemo } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
-import { HotkeyHint, LabelWithHotkey } from "src/Utilities/HotkeyHint";
+import { LabelWithHotkey } from "src/Utilities/HotkeyHint";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
+import { NavbarExitWithTitle } from "../App/NavbarExitWithTitle";
 import NewFixture from "./NewFixture";
 
-function PatchWindow(props: RouteComponentProps) {
+export function PatchWindow(props: RouteComponentProps) {
     
 
     return (
@@ -18,16 +19,12 @@ function PatchWindow(props: RouteComponentProps) {
     );
 }
 
-function PatchTabWrapper(props: RouteComponentProps) {
+export function PatchTabWrapper(props: RouteComponentProps) {
     const navigate = useNavigate();
+
     const location = useLocation();
+
     const hotkeys = useMemo(() => [
-        {
-            combo: "esc",
-            global: true,
-            label: "Go Back to Main View",
-            onKeyDown: () => navigate("/"),
-        },
         {
             combo: "i",
             global: true,
@@ -42,17 +39,11 @@ function PatchTabWrapper(props: RouteComponentProps) {
         },
     ], [navigate]);
     useHotkeys(hotkeys);
+
     return (
         <div style={{ height: "100%", }}>
             <Navbar>
-                <NavbarGroup align={Alignment.LEFT}>
-                    <Button icon="cross" minimal={true} onClick={() => navigate("/")}>
-                        <HotkeyHint combo="Esc" />
-                    </Button>
-                    <NavbarHeading style={{ paddingLeft: "6vw" }}>
-                        <strong>Patch</strong>
-                    </NavbarHeading>
-                </NavbarGroup>
+                <NavbarExitWithTitle title="Patch" exitPath="/" />
                 <NavbarGroup align={Alignment.CENTER} style={{ justifyContent: "center", }}>
                     <Tabs id="patchNavbar" animate={false}
                         onChange={(newTabId: string) => {
@@ -88,7 +79,3 @@ function PatchTabWrapper(props: RouteComponentProps) {
             </Router>
         </div>);
 }
-
-
-
-export default PatchWindow;

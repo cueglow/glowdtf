@@ -3,7 +3,7 @@ import { Router } from '@reach/router';
 import React from 'react';
 import { PatchDataProvider } from 'src/ConnectionProvider/PatchDataProvider';
 import { bpVariables } from '../BlueprintVariables/BlueprintVariables';
-import PatchWindow from '../PatchWindow/PatchWindow';
+import { PatchWindow } from '../PatchWindow/PatchWindow';
 import MainWindow from './MainWindow';
 
 export function App() {

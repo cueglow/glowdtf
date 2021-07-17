@@ -1,49 +1,46 @@
-import { Alignment, Button, FormGroup, InputGroup, MenuItem, Navbar, NavbarGroup, NavbarHeading, NumericInput, useHotkeys } from '@blueprintjs/core';
+import { Button, FormGroup, FormGroupProps, HTMLInputProps, InputGroup, MenuItem, Navbar, NumericInput, NumericInputProps, useHotkeys } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 import { ItemPredicate } from '@blueprintjs/select';
 import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form';
 import { ClientMessage } from 'src/ConnectionProvider/ClientMessage';
 import { connectionProvider } from 'src/ConnectionProvider/ConnectionProvider';
 import { PatchFixture } from 'src/Types/Patch';
-import { HotkeyHint, LabelWithHotkey } from 'src/Utilities/HotkeyHint';
+import { LabelWithHotkey } from 'src/Utilities/HotkeyHint';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { NavbarExitWithTitle } from '../App/NavbarExitWithTitle';
 import { PatchContext } from '../ConnectionProvider/PatchDataProvider';
 import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
 
 // TODO clean everything up and split into smaller components if possible
 
-const maxQuantity = 256
-
-export const artnetMaxUniverse = 32767
-
-export const i32MinValue = -2147483648
-export const i32MaxValue = 2147483647
-
-const newFixtureSchema = z.object({
-    fixtureType: z.object({}).passthrough(),
-    dmxMode: z.object({}).passthrough(),
-    name: z.string(),
-    quantity: z.number().int().positive().max(maxQuantity),
-    fid: z.number().int().min(i32MinValue).max(i32MaxValue),
-    universe: z.number().int().min(0).max(artnetMaxUniverse).nullish(),
-    address: z.number().int().min(1).max(512).nullish(),
-})
-
 export default function NewFixture(props: RouteComponentProps) {
+    const navigate = useNavigate();
+
     const { register, handleSubmit, setFocus, setValue, trigger: triggerValidation, control, formState: { errors } } = useForm({
         mode: "onTouched",
         reValidateMode: "onChange",
         resolver: zodResolver(newFixtureSchema),
     });
+
     const selectedFixtureType = useWatch({control, name: "fixtureType"})
     const selectedDmxMode = useWatch({control, name: "dmxMode"})
 
-    const navigate = useNavigate();
+    const {ref: fixtureTypeRef} = register("fixtureType")
+    const {ref: dmxModeRef} = register("dmxMode")
+    const { ref: nameRef, ...nameRegister } = register("name")
+
+    // focus first field at the start
+    useEffect(() => {
+        setFocus("fixtureType")
+        // Initialize to null so error messages don't mention the default empty string
+        setValue("fixtureType", null)
+        setValue("dmxMode", null)
+    }, [setFocus, setValue]);
 
     const onSubmit = useCallback((data) => {
         const name = data.name
@@ -73,13 +70,6 @@ export default function NewFixture(props: RouteComponentProps) {
 
     const hotkeys = useMemo(() => [
         {
-            combo: "esc",
-            global: true,
-            label: "Go Back to Patch",
-            allowInInput: true,
-            onKeyDown: () => navigate("patch"),
-        },
-        {
             combo: "ctrl+enter",
             global: true,
             label: "Submit Form to Add Fixtures",
@@ -89,33 +79,14 @@ export default function NewFixture(props: RouteComponentProps) {
                 handleSubmit(onSubmit)()
             },
         }
-    ], [handleSubmit, navigate, onSubmit]);
+    ], [handleSubmit, onSubmit]);
     useHotkeys(hotkeys);
     const patchData = useContext(PatchContext);
-
-    const {ref: fixtureTypeRef} = register("fixtureType")
-    const {ref: dmxModeRef} = register("dmxMode")
-    const { ref: nameRef, ...nameRegister } = register("name")
-
-    // focus first field at the start
-    useEffect(() => {
-        setFocus("fixtureType")
-        // Initialize to null so error messages don't mention the default empty string
-        setValue("fixtureType", null)
-        setValue("dmxMode", null)
-    }, [setFocus, setValue]);
 
     return (
         <div style={{ height: "100%", }}>
             <Navbar>
-                <NavbarGroup align={Alignment.LEFT}>
-                    <Button icon="cross" minimal={true} onClick={() => navigate("/patch")}>
-                        <HotkeyHint combo="Esc" />
-                    </Button>
-                    <NavbarHeading style={{ paddingLeft: "6vw" }}>
-                        <strong>Add New Fixtures</strong>
-                    </NavbarHeading>
-                </NavbarGroup>
+                <NavbarExitWithTitle title="Add New Fixtures" exitPath="/patch" />
             </Navbar>
             <div style={{
                 maxWidth: "25em",
@@ -275,7 +246,25 @@ export default function NewFixture(props: RouteComponentProps) {
     );
 }
 
-function ValidatedNumericInput(props: any) {
+
+const maxQuantity = 256
+
+export const artnetMaxUniverse = 32767
+
+export const i32MinValue = -2147483648
+export const i32MaxValue = 2147483647
+
+const newFixtureSchema = z.object({
+    fixtureType: z.object({}).passthrough(),
+    dmxMode: z.object({}).passthrough(),
+    name: z.string(),
+    quantity: z.number().int().positive().max(maxQuantity),
+    fid: z.number().int().min(i32MinValue).max(i32MaxValue),
+    universe: z.number().int().min(0).max(artnetMaxUniverse).nullish(),
+    address: z.number().int().min(1).max(512).nullish(),
+})
+
+function ValidatedNumericInput(props: Omit<ControllerProps, "render"> & HTMLInputProps & NumericInputProps & FormGroupProps) {
     return <Controller name={props.name} control={props.control} defaultValue={props.defaultValue}
         render={({ field, fieldState }) =>
             <FormGroup label={props.label} labelFor={props.id}>
@@ -304,7 +293,8 @@ function ValidatedNumericInput(props: any) {
                     />
                 </Tooltip2>
             </FormGroup>
-        } />
+        } 
+    />
 }
 
 function highlightText(text: string, query: string) {
@@ -373,3 +363,4 @@ function generateNames(name: string, quantity: number): string[] {
         return Array.from({ length: quantity }, (_, index) => `${name} ${index + 1}`)
     }
 }
+
