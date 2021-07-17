@@ -4,8 +4,8 @@ import { ItemPredicate } from '@blueprintjs/select';
 import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { ClientMessage } from 'src/ConnectionProvider/ClientMessage';
 import { connectionProvider } from 'src/ConnectionProvider/ConnectionProvider';
 import { PatchFixture } from 'src/Types/Patch';
@@ -25,8 +25,8 @@ export const i32MinValue = -2147483648
 export const i32MaxValue = 2147483647
 
 const newFixtureSchema = z.object({
-    fixtureTypeId: z.string().min(1),
-    dmxMode: z.string(),
+    fixtureType: z.object({}).passthrough(),
+    dmxMode: z.object({}).passthrough(),
     name: z.string(),
     quantity: z.number().int().positive().max(maxQuantity),
     fid: z.number().int().min(i32MinValue).max(i32MaxValue),
@@ -35,20 +35,15 @@ const newFixtureSchema = z.object({
 })
 
 export default function NewFixture(props: RouteComponentProps) {
-    const { register, handleSubmit, setFocus, setValue, getValues, trigger: triggerValidation, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, setFocus, setValue, trigger: triggerValidation, control, formState: { errors } } = useForm({
         mode: "onTouched",
         reValidateMode: "onChange",
         resolver: zodResolver(newFixtureSchema),
     });
-
-    console.log("values", getValues())
-    console.log(errors)
+    const selectedFixtureType = useWatch({control, name: "fixtureType"})
+    const selectedDmxMode = useWatch({control, name: "dmxMode"})
 
     const navigate = useNavigate();
-
-    // TODO maybe we can get rid of these now that we use react-hook-form?
-    const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | undefined>(undefined);
-    const [selectedDmxMode, setSelectedDmxMode] = useState<DmxMode | null>(null);
 
     const onSubmit = useCallback((data) => {
         const name = data.name
@@ -65,8 +60,8 @@ export default function NewFixture(props: RouteComponentProps) {
                 uuid: uuidv4(),
                 fid: fid,
                 name: names[i],
-                fixtureTypeId: selectedFixtureType!.fixtureTypeId,
-                dmxMode: data.dmxMode,
+                fixtureTypeId: data.fixtureType.fixtureTypeId,
+                dmxMode: data.dmxMode.name,
                 universe: universe,
                 address: address,
             })
@@ -74,7 +69,7 @@ export default function NewFixture(props: RouteComponentProps) {
         const msg = new ClientMessage.AddFixtures(fixtureArray)
         connectionProvider.send(msg)
         navigate("patch")
-    }, [navigate, selectedFixtureType])
+    }, [navigate])
 
     const hotkeys = useMemo(() => [
         {
@@ -98,13 +93,13 @@ export default function NewFixture(props: RouteComponentProps) {
     useHotkeys(hotkeys);
     const patchData = useContext(PatchContext);
 
-    const {ref: fixtureTypeRef} = register("fixtureTypeId")
+    const {ref: fixtureTypeRef} = register("fixtureType")
     const {ref: dmxModeRef} = register("dmxMode")
     const { ref: nameRef, ...nameRegister } = register("name")
 
     // focus first field at the start
     useEffect(() => {
-        setFocus("fixtureTypeId")
+        setFocus("fixtureType")
     }, [setFocus]);
 
     return (
@@ -126,13 +121,12 @@ export default function NewFixture(props: RouteComponentProps) {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Tooltip2
                         /* must provide default content, otherwise will unmount child  */
-                        content={errors.fixtureTypeId?.message ?? "-"}
-                        isOpen={errors.fixtureTypeId ? true : false}
+                        content={errors.fixtureType?.message ?? "-"}
+                        isOpen={errors.fixtureType ? true : false}
                         enforceFocus={false}
                         autoFocus={false}
                         placement="right"
-                        intent="danger"
-                    >
+                        intent="danger">
                         <FormGroup label="Fixture Type" labelFor="addFixture_fixtureTypeInput">
                             <Suggest
                                 items={patchData.fixtureTypes}
@@ -152,10 +146,8 @@ export default function NewFixture(props: RouteComponentProps) {
                                 }}
                                 inputValueRenderer={fixtureTypeString}
                                 onItemSelect={(item) => {
-                                    setValue("fixtureTypeId", item.fixtureTypeId)
-                                    setSelectedFixtureType(item);
-                                    setSelectedDmxMode(item.modes[0]);
-                                    setValue("dmxMode", item.modes[0].name);
+                                    setValue("fixtureType", item)
+                                    setValue("dmxMode", item.modes[0]);
                                     setFocus("dmxMode")
                                     triggerValidation()
                                 }}
@@ -167,7 +159,7 @@ export default function NewFixture(props: RouteComponentProps) {
                                     id: "addFixture_fixtureTypeInput",
                                     inputRef: fixtureTypeRef,
                                     tabIndex: 1,
-                                    intent: errors.fixtureTypeId ? "danger" : "none",
+                                    intent: errors.fixtureType ? "danger" : "none",
                                     onBlur: () => triggerValidation(),
                                 }}
                             />
@@ -202,8 +194,7 @@ export default function NewFixture(props: RouteComponentProps) {
                                 inputValueRenderer={DmxModeString}
                                 selectedItem={selectedDmxMode}
                                 onItemSelect={(item) => {
-                                    setValue("dmxMode", item.name)
-                                    setSelectedDmxMode(item);
+                                    setValue("dmxMode", item)
                                     setFocus("name");
                                 }}
                                 popoverProps={{ minimal: true, }}

@@ -1,6 +1,6 @@
 import {pathEquals} from '../support/utilities'
 
-describe("Patch Fixture Lifecycle", () => {
+describe("Patch with Keyboard", () => {
     beforeEach(() => {
         cy.clearFixtureTypes()
     })
