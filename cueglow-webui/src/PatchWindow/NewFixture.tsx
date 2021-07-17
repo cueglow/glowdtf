@@ -137,14 +137,14 @@ export default function NewFixture(props: RouteComponentProps) {
                 margin: "auto",
             }}>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <Tooltip2                    
-                    /* must provide default content, otherwise will unmount child  */
-                    content={errors.fixtureTypeId?.message ?? "-"}
-                    isOpen={errors.fixtureTypeId ? true : false}
-                    enforceFocus={false}
-                    autoFocus={false}
-                    placement="right"
-                    intent="danger"
+                    <Tooltip2
+                        /* must provide default content, otherwise will unmount child  */
+                        content={errors.fixtureTypeId?.message ?? "-"}
+                        isOpen={errors.fixtureTypeId ? true : false}
+                        enforceFocus={false}
+                        autoFocus={false}
+                        placement="right"
+                        intent="danger"
                     >
                         <FormGroup label="Fixture Type" labelFor="addFixture_fixtureTypeInput">
                             <Suggest
@@ -186,42 +186,52 @@ export default function NewFixture(props: RouteComponentProps) {
                             />
                         </FormGroup>
                     </Tooltip2>
-                    <FormGroup label="DMX Mode" labelFor="addFixture_modeInput">
-                        <Suggest
-                            items={selectedFixtureType?.modes ?? []}
-                            itemRenderer={(mode, { handleClick, modifiers, query }) => {
-                                if (!modifiers.matchesPredicate) {
-                                    return null;
-                                }
-                                return (
-                                    <MenuItem
-                                        active={modifiers.active}
-                                        disabled={modifiers.disabled}
-                                        onClick={handleClick}
-                                        text={highlightText(DmxModeString(mode), query)}
-                                        key={DmxModeString(mode)}
-                                    />
-                                );
-                            }}
-                            inputValueRenderer={DmxModeString}
-                            selectedItem={selectedDmxMode}
-                            onItemSelect={(item) => {
-                                setValue("dmxMode", item.name)
-                                setSelectedDmxMode(item);
-                                setFocus("name");
-                            }}
-                            popoverProps={{ minimal: true, }}
-                            itemPredicate={filterDmxMode}
-                            resetOnClose={true}
-                            noResults={<MenuItem disabled={true} text="No results." />}
-                            inputProps={{
-                                id: "addFixture_modeInput",
-                                inputRef: dmxModeHtmlInput,
-                                tabIndex: 2,
-                                intent: errors.dmxMode ? "danger" : "none",
-                            }}
-                        />
-                    </FormGroup>
+                    <Tooltip2
+                        /* must provide default content, otherwise will unmount child  */
+                        content={errors.dmxMode?.message ?? "-"}
+                        isOpen={errors.dmxMode ? true : false}
+                        enforceFocus={false}
+                        autoFocus={false}
+                        placement="right"
+                        intent="danger"
+                    >
+                        <FormGroup label="DMX Mode" labelFor="addFixture_modeInput">
+                            <Suggest
+                                items={selectedFixtureType?.modes ?? []}
+                                itemRenderer={(mode, { handleClick, modifiers, query }) => {
+                                    if (!modifiers.matchesPredicate) {
+                                        return null;
+                                    }
+                                    return (
+                                        <MenuItem
+                                            active={modifiers.active}
+                                            disabled={modifiers.disabled}
+                                            onClick={handleClick}
+                                            text={highlightText(DmxModeString(mode), query)}
+                                            key={DmxModeString(mode)}
+                                        />
+                                    );
+                                }}
+                                inputValueRenderer={DmxModeString}
+                                selectedItem={selectedDmxMode}
+                                onItemSelect={(item) => {
+                                    setValue("dmxMode", item.name)
+                                    setSelectedDmxMode(item);
+                                    setFocus("name");
+                                }}
+                                popoverProps={{ minimal: true, }}
+                                itemPredicate={filterDmxMode}
+                                resetOnClose={true}
+                                noResults={<MenuItem disabled={true} text="No results." />}
+                                inputProps={{
+                                    id: "addFixture_modeInput",
+                                    inputRef: dmxModeHtmlInput,
+                                    tabIndex: 2,
+                                    intent: errors.dmxMode ? "danger" : "none",
+                                }}
+                            />
+                        </FormGroup>
+                    </Tooltip2>
                     <FormGroup label="Name" labelFor="addFixture_nameInput">
                         <InputGroup inputRef={nameRef}
                             id="addFixture_nameInput" tabIndex={3}
