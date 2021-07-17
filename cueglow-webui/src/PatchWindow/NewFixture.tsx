@@ -1,7 +1,7 @@
-import { Button, FormGroup, FormGroupProps, HTMLInputProps, InputGroup, MenuItem, Navbar, NumericInput, NumericInputProps, useHotkeys } from '@blueprintjs/core';
+import { Button, FormGroup, FormGroupProps, HTMLInputProps, InputGroup, InputGroupProps2, MenuItem, Navbar, NumericInput, NumericInputProps, useHotkeys } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
-import { ItemPredicate } from '@blueprintjs/select';
-import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
+import { IItemRendererProps, ItemPredicate } from '@blueprintjs/select';
+import { Suggest, SuggestProps } from '@blueprintjs/select/lib/esm/components/select/suggest';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
@@ -27,11 +27,11 @@ export default function NewFixture(props: RouteComponentProps) {
         resolver: zodResolver(newFixtureSchema),
     });
 
-    const selectedFixtureType = useWatch({control, name: "fixtureType"})
-    const selectedDmxMode = useWatch({control, name: "dmxMode"})
+    const selectedFixtureType = useWatch({ control, name: "fixtureType" })
+    const selectedDmxMode = useWatch({ control, name: "dmxMode" })
 
-    const {ref: fixtureTypeRef} = register("fixtureType")
-    const {ref: dmxModeRef} = register("dmxMode")
+    const { ref: fixtureTypeRef } = register("fixtureType")
+    const { ref: dmxModeRef } = register("dmxMode")
     const { ref: nameRef, ...nameRegister } = register("name")
 
     // focus first field at the start
@@ -93,97 +93,46 @@ export default function NewFixture(props: RouteComponentProps) {
                 margin: "auto",
             }}>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <Tooltip2
-                        /* must provide default content, otherwise will unmount child  */
-                        content={errors.fixtureType?.message ?? "-"}
+                    <ValidatedSuggest
+                        label="Fixture Type"
+                        errorMessage={errors.fixtureType?.message}
                         isOpen={errors.fixtureType ? true : false}
-                        enforceFocus={false}
-                        autoFocus={false}
-                        placement="right"
-                        intent="danger">
-                        <FormGroup label="Fixture Type" labelFor="addFixture_fixtureTypeInput">
-                            <Suggest
-                                items={patchData.fixtureTypes}
-                                itemRenderer={(fixtureType, { handleClick, modifiers, query }) => {
-                                    if (!modifiers.matchesPredicate) {
-                                        return null;
-                                    }
-                                    return (
-                                        <MenuItem
-                                            active={modifiers.active}
-                                            disabled={modifiers.disabled}
-                                            onClick={handleClick}
-                                            text={highlightText(fixtureTypeString(fixtureType), query)}
-                                            key={fixtureType.fixtureTypeId.toString()}
-                                        />
-                                    );
-                                }}
-                                inputValueRenderer={fixtureTypeString}
-                                onItemSelect={(item) => {
-                                    setValue("fixtureType", item)
-                                    setValue("dmxMode", item.modes[0]);
-                                    setFocus("dmxMode")
-                                    triggerValidation()
-                                }}
-                                popoverProps={{ minimal: true, }}
-                                itemPredicate={filterFixtureType}
-                                resetOnClose={true}
-                                noResults={<MenuItem disabled={true} text="No results." />}
-                                inputProps={{
-                                    id: "addFixture_fixtureTypeInput",
-                                    inputRef: fixtureTypeRef,
-                                    tabIndex: 1,
-                                    intent: errors.fixtureType ? "danger" : "none",
-                                    onBlur: () => triggerValidation(),
-                                }}
-                            />
-                        </FormGroup>
-                    </Tooltip2>
-                    <Tooltip2
-                        /* must provide default content, otherwise will unmount child  */
-                        content={errors.dmxMode?.message ?? "-"}
+                        items={patchData.fixtureTypes}
+                        inputValueRenderer={fixtureTypeString}
+                        itemPredicate={filterFixtureType}
+                        onItemSelect={(item) => {
+                            setValue("fixtureType", item);
+                            setValue("dmxMode", item.modes[0]);
+                            setFocus("dmxMode");
+                            triggerValidation();
+                        }}
+                        keyRenderer={(item) => item.fixtureTypeId.toString()}
+                        id="addFixture_fixtureTypeInput"
+                        inputProps={{
+                            inputRef: fixtureTypeRef,
+                            tabIndex: 1,
+                            onBlur: () => triggerValidation(),
+                        }}
+                    />
+                    <ValidatedSuggest
+                        label="DMX Mode"
+                        errorMessage={errors.dmxMode?.message}
                         isOpen={errors.dmxMode ? true : false}
-                        enforceFocus={false}
-                        autoFocus={false}
-                        placement="right"
-                        intent="danger"
-                    >
-                        <FormGroup label="DMX Mode" labelFor="addFixture_modeInput">
-                            <Suggest
-                                items={selectedFixtureType?.modes ?? []}
-                                itemRenderer={(mode, { handleClick, modifiers, query }) => {
-                                    if (!modifiers.matchesPredicate) {
-                                        return null;
-                                    }
-                                    return (
-                                        <MenuItem
-                                            active={modifiers.active}
-                                            disabled={modifiers.disabled}
-                                            onClick={handleClick}
-                                            text={highlightText(DmxModeString(mode), query)}
-                                            key={DmxModeString(mode)}
-                                        />
-                                    );
-                                }}
-                                inputValueRenderer={DmxModeString}
-                                selectedItem={selectedDmxMode}
-                                onItemSelect={(item) => {
-                                    setValue("dmxMode", item)
-                                    setFocus("name");
-                                }}
-                                popoverProps={{ minimal: true, }}
-                                itemPredicate={filterDmxMode}
-                                resetOnClose={true}
-                                noResults={<MenuItem disabled={true} text="No results." />}
-                                inputProps={{
-                                    id: "addFixture_modeInput",
-                                    inputRef: dmxModeRef,
-                                    tabIndex: 2,
-                                    intent: errors.dmxMode ? "danger" : "none",
-                                }}
-                            />
-                        </FormGroup>
-                    </Tooltip2>
+                        items={selectedFixtureType?.modes ?? []}
+                        inputValueRenderer={DmxModeString}
+                        itemPredicate={filterDmxMode}
+                        selectedItem={selectedDmxMode}
+                        onItemSelect={(item) => {
+                            setValue("dmxMode", item)
+                            setFocus("name");
+                        }}
+                        keyRenderer={(item) => item.name}
+                        id="addFixture_modeInput"
+                        inputProps={{
+                            inputRef: dmxModeRef,
+                            tabIndex: 2,
+                        }}
+                    />
                     <FormGroup label="Name" labelFor="addFixture_nameInput">
                         <InputGroup
                             id="addFixture_nameInput" tabIndex={3}
@@ -264,6 +213,56 @@ const newFixtureSchema = z.object({
     address: z.number().int().min(1).max(512).nullish(),
 })
 
+function ValidatedSuggest<T>(props: 
+    Omit<SuggestProps<T>, "itemRenderer" | "popoverProps" | "resetOnClose" | "noResults" | "inputProps"> & 
+    { errorMessage: string, isOpen: boolean , keyRenderer: (item: T) => string, inputProps: Omit<InputGroupProps2, "intent"|"id">, id: string, label: string}
+    ) {
+    const { errorMessage, isOpen, inputProps, keyRenderer, id, label, ...other } = props;
+
+    // error Message musn't be empty, otherwise Tooltip will unmount itself and its child
+    const paddedErrorMessage = errorMessage || "-"
+
+    return <Tooltip2
+        /* must provide default content, otherwise will unmount child  */
+        content={paddedErrorMessage}
+        isOpen={isOpen}
+        enforceFocus={false}
+        autoFocus={false}
+        placement="right"
+        intent="danger">
+        <FormGroup label={label} labelFor={id}>
+            <Suggest
+                {...other}
+
+                itemRenderer={defaultSuggestItemRenderer(props.inputValueRenderer, keyRenderer)}
+                popoverProps={{ minimal: true, }}
+                resetOnClose={true}
+                noResults={<MenuItem disabled={true} text="No results." />}
+                inputProps={{
+                    intent: isOpen ? "danger" : "none",
+                    id: id,
+                    ...inputProps,
+                }}
+            />
+        </FormGroup>
+    </Tooltip2>;
+}
+
+const defaultSuggestItemRenderer = <T,>(inputValueRenderer: (item: T) => string, keyRenderer: (item: T) => string) => 
+    (item: T, { handleClick, modifiers, query }: IItemRendererProps) => {
+        if (!modifiers.matchesPredicate) {
+            return null;
+        }
+        return (
+            <MenuItem
+                active={modifiers.active}
+                disabled={modifiers.disabled}
+                onClick={handleClick}
+                text={highlightText(inputValueRenderer(item), query)}
+                key={keyRenderer(item)} />
+        );
+    }
+
 function ValidatedNumericInput(props: Omit<ControllerProps, "render"> & HTMLInputProps & NumericInputProps & FormGroupProps) {
     return <Controller name={props.name} control={props.control} defaultValue={props.defaultValue}
         render={({ field, fieldState }) =>
@@ -293,7 +292,7 @@ function ValidatedNumericInput(props: Omit<ControllerProps, "render"> & HTMLInpu
                     />
                 </Tooltip2>
             </FormGroup>
-        } 
+        }
     />
 }
 
