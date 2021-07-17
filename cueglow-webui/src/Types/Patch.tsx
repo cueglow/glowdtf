@@ -1,4 +1,4 @@
-import { FixtureType } from "./FixtureTypeUtils"
+import { FixtureType } from "./FixtureType"
 
 export type PatchData = {
     fixtures: PatchFixture[];

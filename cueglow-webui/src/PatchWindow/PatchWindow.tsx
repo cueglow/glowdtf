@@ -2,19 +2,17 @@ import { Alignment, Navbar, NavbarGroup, Tab, Tabs, useHotkeys } from "@blueprin
 import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
 import { useMemo } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
-import { LabelWithHotkey } from "src/Utilities/HotkeyHint";
+import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
-import { NavbarExitWithTitle } from "../App/NavbarExitWithTitle";
-import NewFixture from "./NewFixture";
+import { NavbarExitWithTitle } from "../Components/NavbarExitWithTitle";
+import { NewFixtureWrapper } from "./NewFixture";
 
 export function PatchWindow(props: RouteComponentProps) {
-    
-
     return (
         <Router>
             <PatchTabWrapper path="/" default />
-            <NewFixture path="newFixture" />
+            <NewFixtureWrapper path="newFixture" />
         </Router>
     );
 }

@@ -1,15 +1,15 @@
 
 import { Button, Toaster, useHotkeys } from "@blueprintjs/core";
-import { RouteComponentProps, useNavigate } from "@reach/router";
+import { NavigateFn, RouteComponentProps, useNavigate } from "@reach/router";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage, PatchFixtureUpdate } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchFixture } from "src/Types/Patch";
-import { GlowTabulator } from "src/Utilities/GlowTabulator";
-import { LabelWithHotkey } from "src/Utilities/HotkeyHint";
+import { GlowTabulator } from "src/Components/GlowTabulator";
+import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
-import { fixtureTypeString } from "../Types/FixtureTypeUtils";
+import { fixtureTypeString } from "../Types/FixtureType";
 
 export function FixturePatch(props: RouteComponentProps) {
     const navigate = useNavigate();
@@ -48,22 +48,11 @@ export function FixturePatch(props: RouteComponentProps) {
             display: "flex",
             flexDirection: "column",
         }}>
-            <div style={{
-                display: "flex",
-                justifyContent: "flex-start", //flex-end for right-align
-                marginBottom: bpVariables.ptGridSize,
-            }}>
-                <Button intent="success" icon="plus"
-                    onClick={() => navigate("/patch/newFixture")}>
-                    <LabelWithHotkey label="Add New Fixtures" combo="A" />
-                </Button>
-                <div style={{ flexGrow: 1 }} />
-                <Button minimal={true} icon="trash"
-                    disabled={selectedFixtureUuids.length === 0} onClick={removeSelectedFixtures}
-                    data-cy="remove_selected_fixture_button">
-                    <LabelWithHotkey label="Remove" combo="Del" />
-                </Button>
-            </div>
+            <TopButtons 
+            navigate={navigate} 
+            selectedFixtureUuids={selectedFixtureUuids} 
+            removeSelectedFixtures={removeSelectedFixtures} 
+            />
             <div style={{
                 flexGrow: 1,
                 minHeight: 0,
@@ -74,6 +63,29 @@ export function FixturePatch(props: RouteComponentProps) {
             </div>
         </div>
     );
+}
+
+function TopButtons(props: {
+    navigate: NavigateFn,
+    selectedFixtureUuids: string[],
+    removeSelectedFixtures: () => void
+}) {
+    return <div style={{
+        display: "flex",
+        justifyContent: "flex-start", //flex-end for right-align
+        marginBottom: bpVariables.ptGridSize,
+    }}>
+        <Button intent="success" icon="plus"
+            onClick={() => props.navigate("/patch/newFixture")}>
+            <LabelWithHotkey label="Add New Fixtures" combo="A" />
+        </Button>
+        <div style={{ flexGrow: 1 }} />
+        <Button minimal={true} icon="trash"
+            disabled={props.selectedFixtureUuids.length === 0} onClick={props.removeSelectedFixtures}
+            data-cy="remove_selected_fixture_button">
+            <LabelWithHotkey label="Remove" combo="Del" />
+        </Button>
+    </div>;
 }
 
 function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[]) => void }) {
@@ -98,8 +110,8 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
         { field: "name", title: "Name", editor: "input" as Tabulator.Editor },
         { field: "fixtureType", title: "Fixture Type" },
         { field: "dmxMode", title: "DMX Mode" },
-        { 
-            field: "universe", title: "Universe", 
+        {
+            field: "universe", title: "Universe",
             editor: "number" as Tabulator.Editor,
             editorParams: {
                 min: 0,
@@ -113,7 +125,7 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
             ],
             formatter: displayNegativeAddressAsEmptyString
         },
-        { 
+        {
             field: "address", title: "Address",
             editor: "number" as Tabulator.Editor,
             editorParams: {
@@ -184,7 +196,7 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                     keybindings: {
                         navPrev: "shift+9",
                         navUp: "38",
-                        navDown: "40",  
+                        navDown: "40",
                     },
                 }}
             />
@@ -197,7 +209,7 @@ function displayNegativeAddressAsEmptyString(cell: Tabulator.CellComponent, form
     const val = cell.getValue()
     if (val === -1) {
         return ""
-    } 
+    }
     return val
 }
 
@@ -217,7 +229,7 @@ function translateBetweenNegativeAddressAndEmptyString(value: number | string): 
 }
 
 type TabulatorValidator = {
-    type: string; 
+    type: string;
     parameters: unknown;
 }
 

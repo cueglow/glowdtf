@@ -6,29 +6,23 @@ import { App } from './App';
 import { EstablishingConnectionPage } from './EstablishingConnectionPage';
 import { NoConnectionPage } from './NoConnectionPage';
 
-function useConnectionState() {
-  const [connectionState, setConnectionState] = useState(connectionProvider.connectionState);
-
-  useEffect(() => {
-    connectionProvider.onConnectionChange = (newConnectionState) => setConnectionState(newConnectionState)
-  }, [])
-
-  return connectionState;
-}
-
 export function AppWrapper() {
   return (
   <div className="bp3-dark" css={`
     height: 100vh;
     background: ${bpVariables.ptDarkAppBackgroundColor};
   `}> 
-    <ConditionalContent />
+    <ContentBasedOnConnectionState />
   </div>
   )
 }
 
-function ConditionalContent() {
-  const connectionState = useConnectionState()
+function ContentBasedOnConnectionState() {
+  const [connectionState, setConnectionState] = useState(connectionProvider.connectionState);
+
+  useEffect(() => {
+    connectionProvider.onConnectionChange = (newConnectionState) => setConnectionState(newConnectionState)
+  }, [])
 
   if (connectionState === ConnectionState.Open) {
     return <App />

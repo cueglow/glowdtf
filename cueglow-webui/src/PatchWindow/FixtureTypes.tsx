@@ -4,10 +4,10 @@ import React, { useCallback, useContext, useMemo, useRef, useState } from "react
 import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
-import { GlowTabulator } from "src/Utilities/GlowTabulator";
-import { LabelWithHotkey } from "src/Utilities/HotkeyHint";
+import { GlowTabulator } from "src/Components/GlowTabulator";
+import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
-import { DmxModeString, emptyFixtureType, FixtureType } from "../Types/FixtureTypeUtils";
+import { DmxModeString, FixtureType } from "../Types/FixtureType";
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType|undefined>(undefined);
@@ -16,7 +16,6 @@ export function FixtureTypes(props: RouteComponentProps) {
         if (selectedFixtureType !== undefined) {
             const msg = new ClientMessage.RemoveFixtureTypes([selectedFixtureType.fixtureTypeId])
             connectionProvider.send(msg)
-            setSelectedFixtureType(emptyFixtureType)
             // TODO once we have undo/redo
             // if patched fixtures were removed in this operation, show toast
             // with how many fixtures were removed and with undo button

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { FixtureType } from "src/Types/FixtureTypeUtils";
+import { FixtureType } from "src/Types/FixtureType";
 import { PatchData, PatchFixture } from "src/Types/Patch";
 import { PatchFixtureUpdate } from "./ClientMessage";
 

@@ -1,12 +1,11 @@
 import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, useNavigate } from "@reach/router";
 import { useMemo } from "react";
-import { LabelWithHotkey } from "src/Utilities/HotkeyHint";
+import { LabelWithHotkey } from "src/Components/HotkeyHint";
 
-
-
-function MainWindow(props: RouteComponentProps) {
+export function MainWindow(props: RouteComponentProps) {
     const navigate = useNavigate();
+
     const hotkeys = useMemo(() => [
         {
             combo: "shift+p",
@@ -32,7 +31,3 @@ function MainWindow(props: RouteComponentProps) {
         </Navbar>
     );
 }
-
-
-
-export default MainWindow;

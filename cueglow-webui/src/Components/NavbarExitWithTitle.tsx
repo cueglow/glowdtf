@@ -1,7 +1,7 @@
 import { Alignment, Button, NavbarGroup, NavbarHeading, useHotkeys } from "@blueprintjs/core";
 import { useNavigate } from "@reach/router";
 import { useMemo } from "react";
-import { HotkeyHint } from "src/Utilities/HotkeyHint";
+import { HotkeyHint } from "src/Components/HotkeyHint";
 
 
 export function NavbarExitWithTitle(props: { title: string; exitPath: string; }) {
