@@ -1,11 +1,9 @@
-import { Button, FormGroup, FormGroupProps, HTMLInputProps, InputGroup, InputGroupProps2, MenuItem, Navbar, NumericInput, NumericInputProps, useHotkeys } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
-import { IItemRendererProps, ItemPredicate } from '@blueprintjs/select';
-import { Suggest, SuggestProps } from '@blueprintjs/select/lib/esm/components/select/suggest';
+import { Button, FormGroup, InputGroup, Navbar, useHotkeys } from '@blueprintjs/core';
+import { ItemPredicate } from '@blueprintjs/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
-import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { ClientMessage } from 'src/ConnectionProvider/ClientMessage';
 import { connectionProvider } from 'src/ConnectionProvider/ConnectionProvider';
 import { PatchFixture } from 'src/Types/Patch';
@@ -15,8 +13,8 @@ import { z } from 'zod';
 import { NavbarExitWithTitle } from '../App/NavbarExitWithTitle';
 import { PatchContext } from '../ConnectionProvider/PatchDataProvider';
 import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
-
-// TODO clean everything up and split into smaller components if possible
+import { ValidatedNumericInput } from './ValidatedNumericInput';
+import { ValidatedSuggest } from './ValidatedSuggest';
 
 export default function NewFixture(props: RouteComponentProps) {
     const navigate = useNavigate();
@@ -49,7 +47,7 @@ export default function NewFixture(props: RouteComponentProps) {
         const universe = data.universe
         const address = data.address
 
-        const names = generateNames(name, quantity)
+        const names = generateFixtureNames(name, quantity)
 
         const fixtureArray: PatchFixture[] = []
         for (let i = 0; i < quantity; i++) {
@@ -195,7 +193,6 @@ export default function NewFixture(props: RouteComponentProps) {
     );
 }
 
-
 const maxQuantity = 256
 
 export const artnetMaxUniverse = 32767
@@ -203,6 +200,7 @@ export const artnetMaxUniverse = 32767
 export const i32MinValue = -2147483648
 export const i32MaxValue = 2147483647
 
+// Schema for validating form
 const newFixtureSchema = z.object({
     fixtureType: z.object({}).passthrough(),
     dmxMode: z.object({}).passthrough(),
@@ -213,122 +211,12 @@ const newFixtureSchema = z.object({
     address: z.number().int().min(1).max(512).nullish(),
 })
 
-function ValidatedSuggest<T>(props: 
-    Omit<SuggestProps<T>, "itemRenderer" | "popoverProps" | "resetOnClose" | "noResults" | "inputProps"> & 
-    { errorMessage: string, isOpen: boolean , keyRenderer: (item: T) => string, inputProps: Omit<InputGroupProps2, "intent"|"id">, id: string, label: string}
-    ) {
-    const { errorMessage, isOpen, inputProps, keyRenderer, id, label, ...other } = props;
-
-    // error Message musn't be empty, otherwise Tooltip will unmount itself and its child
-    const paddedErrorMessage = errorMessage || "-"
-
-    return <Tooltip2
-        /* must provide default content, otherwise will unmount child  */
-        content={paddedErrorMessage}
-        isOpen={isOpen}
-        enforceFocus={false}
-        autoFocus={false}
-        placement="right"
-        intent="danger">
-        <FormGroup label={label} labelFor={id}>
-            <Suggest
-                {...other}
-
-                itemRenderer={defaultSuggestItemRenderer(props.inputValueRenderer, keyRenderer)}
-                popoverProps={{ minimal: true, }}
-                resetOnClose={true}
-                noResults={<MenuItem disabled={true} text="No results." />}
-                inputProps={{
-                    intent: isOpen ? "danger" : "none",
-                    id: id,
-                    ...inputProps,
-                }}
-            />
-        </FormGroup>
-    </Tooltip2>;
-}
-
-const defaultSuggestItemRenderer = <T,>(inputValueRenderer: (item: T) => string, keyRenderer: (item: T) => string) => 
-    (item: T, { handleClick, modifiers, query }: IItemRendererProps) => {
-        if (!modifiers.matchesPredicate) {
-            return null;
-        }
-        return (
-            <MenuItem
-                active={modifiers.active}
-                disabled={modifiers.disabled}
-                onClick={handleClick}
-                text={highlightText(inputValueRenderer(item), query)}
-                key={keyRenderer(item)} />
-        );
+function generateFixtureNames(name: string, quantity: number): string[] {
+    if (quantity === 1) {
+        return [name]
+    } else {
+        return Array.from({ length: quantity }, (_, index) => `${name} ${index + 1}`)
     }
-
-function ValidatedNumericInput(props: Omit<ControllerProps, "render"> & HTMLInputProps & NumericInputProps & FormGroupProps) {
-    return <Controller name={props.name} control={props.control} defaultValue={props.defaultValue}
-        render={({ field, fieldState }) =>
-            <FormGroup label={props.label} labelFor={props.id}>
-                <Tooltip2
-                    /* need to provide some content at all times, otherwise Tooltip
-                    will unmount and once it re-renders the numeric input will reset
-                    to default value  */
-                    content={fieldState.error?.message ?? "-"}
-                    isOpen={fieldState.invalid}
-                    enforceFocus={false}
-                    autoFocus={false}
-                    placement="right"
-                    intent="danger"
-                >
-                    <NumericInput
-                        defaultValue={props.defaultValue}
-                        min={props.min} max={props.max}
-                        minorStepSize={null}
-                        intent={fieldState.invalid ? "danger" : "none"}
-                        onValueChange={field.onChange}
-                        onBlur={field.onBlur}
-                        name={field.name}
-                        selectAllOnFocus selectAllOnIncrement
-                        id={props.id}
-                        tabIndex={props.tabIndex}
-                    />
-                </Tooltip2>
-            </FormGroup>
-        }
-    />
-}
-
-function highlightText(text: string, query: string) {
-    let lastIndex = 0;
-    const words = query
-        .split(/\s+/)
-        .filter(word => word.length > 0)
-        .map(escapeRegExpChars);
-    if (words.length === 0) {
-        return [text];
-    }
-    const regexp = new RegExp(words.join("|"), "gi");
-    const tokens: React.ReactNode[] = [];
-    while (true) {
-        const match = regexp.exec(text);
-        if (!match) {
-            break;
-        }
-        const length = match[0].length;
-        const before = text.slice(lastIndex, regexp.lastIndex - length);
-        if (before.length > 0) {
-            tokens.push(before);
-        }
-        lastIndex = regexp.lastIndex;
-        tokens.push(<strong key={lastIndex}>{match[0]}</strong>);
-    }
-    const rest = text.slice(lastIndex);
-    if (rest.length > 0) {
-        tokens.push(rest);
-    }
-    return tokens;
-}
-
-function escapeRegExpChars(text: string) {
-    return text.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1");
 }
 
 const filterFixtureType: ItemPredicate<FixtureType> =
@@ -354,12 +242,4 @@ const filterDmxMode: ItemPredicate<DmxMode> =
             return normalizedItem.indexOf(normalizedQuery) >= 0;
         }
     };
-
-function generateNames(name: string, quantity: number): string[] {
-    if (quantity === 1) {
-        return [name]
-    } else {
-        return Array.from({ length: quantity }, (_, index) => `${name} ${index + 1}`)
-    }
-}
 
