@@ -1,20 +1,19 @@
-import { Alignment, Button, FormGroup, InputGroup, MenuItem, Navbar, NavbarGroup, NavbarHeading, NumericInput, Toaster, useHotkeys } from '@blueprintjs/core';
+import { Alignment, Button, FormGroup, InputGroup, MenuItem, Navbar, NavbarGroup, NavbarHeading, NumericInput, useHotkeys } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 import { ItemPredicate } from '@blueprintjs/select';
 import { Suggest } from '@blueprintjs/select/lib/esm/components/select/suggest';
-import { RouteComponentProps, useNavigate } from '@reach/router';
-import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { RouteComponentProps, useNavigate } from '@reach/router';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { ClientMessage } from 'src/ConnectionProvider/ClientMessage';
 import { connectionProvider } from 'src/ConnectionProvider/ConnectionProvider';
 import { PatchFixture } from 'src/Types/Patch';
 import { HotkeyHint, LabelWithHotkey } from 'src/Utilities/HotkeyHint';
 import { v4 as uuidv4 } from 'uuid';
+import { z } from 'zod';
 import { PatchContext } from '../ConnectionProvider/PatchDataProvider';
 import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types/FixtureTypeUtils';
-import { Tooltip2 } from '@blueprintjs/popover2';
 
 // TODO clean everything up and split into smaller components if possible
 
@@ -99,26 +98,14 @@ export default function NewFixture(props: RouteComponentProps) {
     useHotkeys(hotkeys);
     const patchData = useContext(PatchContext);
 
-    // TODO maybe we can get rid of these now that we use react-hook-form?
-    const fixtureTypeHtmlInput = useRef<HTMLInputElement>(null);
-    const dmxModeHtmlInput = useRef<HTMLInputElement>(null);
-    // const nameInput = useRef<HTMLInputElement>(null);
-    // const quantityInput = useRef<HTMLInputElement>(null);
-    // const fidInput = useRef<HTMLInputElement>(null);
-    // const universeInput = useRef<HTMLInputElement>(null);
-    // const addressInput = useRef<HTMLInputElement>(null);
-
+    const {ref: fixtureTypeRef} = register("fixtureTypeId")
+    const {ref: dmxModeRef} = register("dmxMode")
     const { ref: nameRef, ...nameRegister } = register("name")
 
+    // focus first field at the start
     useEffect(() => {
-        fixtureTypeHtmlInput.current?.focus()
-    }, []);
-
-    useEffect(() => {
-        register("fixtureTypeId");
-
-        register("dmxMode")
-    }, [register]);
+        setFocus("fixtureTypeId")
+    }, [setFocus]);
 
     return (
         <div style={{ height: "100%", }}>
@@ -169,7 +156,7 @@ export default function NewFixture(props: RouteComponentProps) {
                                     setSelectedFixtureType(item);
                                     setSelectedDmxMode(item.modes[0]);
                                     setValue("dmxMode", item.modes[0].name);
-                                    dmxModeHtmlInput.current?.focus()
+                                    setFocus("dmxMode")
                                     triggerValidation()
                                 }}
                                 popoverProps={{ minimal: true, }}
@@ -178,7 +165,7 @@ export default function NewFixture(props: RouteComponentProps) {
                                 noResults={<MenuItem disabled={true} text="No results." />}
                                 inputProps={{
                                     id: "addFixture_fixtureTypeInput",
-                                    inputRef: fixtureTypeHtmlInput,
+                                    inputRef: fixtureTypeRef,
                                     tabIndex: 1,
                                     intent: errors.fixtureTypeId ? "danger" : "none",
                                     onBlur: () => triggerValidation(),
@@ -225,7 +212,7 @@ export default function NewFixture(props: RouteComponentProps) {
                                 noResults={<MenuItem disabled={true} text="No results." />}
                                 inputProps={{
                                     id: "addFixture_modeInput",
-                                    inputRef: dmxModeHtmlInput,
+                                    inputRef: dmxModeRef,
                                     tabIndex: 2,
                                     intent: errors.dmxMode ? "danger" : "none",
                                 }}
@@ -233,8 +220,9 @@ export default function NewFixture(props: RouteComponentProps) {
                         </FormGroup>
                     </Tooltip2>
                     <FormGroup label="Name" labelFor="addFixture_nameInput">
-                        <InputGroup inputRef={nameRef}
+                        <InputGroup
                             id="addFixture_nameInput" tabIndex={3}
+                            inputRef={nameRef}
                             {...nameRegister}
                         />
                     </FormGroup>
