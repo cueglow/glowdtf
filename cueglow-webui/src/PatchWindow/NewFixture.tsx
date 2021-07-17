@@ -51,22 +51,10 @@ export default function NewFixture(props: RouteComponentProps) {
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | undefined>(undefined);
     const [selectedDmxMode, setSelectedDmxMode] = useState<DmxMode | null>(null);
 
-    // TODO get rid of this in favor of tooltips next to the issue
-    const validationToaster = useRef<Toaster>(null);
-
-    // TODO clean up now that we use react-hook-form
     const onSubmit = useCallback((data) => {
-        if (selectedFixtureType === undefined) {
-            validationToaster.current?.show({
-                intent: "danger",
-                message: "Please choose a Fixture Type"
-            })
-            return
-        }
-        const mode = (selectedDmxMode ?? selectedFixtureType.modes[0]).name
         const name = data.name
         const quantity = data.quantity
-        const fid = data.fid
+        const fid = data.fid // TODO auto-increment and error when i32 boundary exceeded
         const universe = data.universe
         const address = data.address
 
@@ -78,8 +66,8 @@ export default function NewFixture(props: RouteComponentProps) {
                 uuid: uuidv4(),
                 fid: fid,
                 name: names[i],
-                fixtureTypeId: selectedFixtureType.fixtureTypeId,
-                dmxMode: mode,
+                fixtureTypeId: selectedFixtureType!.fixtureTypeId,
+                dmxMode: data.dmxMode,
                 universe: universe,
                 address: address,
             })
@@ -87,7 +75,7 @@ export default function NewFixture(props: RouteComponentProps) {
         const msg = new ClientMessage.AddFixtures(fixtureArray)
         connectionProvider.send(msg)
         navigate("patch")
-    }, [navigate, selectedDmxMode, selectedFixtureType])
+    }, [navigate, selectedFixtureType])
 
     const hotkeys = useMemo(() => [
         {
@@ -290,9 +278,7 @@ export default function NewFixture(props: RouteComponentProps) {
                         </Button>
                     </div>
                 </form>
-                <Toaster ref={validationToaster} />
             </div>
-
         </div>
     );
 }
