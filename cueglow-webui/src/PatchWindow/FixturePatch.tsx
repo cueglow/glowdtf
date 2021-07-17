@@ -2,12 +2,12 @@
 import { Button, Toaster, useHotkeys } from "@blueprintjs/core";
 import { NavigateFn, RouteComponentProps, useNavigate } from "@reach/router";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
-import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
+import { bp } from "src/BlueprintVariables/BlueprintVariables";
+import { GlowTabulator } from "src/Components/GlowTabulator";
+import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { ClientMessage, PatchFixtureUpdate } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchFixture } from "src/Types/Patch";
-import { GlowTabulator } from "src/Components/GlowTabulator";
-import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { fixtureTypeString } from "../Types/FixtureType";
 
@@ -41,10 +41,10 @@ export function FixturePatch(props: RouteComponentProps) {
     return (
         <div style={{
             position: "absolute",
-            top: bpVariables.ptNavbarHeight,
+            top: bp.vars.ptNavbarHeight,
             bottom: "0px",
             width: "100%",
-            padding: bpVariables.ptGridSize,
+            padding: bp.vars.ptGridSize,
             display: "flex",
             flexDirection: "column",
         }}>
@@ -73,7 +73,7 @@ function TopButtons(props: {
     return <div style={{
         display: "flex",
         justifyContent: "flex-start", //flex-end for right-align
-        marginBottom: bpVariables.ptGridSize,
+        marginBottom: bp.vars.ptGridSize,
     }}>
         <Button intent="success" icon="plus"
             onClick={() => props.navigate("/patch/newFixture")}>

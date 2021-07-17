@@ -1,5 +1,5 @@
 import { Fragment } from "react"
-import { bpVariables } from "src/BlueprintVariables/BlueprintVariables"
+import { bp } from "src/BlueprintVariables/BlueprintVariables"
 import styled from 'styled-components/macro'
 
 /**
@@ -42,7 +42,7 @@ export function HotkeyHint(props: {combo?: string|string[]|string[][]}) {
 
 const HotkeyKbd = styled.kbd`
     display: inline-block;
-    font-family: ${bpVariables.ptFontFamily};
+    font-family: ${bp.vars.ptFontFamily};
     font-size: 85%;
     border: 1px solid;
     border-radius: 3px;

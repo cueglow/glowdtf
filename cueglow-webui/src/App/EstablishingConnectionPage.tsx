@@ -1,6 +1,6 @@
 import { Dialog, Spinner } from '@blueprintjs/core';
 import React from 'react';
-import { bpNumVariables } from '../BlueprintVariables/BlueprintVariables';
+import { bp } from '../BlueprintVariables/BlueprintVariables';
 
 export function EstablishingConnectionPage(props: { isOpen: boolean; }) {
   return (
@@ -11,7 +11,7 @@ export function EstablishingConnectionPage(props: { isOpen: boolean; }) {
     isCloseButtonShown={false} 
     canOutsideClickClose={false} 
     canEscapeKeyClose={false}>
-      <div style={{ marginTop: 2 * bpNumVariables.ptGridSizePx, }}>
+      <div style={{ marginTop: 2 * bp.ptGridSizePx, }}>
         <Spinner />
       </div>
     </Dialog>

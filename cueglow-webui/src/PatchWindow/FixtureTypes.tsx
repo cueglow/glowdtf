@@ -1,7 +1,7 @@
 import { Button, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
-import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
+import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { GlowTabulator } from "src/Components/GlowTabulator";
@@ -36,10 +36,10 @@ export function FixtureTypes(props: RouteComponentProps) {
     return (
         <div style={{
             position: "absolute",
-            top: bpVariables.ptNavbarHeight,
+            top: bp.vars.ptNavbarHeight,
             bottom: "0px",
             width: "100%",
-            padding: bpVariables.ptGridSize,
+            padding: bp.vars.ptGridSize,
             display: "flex",
             flexDirection: "row",
         }}>
@@ -48,13 +48,13 @@ export function FixtureTypes(props: RouteComponentProps) {
                 minWidth: 0,
                 flexBasis: 0,
                 flexGrow: 1,
-                paddingRight: bpVariables.ptGridSize,
+                paddingRight: bp.vars.ptGridSize,
                 // as flex-container
                 display: "flex",
                 flexDirection: "column",
             }}>
                 <div style={{
-                    marginBottom: bpVariables.ptGridSize,
+                    marginBottom: bp.vars.ptGridSize,
                 }}>
                     <AddGdtfButton />
                 </div>

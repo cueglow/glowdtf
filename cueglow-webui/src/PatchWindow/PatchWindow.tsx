@@ -1,7 +1,7 @@
 import { Alignment, Navbar, NavbarGroup, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
 import { useMemo } from "react";
-import { bpVariables } from "src/BlueprintVariables/BlueprintVariables";
+import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
@@ -67,7 +67,7 @@ export function PatchTabWrapper(props: RouteComponentProps) {
                         </Tab>
                         {/* horrible hack to get navbar-height to the same size as Tabs-size
                     see  https://github.com/palantir/blueprint/issues/3727 */}
-                        <div style={{ height: bpVariables.ptNavbarHeight, }}></div>
+                        <div style={{ height: bp.vars.ptNavbarHeight, }}></div>
                     </Tabs>
                 </NavbarGroup>
             </Navbar>

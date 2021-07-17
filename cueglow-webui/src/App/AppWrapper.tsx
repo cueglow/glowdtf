@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { bpVariables } from 'src/BlueprintVariables/BlueprintVariables';
+import { bp } from 'src/BlueprintVariables/BlueprintVariables';
 import { } from 'styled-components/macro';
 import { connectionProvider, ConnectionState } from '../ConnectionProvider/ConnectionProvider';
 import { App } from './App';
@@ -10,7 +10,7 @@ export function AppWrapper() {
   return (
   <div className="bp3-dark" css={`
     height: 100vh;
-    background: ${bpVariables.ptDarkAppBackgroundColor};
+    background: ${bp.vars.ptDarkAppBackgroundColor};
   `}> 
     <ContentBasedOnConnectionState />
   </div>
