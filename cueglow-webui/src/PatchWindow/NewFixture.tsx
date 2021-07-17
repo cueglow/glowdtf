@@ -6,7 +6,7 @@ import React, { useCallback, useContext, useMemo, useRef, useState } from 'react
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {z} from 'zod';
+import { z } from 'zod';
 import { ClientMessage } from 'src/ConnectionProvider/ClientMessage';
 import { connectionProvider } from 'src/ConnectionProvider/ConnectionProvider';
 import { PatchFixture } from 'src/Types/Patch';
@@ -26,7 +26,7 @@ export const i32MinValue = -2147483648
 export const i32MaxValue = 2147483647
 
 const newFixtureSchema = z.object({
-    fixtureTypeId: z.string().min(1, {message: "You must specify a Fixture Type"}),
+    fixtureTypeId: z.string().min(1),
     dmxMode: z.string(),
     name: z.string(),
     quantity: z.number().int().positive().max(maxQuantity),
@@ -36,7 +36,7 @@ const newFixtureSchema = z.object({
 })
 
 export default function NewFixture(props: RouteComponentProps) {
-    const {register, handleSubmit, setFocus, setValue, getValues, trigger, control, formState: {errors}} = useForm({
+    const { register, handleSubmit, setFocus, setValue, getValues, trigger: triggerValidation, control, formState: { errors } } = useForm({
         mode: "onTouched",
         reValidateMode: "onChange",
         resolver: zodResolver(newFixtureSchema),
@@ -47,9 +47,9 @@ export default function NewFixture(props: RouteComponentProps) {
 
     const navigate = useNavigate();
 
-     // TODO maybe we can get rid of these now that we use react-hook-form?
-    const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType|undefined>(undefined);
-    const [selectedDmxMode, setSelectedDmxMode] = useState<DmxMode|null>(null);
+    // TODO maybe we can get rid of these now that we use react-hook-form?
+    const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | undefined>(undefined);
+    const [selectedDmxMode, setSelectedDmxMode] = useState<DmxMode | null>(null);
 
     // TODO get rid of this in favor of tooltips next to the issue
     const validationToaster = useRef<Toaster>(null);
@@ -59,7 +59,7 @@ export default function NewFixture(props: RouteComponentProps) {
         if (selectedFixtureType === undefined) {
             validationToaster.current?.show({
                 intent: "danger",
-                 message: "Please choose a Fixture Type"
+                message: "Please choose a Fixture Type"
             })
             return
         }
@@ -120,7 +120,7 @@ export default function NewFixture(props: RouteComponentProps) {
     // const universeInput = useRef<HTMLInputElement>(null);
     // const addressInput = useRef<HTMLInputElement>(null);
 
-    const {ref: nameRef, ...nameRegister} = register("name")
+    const { ref: nameRef, ...nameRegister } = register("name")
 
     useEffect(() => {
         fixtureTypeHtmlInput.current?.focus()
@@ -149,43 +149,55 @@ export default function NewFixture(props: RouteComponentProps) {
                 margin: "auto",
             }}>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <FormGroup label="Fixture Type" labelFor="addFixture_fixtureTypeInput">
-                        {/* TODO show error for missing fixture type and dmxmode */}
-                        <Suggest
-                            items={patchData.fixtureTypes}
-                            itemRenderer={(fixtureType, { handleClick, modifiers, query }) => {
-                                if (!modifiers.matchesPredicate) {
-                                    return null;
-                                }
-                                return (
-                                    <MenuItem
-                                        active={modifiers.active}
-                                        disabled={modifiers.disabled}
-                                        onClick={handleClick}
-                                        text={highlightText(fixtureTypeString(fixtureType), query)}
-                                        key={fixtureType.fixtureTypeId.toString()}
-                                    />
-                                );
-                            }}
-                            inputValueRenderer={fixtureTypeString}
-                            onItemSelect={(item) => { 
-                                setValue("fixtureTypeId", item.fixtureTypeId)
-                                setSelectedFixtureType(item);
-                                setSelectedDmxMode(item.modes[0]);
-                                setValue("dmxMode", item.modes[0].name);
-                                dmxModeHtmlInput.current?.focus() 
-                            }}
-                            popoverProps={{ minimal: true, }}
-                            itemPredicate={filterFixtureType}
-                            resetOnClose={true}
-                            noResults={<MenuItem disabled={true} text="No results." />}
-                            inputProps={{
-                                id: "addFixture_fixtureTypeInput", 
-                                inputRef: fixtureTypeHtmlInput,
-                                tabIndex: 1
-                            }}
-                        />
-                    </FormGroup>
+                    <Tooltip2                    
+                    /* must provide default content, otherwise will unmount child  */
+                    content={errors.fixtureTypeId?.message ?? "-"}
+                    isOpen={errors.fixtureTypeId ? true : false}
+                    enforceFocus={false}
+                    autoFocus={false}
+                    placement="right"
+                    intent="danger"
+                    >
+                        <FormGroup label="Fixture Type" labelFor="addFixture_fixtureTypeInput">
+                            <Suggest
+                                items={patchData.fixtureTypes}
+                                itemRenderer={(fixtureType, { handleClick, modifiers, query }) => {
+                                    if (!modifiers.matchesPredicate) {
+                                        return null;
+                                    }
+                                    return (
+                                        <MenuItem
+                                            active={modifiers.active}
+                                            disabled={modifiers.disabled}
+                                            onClick={handleClick}
+                                            text={highlightText(fixtureTypeString(fixtureType), query)}
+                                            key={fixtureType.fixtureTypeId.toString()}
+                                        />
+                                    );
+                                }}
+                                inputValueRenderer={fixtureTypeString}
+                                onItemSelect={(item) => {
+                                    setValue("fixtureTypeId", item.fixtureTypeId)
+                                    setSelectedFixtureType(item);
+                                    setSelectedDmxMode(item.modes[0]);
+                                    setValue("dmxMode", item.modes[0].name);
+                                    dmxModeHtmlInput.current?.focus()
+                                    triggerValidation()
+                                }}
+                                popoverProps={{ minimal: true, }}
+                                itemPredicate={filterFixtureType}
+                                resetOnClose={true}
+                                noResults={<MenuItem disabled={true} text="No results." />}
+                                inputProps={{
+                                    id: "addFixture_fixtureTypeInput",
+                                    inputRef: fixtureTypeHtmlInput,
+                                    tabIndex: 1,
+                                    intent: errors.fixtureTypeId ? "danger" : "none",
+                                    onBlur: () => triggerValidation(),
+                                }}
+                            />
+                        </FormGroup>
+                    </Tooltip2>
                     <FormGroup label="DMX Mode" labelFor="addFixture_modeInput">
                         <Suggest
                             items={selectedFixtureType?.modes ?? []}
@@ -205,32 +217,32 @@ export default function NewFixture(props: RouteComponentProps) {
                             }}
                             inputValueRenderer={DmxModeString}
                             selectedItem={selectedDmxMode}
-                            onItemSelect={(item) => { 
+                            onItemSelect={(item) => {
                                 setValue("dmxMode", item.name)
                                 setSelectedDmxMode(item);
-                                setFocus("name"); 
+                                setFocus("name");
                             }}
                             popoverProps={{ minimal: true, }}
                             itemPredicate={filterDmxMode}
                             resetOnClose={true}
                             noResults={<MenuItem disabled={true} text="No results." />}
                             inputProps={{
-                                id: "addFixture_modeInput", 
-                                inputRef: dmxModeHtmlInput, 
-                                tabIndex: 2
+                                id: "addFixture_modeInput",
+                                inputRef: dmxModeHtmlInput,
+                                tabIndex: 2,
+                                intent: errors.dmxMode ? "danger" : "none",
                             }}
                         />
                     </FormGroup>
-                    {/* TODO enter on numeric fields should advance to the next field */}
                     <FormGroup label="Name" labelFor="addFixture_nameInput">
-                        <InputGroup  inputRef={nameRef} 
-                        id="addFixture_nameInput" tabIndex={3}
-                        {...nameRegister}
+                        <InputGroup inputRef={nameRef}
+                            id="addFixture_nameInput" tabIndex={3}
+                            {...nameRegister}
                         />
                     </FormGroup>
-                    <ValidatedNumericInput 
+                    <ValidatedNumericInput
                         label="Quantity"
-                        name="quantity" 
+                        name="quantity"
                         defaultValue={1}
                         min={1}
                         max={maxQuantity}
@@ -238,7 +250,7 @@ export default function NewFixture(props: RouteComponentProps) {
                         id="addFixture_quantityInput"
                         control={control}
                     />
-                    <ValidatedNumericInput 
+                    <ValidatedNumericInput
                         label="FID"
                         name="fid"
                         defaultValue={1}
@@ -248,7 +260,7 @@ export default function NewFixture(props: RouteComponentProps) {
                         id="addFixture_fidInput"
                         control={control}
                     />
-                    <ValidatedNumericInput 
+                    <ValidatedNumericInput
                         label="Universe"
                         name="universe"
                         min={0}
@@ -257,7 +269,7 @@ export default function NewFixture(props: RouteComponentProps) {
                         id="addFixture_universeInput"
                         control={control}
                     />
-                    <ValidatedNumericInput 
+                    <ValidatedNumericInput
                         label="Address"
                         name="address"
                         min={1}
@@ -265,16 +277,16 @@ export default function NewFixture(props: RouteComponentProps) {
                         tabIndex={7}
                         id="addFixture_addressInput"
                         control={control}
-                    />                       
+                    />
                     <div style={{
                         display: "flex",
                         justifyContent: "flex-end",
                         paddingTop: "1em",
                     }}>
                         {/* Prevent implicit submission of form by hitting Enter */}
-                        <Button type="submit" disabled style={{display: "none"}}/>
+                        <Button type="submit" disabled style={{ display: "none" }} />
                         <Button intent="success" type="submit" tabIndex={8}>
-                            <LabelWithHotkey label="Add Fixtures" combo={["Ctrl", "Enter"]}/>
+                            <LabelWithHotkey label="Add Fixtures" combo={["Ctrl", "Enter"]} />
                         </Button>
                     </div>
                 </form>
@@ -287,36 +299,34 @@ export default function NewFixture(props: RouteComponentProps) {
 
 function ValidatedNumericInput(props: any) {
     return <Controller name={props.name} control={props.control} defaultValue={props.defaultValue}
-    render={ ({field, fieldState}) => 
-        <FormGroup label={props.label} labelFor={props.id}>
-            <Tooltip2 
-                /* need to provide some content at all times, otherwise Tooltip
-                will unmount and once it re-renders the numeric input will reset
-                to default value  */
-                content={fieldState.error?.message ?? "-"}
-                isOpen={fieldState.invalid} 
-                enforceFocus={false} 
-                autoFocus={false}
-                placement="right"
-                intent="danger"
-                lazy={false}
-                usePortal={false}
-            >
-                <NumericInput
-                    defaultValue={props.defaultValue}
-                    min={props.min} max={props.max} 
-                    minorStepSize={null} 
-                    intent={fieldState.invalid ? "danger" : "none"}
-                    onValueChange={field.onChange}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    selectAllOnFocus selectAllOnIncrement 
-                    id={props.id}
-                    tabIndex={props.tabIndex}
-                />
-            </Tooltip2>
-        </FormGroup>
-    }/>
+        render={({ field, fieldState }) =>
+            <FormGroup label={props.label} labelFor={props.id}>
+                <Tooltip2
+                    /* need to provide some content at all times, otherwise Tooltip
+                    will unmount and once it re-renders the numeric input will reset
+                    to default value  */
+                    content={fieldState.error?.message ?? "-"}
+                    isOpen={fieldState.invalid}
+                    enforceFocus={false}
+                    autoFocus={false}
+                    placement="right"
+                    intent="danger"
+                >
+                    <NumericInput
+                        defaultValue={props.defaultValue}
+                        min={props.min} max={props.max}
+                        minorStepSize={null}
+                        intent={fieldState.invalid ? "danger" : "none"}
+                        onValueChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        selectAllOnFocus selectAllOnIncrement
+                        id={props.id}
+                        tabIndex={props.tabIndex}
+                    />
+                </Tooltip2>
+            </FormGroup>
+        } />
 }
 
 function highlightText(text: string, query: string) {
@@ -382,6 +392,6 @@ function generateNames(name: string, quantity: number): string[] {
     if (quantity === 1) {
         return [name]
     } else {
-        return Array.from({length: quantity}, (_, index) => `${name} ${index+1}`)
+        return Array.from({ length: quantity }, (_, index) => `${name} ${index + 1}`)
     }
 }
