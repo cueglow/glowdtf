@@ -1,3 +1,5 @@
+import { getInputByLabel } from "../support/utilities"
+
 describe("Patch Fixture Lifecycle", () => {
     beforeEach(() => {
         cy.clearFixtureTypes()
@@ -32,8 +34,7 @@ describe("Patch Fixture Lifecycle", () => {
         cy.contains("Name")
             .click()
             .type(testFixtureName)
-        cy.contains("Quantity")
-            .click()
+        getInputByLabel("Quantity")
             .type("2")
 
         cy.contains("Add Fixtures").click()
