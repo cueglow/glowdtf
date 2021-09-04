@@ -17,64 +17,38 @@ The following sections will help you to build CueGlow and to contribute code.
 
 ## How to Build
 
-### Linux/macOS
-
 Make sure you have the following dependencies installed: 
 
-- git
-- [JDK 16 with
-  Hotspot](https://adoptopenjdk.net/installation.html?variant=openjdk16&jvmVariant=hotspot)
-- [Node.js 14 LTS](https://nodejs.org/) (recommended to install via
-  [NodeSource](https://github.com/nodesource/distributions) or
-  [nvm](https://github.com/nvm-sh/nvm))
+- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [JDK 16 with Hotspot](https://adoptium.net/installation.html?variant=openjdk16&jvmVariant=hotspot)
+- [Node.js 14 LTS](https://nodejs.org/) (we recommend a version manager like [nvm](https://github.com/nvm-sh/nvm) for Linux/macOS or [nvm-windows](https://github.com/coreybutler/nvm-windows) for Windows)
 
 First clone the CueGlow repository by running
 ```
 git clone https://github.com/cueglow/cueglow.git
 ```
-Go into the server folder with 
-```
-cd cueglow/cueglow-server
-```
-Build and run CueGlow with
-```
-./gradlew run
-```
-then, go to [localhost:7000](http://localhost:7000) in the browser to see the
-UI. 
 
-If you run into any problems, have a look at our [known issues](#known-issues). 
+On **Windows**, build and run the server with
 
-
-### Windows
-
-Make sure you have the following dependencies installed: 
-
-- [git](https://gitforwindows.org/)
-- [JDK 16 with
-  Hotspot](https://adoptopenjdk.net/installation.html?variant=openjdk16&jvmVariant=hotspot)
-- [Node.js 14 LTS](https://nodejs.org/)
-
-First clone the CueGlow repository by running
-```
-git clone https://github.com/cueglow/cueglow.git
-```
-Go into the server folder with 
 ```
 cd cueglow\cueglow-server
-```
-Build and run CueGlow with
-```
 gradlew run
 ```
-then, go to [localhost:7000](http://localhost:7000) in the browser to see the
-UI. 
-
-If you run into any problems, have a look at our [known issues](#known-issues). 
 
 For the rest of this file, all commands will be given for Linux/macOS. If you
 are on Windows, adapt accordingly: Run `gradlew` instead of `./gradlew`, replace
 forward with backward slashes, etc. 
+
+On **Linux/macOS**, build and run the server with
+
+```
+cd cueglow/cueglow-server
+./gradlew run
+```
+
+Then, open [localhost:7000](http://localhost:7000) in the browser to see the
+UI. If you run into any problems, have a look at our [known issues](#known-issues). 
+
 
 ## Repository Structure
 
