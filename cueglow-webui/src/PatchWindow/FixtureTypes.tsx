@@ -1,37 +1,16 @@
-import { Button, useHotkeys } from "@blueprintjs/core";
+import { Button, Classes, Dialog, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
-import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
-import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { GlowTabulator } from "src/Components/GlowTabulator";
 import { LabelWithHotkey } from "src/Components/HotkeyHint";
+import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
+import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
-import { DmxModeString, FixtureType } from "../Types/FixtureType";
+import { DmxModeString, FixtureType, fixtureTypeString } from "../Types/FixtureType";
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType|undefined>(undefined);
-    
-    const removeFixtureType = useCallback(() => {
-        if (selectedFixtureType !== undefined) {
-            const msg = new ClientMessage.RemoveFixtureTypes([selectedFixtureType.fixtureTypeId])
-            connectionProvider.send(msg)
-            // TODO once we have undo/redo
-            // if patched fixtures were removed in this operation, show toast
-            // with how many fixtures were removed and with undo button
-        }
-    }, [selectedFixtureType])
-
-    const hotkeys = useMemo(() => [
-        {
-            combo: "del",
-            global: true,
-            label: "Remove the selected fixtures",
-            onKeyDown: () => removeFixtureType(),
-            disabled: selectedFixtureType === undefined,
-        },
-    ], [removeFixtureType, selectedFixtureType]);
-    useHotkeys(hotkeys);
 
     return (
         <div style={{
@@ -71,11 +50,7 @@ export function FixtureTypes(props: RouteComponentProps) {
                 <div style={{ display: "flex", }}>
                     <h4>Details</h4>
                     <div style={{ flexGrow: 1, }} />
-                    <Button minimal={true} icon="trash"
-                        disabled={selectedFixtureType === undefined} onClick={removeFixtureType}
-                        data-cy="remove_selected_fixture_type_button" >
-                        <LabelWithHotkey label="Remove" combo="Del" />
-                    </Button>
+                    <RemoveGdtfButton selectedFixtureType={selectedFixtureType} />
                 </div>
                 <FixtureTypeDetails fixtureType={selectedFixtureType}/>
             </div>
@@ -132,6 +107,9 @@ function AddGdtfButton() {
         formData.append("file", file);
         fetch('/api/fixturetype', { method: "POST", body: formData });
         // TODO handle response, especially error responses
+        // TODO when uploading GDTF file, deleting it and trying to re-upload it, \
+        // the onChange callback isn't triggered and the file isn't uploaded again
+        // possible solution: set value of fileInput to empty string here and at beginning of uploadFile check for empty string
     }
 
     return (
@@ -141,6 +119,115 @@ function AddGdtfButton() {
                 onChange={uploadFile} data-cy="gdtf_hidden_input" hidden />
         </Button>
     )
+}
+
+
+function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined}) {
+    const selectedFixtureType = props.selectedFixtureType
+
+    const patchData = useContext(PatchContext);
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [numberOfFixturesThatWillBeDeleted, setNumberOfFixturesThatWillBeDeleted] = useState<number|undefined>(undefined);
+
+    const removeFixtureType = useCallback(() => {
+        if (selectedFixtureType !== undefined) {
+            setNumberOfFixturesThatWillBeDeleted(
+                patchData.fixtures.filter((fixture) => 
+                    fixture.fixtureTypeId === selectedFixtureType.fixtureTypeId
+                ).length
+            )
+            setIsDialogOpen(true);
+            // TODO once we have undo/redo
+            // don't show Alert, instead, 
+            // if patched fixtures were removed in this operation, show toast
+            // with how many fixtures were removed and with undo button
+        }
+    }, [patchData.fixtures, selectedFixtureType])
+    
+    const hotkeys = useMemo(() => [
+        {
+            combo: "del",
+            global: true,
+            label: "Remove the selected fixtures",
+            onKeyDown: () => removeFixtureType(),
+            disabled: selectedFixtureType === undefined,
+        },
+    ], [removeFixtureType, selectedFixtureType]);
+    useHotkeys(hotkeys);
+
+    const handleDialogClose = useCallback(() => {
+        setIsDialogOpen(false);
+        setNumberOfFixturesThatWillBeDeleted(undefined);
+    }, []);
+
+    const handleConfirmedRemove = useCallback(() => {
+        if (selectedFixtureType !== undefined) {
+            const msg = new ClientMessage.RemoveFixtureTypes([selectedFixtureType.fixtureTypeId])
+            connectionProvider.send(msg)
+        }
+        setIsDialogOpen(false);
+        setNumberOfFixturesThatWillBeDeleted(undefined);
+    }, [selectedFixtureType])
+
+    return (
+        <>
+            <Button minimal={true} icon="trash"
+                disabled={selectedFixtureType === undefined} 
+                onClick={removeFixtureType}
+                data-cy="remove_selected_fixture_type_button">
+                <LabelWithHotkey label="Remove" combo="Del" />
+            </Button>
+            <Dialog
+                title={`Removing ${fixtureTypeString(selectedFixtureType)}`}
+                isOpen={isDialogOpen && selectedFixtureType !== undefined}
+                canEscapeKeyClose={true} // TODO escape exits, but also navigates out of Patch 
+                // -> navigating out of Patch should be disabled while this alert is open -> how to do this elegantly?
+                // also allows interacting with other global hotkeys (like a to add GDTF, i to navigate into fixtures, ...)
+                // these interactions should also be blocked...
+                canOutsideClickClose={true}
+                onClose={handleDialogClose}
+                className="bp3-dark" 
+            >
+                <div className={Classes.DIALOG_BODY}>
+                    <RemoveDialogMessage numberOfFixturesThatWillBeDeleted={numberOfFixturesThatWillBeDeleted}/>
+                </div>
+                <div className={Classes.DIALOG_FOOTER}>
+                    <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                        <Button
+                            text="Cancel"
+                            onClick={handleDialogClose}
+                            autoFocus
+                        />
+                        <Button 
+                            text="Remove"
+                            intent="danger" 
+                            onClick={handleConfirmedRemove}
+                            data-cy="confirm_fixture_type_remove_button"
+                        />
+                    </div>
+                </div>
+            </Dialog>
+        </>
+    );
+}
+
+function RemoveDialogMessage(props: {numberOfFixturesThatWillBeDeleted: number|undefined}) {
+    const fixtureNumber = props.numberOfFixturesThatWillBeDeleted
+
+    if (fixtureNumber === undefined || fixtureNumber < 0) {
+        console.error("Trying to assemble a remove warning message but the number of " + 
+        "fixtures that will be deleted is", fixtureNumber)
+        return <p></p>
+    }
+
+    if (fixtureNumber === 0) {
+        return <p>This will remove 0 Fixtures.</p>
+    } else if (fixtureNumber === 1) {
+        return <p>This will also remove 1 Fixture and all of its associated data.</p>
+    } else {
+        return <p>This will also remove {fixtureNumber} Fixtures and all of their associated data.</p>
+    }
 }
 
 function FixtureTypeDetails(props: {fixtureType?: FixtureType}) {

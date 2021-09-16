@@ -98,8 +98,13 @@ describe("Patch Fixture Lifecycle", () => {
 
         // Remove GDTF
         cy.visit("/patch/fixtureTypes")
+        // using `contains` twice with 0 ms wait to circumvent bug with detached element on click
+        // see https://github.com/cypress-io/cypress/issues/7306#issuecomment-805883843
+        cy.contains(fixtureTypeName).should("be.visible")
+        cy.wait(0)
         cy.contains(fixtureTypeName).click()
         cy.dataCy("remove_selected_fixture_type_button").click()
+        cy.dataCy("confirm_fixture_type_remove_button").click()
 
         // check GDTF is gone
         cy.contains(fixtureTypeName).should("not.exist")

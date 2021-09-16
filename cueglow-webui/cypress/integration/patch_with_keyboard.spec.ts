@@ -59,6 +59,7 @@ describe("Patch with Keyboard", () => {
         cy.get("body").type("p")
         cy.contains("Generic").click()
         cy.get("body").type("{del}")
+        cy.focused().tab().type("{enter}") // confirm remove
         cy.contains("Generic").should("not.exist")
 
         // Go to Main Screen again
