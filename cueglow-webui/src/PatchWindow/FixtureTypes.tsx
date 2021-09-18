@@ -97,19 +97,23 @@ function AddGdtfButton() {
     const fileInput = useRef<HTMLInputElement>(null);
 
     function selectFile() {
+        // Reset File Input
+        if (fileInput.current !== null) {
+            fileInput.current.value = ""
+        }
         fileInput.current?.click()
     }
 
     function uploadFile() {
+        // if empty do nothing
+        if (fileInput.current?.value === "") {return}
+
         const file = fileInput.current?.files?.[0]
         if (file == null) { return }
         const formData = new FormData();
         formData.append("file", file);
         fetch('/api/fixturetype', { method: "POST", body: formData });
         // TODO handle response, especially error responses
-        // TODO when uploading GDTF file, deleting it and trying to re-upload it, \
-        // the onChange callback isn't triggered and the file isn't uploaded again
-        // possible solution: set value of fileInput to empty string here and at beginning of uploadFile check for empty string
     }
 
     return (
