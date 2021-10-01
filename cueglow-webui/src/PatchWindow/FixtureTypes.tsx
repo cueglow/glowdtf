@@ -185,10 +185,7 @@ function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined})
             <Dialog
                 title={`Removing ${fixtureTypeString(selectedFixtureType)}`}
                 isOpen={isDialogOpen && selectedFixtureType !== undefined}
-                canEscapeKeyClose={true} // TODO escape exits, but also navigates out of Patch 
-                // -> navigating out of Patch should be disabled while this alert is open -> how to do this elegantly?
-                // also allows interacting with other global hotkeys (like a to add GDTF, i to navigate into fixtures, ...)
-                // these interactions should also be blocked...
+                canEscapeKeyClose={true}
                 canOutsideClickClose={true}
                 onClose={handleDialogClose}
                 className="bp3-dark" 
