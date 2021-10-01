@@ -153,7 +153,7 @@ function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined})
         {
             combo: "del",
             global: true,
-            label: "Remove the selected fixtures",
+            label: "Remove the selected fixture type",
             onKeyDown: () => removeFixtureType(),
             disabled: selectedFixtureType === undefined,
         },
