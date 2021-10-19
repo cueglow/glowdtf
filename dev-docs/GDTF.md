@@ -13,7 +13,7 @@ Each DmxMode in a GDTF has:
   the DMXMode node. 
 - zero or more subfixtures. These are created for each Geometry Reference. 
 
-Each referenced Geometry in a DMXMode is validated to be part of the main
+Each referenced Geometry in a DMXMode must be validated to be part of the main
 geometry of the DMXMode. 
 
 Each DmxMode contains DmxChannels and each of those contains LogicalChannels.
@@ -21,8 +21,8 @@ Each LogicalChannel contains at least one FullDmxRange. More are created if the
 DmxStart values of multiple ChannelFunctions overlap. Each ChannelFunction
 belongs to exactly one FullDmxRange. 
 
-ChannelFunctions are shown to the user the entry point for controlling fixture
-attributes. 
+ChannelFunctions are shown to the user as the entry point for controlling
+fixture attributes. 
 
 CueGlow adds one ChannelFunction to each DMXChannel that is just a direct
 control of the DMX values. It has no Mode Master and covers the whole DmxRange,
@@ -38,8 +38,11 @@ ChannelFunctions that do not contribute to the DMX output are said to be **froze
 
 The value of frozen ChannelFunctions is cached in the programmer in the case a
 user freezes a ChannelFunction and then unfreezes it again, in which case it
-should still have its old value. When the programmer is cleared, frozen
-ChannelFunction values are reset to the default value of the ChannelFunction. 
+should still have its old value. When the programmer is cleared or otherwise
+emptied, frozen ChannelFunction values are reset to the default value of the
+ChannelFunction. Frozen values are never saved to cues and cues do not respect
+frozen values currently in the programmer, relying on default values instead to
+create reproducible behavior. 
 
 There are two mechanisms that cause a ChannelFunction to be frozen:
 - Exclusion
@@ -60,11 +63,11 @@ is hot when it is included and enabled.
 
 ### State Transitions
 
-A state transition is when the old, full state of all fixtures is updated with
-new, sparse values. The new value of each DmxChannel, and therefore its
+A state transition occurs when the old, full state of all fixtures is updated
+with new, sparse values. The new value of each DmxChannel, and therefore its
 ChannelFunctions, is given by a simple hierarchy:
 
-1. new values (must be respected)
+1. new values (must be respected, including defaults for frozen values)
 2. previous hot values
 3. previous frozen values
 
