@@ -50,7 +50,7 @@ a fixture is unpatched and does not produce any DMX output.
 
 A fixture type is an object with the following fields:
 
-- `fixtureTypeI`: UUIDv4 encoded as String, uniquely identifies the fixture type
+- `fixtureTypeId`: UUIDv4 encoded as String, uniquely identifies the fixture type
 - `manufacturer`: String
 - `name`: String
 - `modes`: Array of DMX Modes
@@ -186,7 +186,9 @@ the patch data. For example if a third fixture is added, the server would send:
 }
 ```
 
-`addFixtures` must contain all fields of the fixture as shown here. 
+`addFixtures` must contain all fields of the fixture as shown here. The
+exception are `universe` and `address` which are null or undefined/missing when
+they are not set. 
 
 If the fixture collection of the client already contains a fixture with the same
 `uuid` or the `fixtureTypeId` is unknown, the client should re-subscribe to the
@@ -218,6 +220,9 @@ change to this field.
 Generally, the JSON format treats fields being null or absent/undefined exactly
 the same. This is because the server-side JVM cannot easily differentiate
 between undefined and null. 
+
+When universe and address don't change their value they should be null or undefined.
+If they change to being null/unpatched, their value must be `-1`. 
 
 If the `uuid` of the updated fixture(s) is not present client-side, the client
 should re-subscribe. 

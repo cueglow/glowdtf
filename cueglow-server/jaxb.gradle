@@ -7,10 +7,10 @@ sourceSets {
 }
 
 dependencies {
-    compile sourceSets.generated.output
+    implementation sourceSets.generated.output
 
-    compile 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
-    generatedCompile "org.glassfish.jaxb:jaxb-runtime:2.3.3"
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
+    generatedImplementation "org.glassfish.jaxb:jaxb-runtime:2.3.3"
 }
 
 // JAXB configuration holds classpath for running the JAXB XJC compiler

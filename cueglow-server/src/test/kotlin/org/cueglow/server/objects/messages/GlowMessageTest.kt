@@ -125,4 +125,29 @@ class GlowMessageTest {
         val serialized = glowMessage.toJsonString()
         serialized.matchWithSnapshot()
     }
+
+    @Test
+    fun fixturesWithAddressOrUniverseNegative1AreParsedAsNull() {
+        val exampleJSON = """
+            {
+                "event":"addFixtures",
+                "data":[
+                    {
+                        "uuid":"6ceded52-80ee-48c6-b137-ef2d7ed5f03a",
+                        "fid":1,
+                        "name":"",
+                        "fixtureTypeId":"622534cb-a0a0-4f6b-a5d0-3cb0aa16fc7a",
+                        "dmxMode":"mode1",
+                        "universe":-1,
+                        "address":-1
+                    }
+                ]
+            }
+        """.trimIndent()
+
+        val msg = GlowMessage.fromJsonString(exampleJSON) as GlowMessage.AddFixtures
+
+        assertEquals(null, msg.data[0].address)
+        assertEquals(null, msg.data[0].universe)
+    }
 }

@@ -84,8 +84,11 @@ object ArtNetAddressConverter: Converter {
 
     override fun toJson(value: Any): String = (value as ArtNetAddress).value.toString()
 
-    override fun fromJson(jv: JsonValue): ArtNetAddress
-            = ArtNetAddress.tryFrom(jv.int ?: throw Error("No Int provided for ArtNetAddress")).unwrap()
+    override fun fromJson(jv: JsonValue): ArtNetAddress? {
+        val value = jv.int ?: throw Error("No Int provided for ArtNetAddress")
+        if (value == -1) {return null}
+        return ArtNetAddress.tryFrom(value).unwrap()
+    }
 }
 
 object DmxAddressConverter: Converter {
@@ -94,8 +97,11 @@ object DmxAddressConverter: Converter {
 
     override fun toJson(value: Any): String = (value as DmxAddress).value.toString()
 
-    override fun fromJson(jv: JsonValue): DmxAddress
-            = DmxAddress.tryFrom(jv.int ?: throw Error("No Int provided for DmxAddress")).unwrap()
+    override fun fromJson(jv: JsonValue): DmxAddress? {
+        val value = jv.int ?: throw Error("No Int provided for DmxAddress")
+        if (value == -1) {return null}
+        return DmxAddress.tryFrom(value).unwrap()
+    }
 }
 
 /** Annotation that is associated with [ArtNetAddressResultConverter] in the parsing/deserialization methods */

@@ -18,3 +18,11 @@ processResources {
     }
     dependsOn npm_run_build
 }
+
+//
+task runNoNpm {
+    doFirst {
+        npm_run_build.enabled = false
+    }
+    finalizedBy run
+}
