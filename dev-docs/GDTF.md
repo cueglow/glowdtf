@@ -24,7 +24,7 @@ belongs to exactly one FullDmxRange.
 ChannelFunctions are shown to the user as the entry point for controlling
 fixture attributes. 
 
-CueGlow adds one ChannelFunction to each DMXChannel that is just a direct
+CueGlow adds one RawDmx ChannelFunction to each DMXChannel that is just a direct
 control of the DMX values. It has no Mode Master and covers the whole DmxRange,
 so it is always hot (see below). 
 
@@ -79,14 +79,11 @@ to the dependent ChannelFunction. The edges are weighted with the enabling
 DmxRange of the dependency. These ranges must be clipped by CueGlow to the
 DmxRange of the dependency. 
 
-A ChannelFunction is enabled when at least one of its dependencies is enabled
+A ChannelFunction is enabled when its dependency is enabled
 and in the weight range. 
 
 ModeMaster dependencies where the dependency is a DmxChannel instead of a
-ChannelFunction are translated to ChannelFunction dependencies by making all
-ChannelFunctions in the relevant DmxRange dependencies. The "Dmx Channel
-Function" that is internally added by CueGlow will always be a dependency in
-this case. 
+ChannelFunction are attached to the RawDmx Channel Function we add ourselves. 
 
 Cycles in the ModeMaster Graph must result in an error for the GDTF file.
 Unreachable ChannelFunctions, where all Mode Master dependency weights have a
