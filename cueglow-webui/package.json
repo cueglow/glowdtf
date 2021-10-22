@@ -77,9 +77,6 @@
     "mock-socket": "^9.0.3"
   },
   "jest": {
-    "moduleNameMapper": {
-      "sass-extract-loader?.*": "<rootDir>/__mocks__/sass-extract-loader.js"
-    },
     "transformIgnorePatterns": [
       "node_modules/(?!@blueprintjs)/"
     ]
