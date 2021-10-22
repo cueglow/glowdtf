@@ -8,6 +8,9 @@ import org.cueglow.server.objects.InvalidGdtfException
 /**
  * Represents a GDTF DMX Mode
  *
+ * @property multiByteChannels A list of MultiByteChannel's, which correspond to the DmxChannel's in GDTF but with
+ *     abstract channels instantiated.
+ *
  * @property channelLayout A list of DMX breaks, each of which is a list of channel name strings. If the channel name is
  *     null, it means this specific DMX offset is empty.
  *     Example for a channel name: "LED1 -> GenericLED_Dimmer (1/2)"
@@ -17,40 +20,49 @@ import org.cueglow.server.objects.InvalidGdtfException
  *     If the channel is only 8-bit, the " (1/1)" at the end is omitted. If the channel does not come from a
  *     referenced Geometry, the "LED1 -> " is omitted.
  */
-data class GlowDmxMode(val name: String, val channelCount: Int, val channelLayout: List<List<String?>>)
+data class GlowDmxMode(
+    val name: String,
+    val channelCount: Int,
+    val multiByteChannels: List<MultiByteChannel>,
+    val channelLayout: List<List<String?>>,
+)
 
 //--------------------
 // Create from GDTF
 //--------------------
 
 fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): GlowDmxMode {
-    // allocate channelLayout
+    // allocate
     val channelLayout: MutableList<MutableList<String?>> = mutableListOf(mutableListOf())
-    // iterate over channels while filling channelLayout
-    mode.dmxChannels.dmxChannel.forEach { channel ->
-        try {
-            channelLayout.addChannel(channel, abstractGeometries)
-        } catch (exception: InvalidGdtfException) {
-            throw InvalidGdtfException("Error in DMX Mode '${mode.name}'", exception)
+    val multiByteChannels: MutableList<MultiByteChannel> = mutableListOf()
+    try {
+        // populate multiByteChannels
+        mode.dmxChannels.dmxChannel.forEach { channel ->
+            val instantiatedChannels = instantiateChannel(channel, abstractGeometries)
+            multiByteChannels.addAll(instantiatedChannels)
         }
+        // iterate over multiByteChannels while filling channelLayout
+        multiByteChannels.forEach { multiByteChannel ->
+            channelLayout.putMultiByteChannelNames(multiByteChannel)
+        }
+    } catch (exception: InvalidGdtfException) {
+        throw InvalidGdtfException("Error in DMX Mode '${mode.name}'", exception)
     }
     val channelCount: Int = channelLayout.sumBy { it.size }
-    return GlowDmxMode(mode.name, channelCount, channelLayout)
+    return GlowDmxMode(mode.name, channelCount, multiByteChannels, channelLayout)
 }
 
-private fun MutableList<MutableList<String?>>.addChannel(channel: DMXChannel, abstractGeometries: List<AbstractGeometry>) {
+fun instantiateChannel(channel: DMXChannel, abstractGeometries: List<AbstractGeometry>): List<MultiByteChannel> {
     // check if geometry referenced by channel is abstract
     val abstractGeometry = abstractGeometries.find { it.name == channel.geometry }
-    if (abstractGeometry != null) {
+    return if (abstractGeometry != null) {
         // channel is abstract, so it is instantiated by each GeometryReference to AbstractGeometry
-        abstractGeometry.referencedBy.forEach { geometryReference ->
-            val multiByteChannel = MultiByteChannel.fromAbstractChannel(channel, geometryReference)
-            this.putMultiByteChannelNames(multiByteChannel)
+        abstractGeometry.referencedBy.map { geometryReference ->
+            MultiByteChannel.fromAbstractChannel(channel, geometryReference)
         }
     } else {
         // channel is concrete (i.e. not abstract)
-        val multiByteChannel = MultiByteChannel.fromConcreteChannel(channel)
-        this.putMultiByteChannelNames(multiByteChannel)
+        listOf(MultiByteChannel.fromConcreteChannel(channel))
     }
 }
 
@@ -68,7 +80,7 @@ data class MultiByteChannel(val nameWithoutByteNumber: String, val dmxBreak: Int
             val (dmxBreak, offsets) = try {
                 val (dmxBreak, referenceOffset) = getAbstractBreakAndReferenceOffset(channel, geometryReference)
                 val channelOffsets = channel.getOffsetList()
-                val offsets = channelOffsets.map{it + referenceOffset - 1}
+                val offsets = channelOffsets.map { it + referenceOffset - 1 }
                 Pair(dmxBreak, offsets)
             } catch (exception: InvalidGdtfException) {
                 throw InvalidGdtfException("Error in channel '$nameWithoutByteNumber'", exception)
@@ -85,20 +97,24 @@ data class MultiByteChannel(val nameWithoutByteNumber: String, val dmxBreak: Int
 
         private fun DMXChannel.getOffsetList(): List<Int> = this.offset.split(",").map { it.toInt() }
 
-        private fun getAbstractBreakAndReferenceOffset(channel: DMXChannel, geometryReference: GeometryReference): Pair<Int, Int> {
-            if (channel.dmxBreak == "Overwrite") {
+        private fun getAbstractBreakAndReferenceOffset(
+            channel: DMXChannel,
+            geometryReference: GeometryReference
+        ): Pair<Int, Int> {
+            return if (channel.dmxBreak == "Overwrite") {
                 // use last Break element in geometry reference as override element
                 val lastBreakMap = geometryReference.`break`.last()
                 val dmxBreak = lastBreakMap.dmxBreak.toInt()
                 val refOffset = lastBreakMap.dmxOffset
-                return Pair(dmxBreak, refOffset)
+                Pair(dmxBreak, refOffset)
             } else {
                 // use first Break element in geometry reference that matches break of channel
                 val dmxBreak = channel.dmxBreak.toInt()
                 val refOffset = geometryReference.`break`.find { it.dmxBreak.toInt() == dmxBreak }?.dmxOffset
                     ?: throw InvalidGdtfException(
-                        "The Geometry Reference '${geometryReference.name}' does not provide an offset for the break $dmxBreak")
-                return Pair(dmxBreak, refOffset)
+                        "The Geometry Reference '${geometryReference.name}' does not provide an offset for the break $dmxBreak"
+                    )
+                Pair(dmxBreak, refOffset)
             }
         }
     }
@@ -106,7 +122,8 @@ data class MultiByteChannel(val nameWithoutByteNumber: String, val dmxBreak: Int
 
 private fun MutableList<MutableList<String?>>.putMultiByteChannelNames(multiByteChannel: MultiByteChannel) {
     multiByteChannel.offsets.forEachIndexed { offsetIndex, offset ->
-        val nameToWrite = appendByteNumber(multiByteChannel.nameWithoutByteNumber, offsetIndex, multiByteChannel.offsets.size)
+        val nameToWrite =
+            appendByteNumber(multiByteChannel.nameWithoutByteNumber, offsetIndex, multiByteChannel.offsets.size)
         this.putChannelNameAt(nameToWrite, multiByteChannel.dmxBreak, offset)
     }
 }
@@ -117,7 +134,8 @@ private fun MutableList<MutableList<String?>>.putChannelNameAt(nameToWrite: Stri
     if (nameAtWriteIndex != null) {
         // channel name already set -> there is a collision between two channels
         throw InvalidGdtfException(
-            "GDTF file produces DMX Channel collision at break $dmxBreak and offset $offset between '$nameAtWriteIndex' and '$nameToWrite'")
+            "GDTF file produces DMX Channel collision at break $dmxBreak and offset $offset between '$nameAtWriteIndex' and '$nameToWrite'"
+        )
     } else {
         breakList[offset - 1] = nameToWrite
     }
