@@ -8,6 +8,13 @@ class InvalidGdtfException: Exception {
     constructor(cause: Throwable): super(cause)
 }
 
+class UnsupportedGdtfException: Exception {
+    constructor(): super()
+    constructor(message: String): super(message)
+    constructor(message: String, cause: Throwable): super(message, cause)
+    constructor(cause: Throwable): super(cause)
+}
+
 fun Exception.getChainedMessages(): String {
     val stringBuilder= StringBuilder()
     var exception: Throwable? = this

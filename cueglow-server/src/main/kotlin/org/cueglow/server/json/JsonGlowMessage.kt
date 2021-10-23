@@ -22,6 +22,7 @@ fun GlowMessage.toJsonString(): String {
         .fieldConverter(KlaxonDmxAddressUpdate::class, DmxAddressResultConverter)
         .converter(KlaxonGlowEventConverter)
         .converter(KlaxonGlowTopicConverter)
+        .converter(ShortConverter)
         .converter(UUIDConverter)
         .converter(DmxAddressConverter)
         .converter(ArtNetAddressConverter)
@@ -36,6 +37,7 @@ fun GlowMessage.Companion.fromJsonString(input: String): GlowMessage = Klaxon()
     .fieldConverter(KlaxonDmxAddressUpdate::class, DmxAddressResultConverter)
     .converter(KlaxonGlowEventConverter)
     .converter(KlaxonGlowTopicConverter)
+    .converter(ShortConverter)
     .converter(UUIDConverter)
     .converter(DmxAddressConverter)
     .converter(ArtNetAddressConverter)
@@ -65,6 +67,17 @@ object KlaxonGlowTopicConverter: Converter {
     override fun toJson(value: Any): String = "\"$value\""
 
     override fun fromJson(jv: JsonValue): GlowTopic? = GlowTopic.fromString(jv.inside.toString())
+}
+
+object ShortConverter: Converter {
+    override fun canConvert(cls: Class<*>)
+            = cls == Short::class.java
+
+    override fun toJson(value: Any): String
+            = """$value"""
+
+    override fun fromJson(jv: JsonValue): Short
+            = jv.string!!.toShort()
 }
 
 object UUIDConverter: Converter {
