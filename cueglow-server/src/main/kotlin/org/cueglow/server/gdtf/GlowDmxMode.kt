@@ -3,6 +3,7 @@ package org.cueglow.server.gdtf
 import org.cueglow.gdtf.DMXChannel
 import org.cueglow.gdtf.DMXMode
 import org.cueglow.server.objects.InvalidGdtfException
+import org.jgrapht.graph.DirectedAcyclicGraph
 
 /**
  * Represents a GDTF DMX Mode
@@ -22,8 +23,9 @@ import org.cueglow.server.objects.InvalidGdtfException
 data class GlowDmxMode(
     val name: String,
     val channelCount: Int,
+    val channelFunctions: List<GlowChannelFunction>,
     val multiByteChannels: List<MultiByteChannel>,
-    // TODO ADG of channel function dependencies
+    // val channelFunctionDependencies: DirectedAcyclicGraph<Int, Pair<Long, Long>>,
     val channelLayout: List<List<String?>>,
 )
 
@@ -34,11 +36,13 @@ data class GlowDmxMode(
 fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): GlowDmxMode {
     // allocate
     val channelLayout: MutableList<MutableList<String?>> = mutableListOf(mutableListOf())
+    val channelFunctions: MutableList<GlowChannelFunction> = mutableListOf()
     val multiByteChannels: MutableList<MultiByteChannel> = mutableListOf()
     try {
         // populate multiByteChannels
         mode.dmxChannels.dmxChannel.forEach { channel ->
-            val instantiatedChannels = instantiateChannel(channel, abstractGeometries)
+            val multiByteChannelStartInd = multiByteChannels.size
+            val instantiatedChannels = instantiateChannel(channel, abstractGeometries, channelFunctions, multiByteChannelStartInd)
             multiByteChannels.addAll(instantiatedChannels)
         }
         // iterate over multiByteChannels while filling channelLayout
@@ -49,20 +53,26 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
         throw InvalidGdtfException("Error in DMX Mode '${mode.name}'", exception)
     }
     val channelCount: Int = channelLayout.sumBy { it.size }
-    return GlowDmxMode(mode.name, channelCount, multiByteChannels, channelLayout)
+    return GlowDmxMode(mode.name, channelCount, channelFunctions, multiByteChannels, channelLayout)
 }
 
-fun instantiateChannel(channel: DMXChannel, abstractGeometries: List<AbstractGeometry>): List<MultiByteChannel> {
+fun instantiateChannel(
+    channel: DMXChannel,
+    abstractGeometries: List<AbstractGeometry>,
+    channelFunctions: MutableList<GlowChannelFunction>,
+    multiByteChannelStartInd: Int,
+): List<MultiByteChannel> {
     // check if geometry referenced by channel is abstract
     val abstractGeometry = abstractGeometries.find { it.name == channel.geometry }
     return if (abstractGeometry != null) {
         // channel is abstract, so it is instantiated by each GeometryReference to AbstractGeometry
-        abstractGeometry.referencedBy.map { geometryReference ->
-            MultiByteChannel.fromAbstractChannel(channel, geometryReference)
+        abstractGeometry.referencedBy.mapIndexed { multiByteChannelIndOffset, geometryReference ->
+            val multiByteChannelInd = multiByteChannelStartInd + multiByteChannelIndOffset
+            MultiByteChannel.fromAbstractChannel(channel, geometryReference, channelFunctions, multiByteChannelInd)
         }
     } else {
         // channel is concrete (i.e. not abstract)
-        listOf(MultiByteChannel.fromConcreteChannel(channel))
+        listOf(MultiByteChannel.fromConcreteChannel(channel, channelFunctions, multiByteChannelStartInd))
     }
 }
 

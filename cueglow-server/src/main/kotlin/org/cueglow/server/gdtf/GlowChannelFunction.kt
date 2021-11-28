@@ -9,5 +9,7 @@ data class GlowChannelFunction (
     val dmxFrom: Long, // support up to 7 bytes
     val dmxTo: Long, // support up to 7 bytes
 
+    val multiByteChannelInd: Int,
+
     // TODO controlled geometry and attribute (or is that in name?)
 )
