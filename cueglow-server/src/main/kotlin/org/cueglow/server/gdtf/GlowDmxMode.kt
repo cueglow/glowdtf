@@ -25,7 +25,7 @@ data class GlowDmxMode(
     val channelCount: Int,
     val channelFunctions: List<GlowChannelFunction>,
     val multiByteChannels: List<MultiByteChannel>,
-    // val channelFunctionDependencies: DirectedAcyclicGraph<Int, Pair<Long, Long>>,
+    val channelFunctionDependencies: DirectedAcyclicGraph<Int, Pair<*, *>>, // should be Pair<Long, Long>
     val channelLayout: List<List<String?>>,
 )
 
@@ -38,6 +38,7 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
     val channelLayout: MutableList<MutableList<String?>> = mutableListOf(mutableListOf())
     val channelFunctions: MutableList<GlowChannelFunction> = mutableListOf()
     val multiByteChannels: MutableList<MultiByteChannel> = mutableListOf()
+    val channelFunctionDependencies = DirectedAcyclicGraph<Int, Pair<*, *>>(Pair::class.java)
     try {
         // populate multiByteChannels
         mode.dmxChannels.dmxChannel.forEach { channel ->
@@ -49,11 +50,38 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
         multiByteChannels.forEach { multiByteChannel ->
             channelLayout.putMultiByteChannelNames(multiByteChannel)
         }
+        // populate channelFunctionDependencies
+        mode.dmxChannels.dmxChannel.forEach { channel ->
+            channel.logicalChannel.forEach { logicalChannel ->
+                logicalChannel.channelFunction.forEach { channelFunction ->
+                    // check if modeMaster set
+                    val modeMaster = channelFunction.modeMaster ?: return@forEach
+
+                    // TODO
+
+                    // find current channel function in channelfunction array
+                    // how? uniqueness of names?
+
+                    // get parent multibytechannel
+
+                    // parse modeFrom and modeTo
+                    // val modeFrom = channelFunction.modeFrom
+                    // val modeTo =
+
+                    // find modemaster in channelfunction array
+                    // how? uniqueness of names?
+
+                    // validations?
+
+                    // create vertex and edges
+                }
+            }
+        }
     } catch (exception: InvalidGdtfException) {
         throw InvalidGdtfException("Error in DMX Mode '${mode.name}'", exception)
     }
     val channelCount: Int = channelLayout.sumBy { it.size }
-    return GlowDmxMode(mode.name, channelCount, channelFunctions, multiByteChannels, channelLayout)
+    return GlowDmxMode(mode.name, channelCount, channelFunctions, multiByteChannels, channelFunctionDependencies, channelLayout)
 }
 
 fun instantiateChannel(

@@ -11,7 +11,7 @@ data class MultiByteChannel(
     val dmxBreak: Int,
     val offsets: List<Int>,
     val bytes: Short,
-    val channelFunctionIndices: IntRange,
+    val channelFunctionIndices: IntRange, // Raw ChannelFunction is always first one
 ) {
     companion object Factory {
         fun fromConcreteChannel(
@@ -55,7 +55,7 @@ data class MultiByteChannel(
             if (bytes > 7) {
                 throw UnsupportedGdtfException("Channel '${nameWithoutByteNumber}' has $bytes Bytes but only up to 7 Bytes are supported.")
             }
-            val currentChannelFunctions = channel.getChannelFunctions(bytes, multiByteChannelInd)
+            val currentChannelFunctions = channel.getChannelFunctions(bytes, multiByteChannelInd, nameWithoutByteNumber)
             val channelFunctionIndexStart = channelFunctions.size
             channelFunctions.addAll(currentChannelFunctions)
             val channelFunctionIndexStop = channelFunctions.size - 1
@@ -73,8 +73,14 @@ data class MultiByteChannel(
         private fun DMXChannel.getOffsetList(): List<Int> = this.offset.split(",").map { it.toInt() }
 
         // TODO refactor for better readability
-        private fun DMXChannel.getChannelFunctions(bytes: Short, multiByteChannelInd: Int): List<GlowChannelFunction> {
-            return this.logicalChannel.flatMap { logicalChannel ->
+        private fun DMXChannel.getChannelFunctions(bytes: Short, multiByteChannelInd: Int, multiByteChannelName: String): List<GlowChannelFunction> {
+            val channelFunctions: MutableList<GlowChannelFunction> = mutableListOf()
+            // Raw DMX Channel Function
+            channelFunctions.add(
+                GlowChannelFunction(multiByteChannelName, 0, (1L shl 8*bytes)-1, multiByteChannelInd, raw=true)
+            )
+            // Normal Channel Functions
+            channelFunctions.addAll(this.logicalChannel.flatMap { logicalChannel ->
                 val channelFunctions = logicalChannel.channelFunction
 
                 // each ModeMasterGroup consists of ChannelFunctions with the exact same ModeMaster configuration
@@ -129,9 +135,9 @@ data class MultiByteChannel(
                         channelFunctions.map { GlowChannelFunction(it.name, dmxFrom, dmxTo, multiByteChannelInd) }
                     }
                 }
-                // TODO add RawDmx Channel Function
                 glowChannelFunctions
-            }
+            })
+            return channelFunctions
         }
 
         private fun getAbstractBreakAndReferenceOffset(
