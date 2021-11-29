@@ -12,6 +12,9 @@ data class MultiByteChannel(
     val offsets: List<Int>,
     val bytes: Short,
     val channelFunctionIndices: IntRange, // Raw ChannelFunction is always first one
+    val geometry: String,
+    val abstractGeometry: AbstractGeometry?, // if null, channel is not instantiated from abstract
+    val originalName: String,
 ) {
     companion object Factory {
         fun fromConcreteChannel(
@@ -22,14 +25,23 @@ data class MultiByteChannel(
             val nameWithoutByteNumber = channelNamePrototype(channel)
             val dmxBreak = channel.dmxBreak.toInt()
             val offsets = channel.getOffsetList()
-            return fromChannelNameBreakOffsets(channel, nameWithoutByteNumber, dmxBreak, offsets, channelFunctions, multiByteChannelInd)
+            return fromChannelNameBreakOffsets(
+                channel,
+                nameWithoutByteNumber,
+                dmxBreak,
+                offsets,
+                channelFunctions,
+                multiByteChannelInd,
+                channel.geometry,
+            )
         }
 
         fun fromAbstractChannel(
             channel: DMXChannel,
             geometryReference: GeometryReference,
             channelFunctions: MutableList<GlowChannelFunction>,
-            multiByteChannelInd: Int
+            multiByteChannelInd: Int,
+            abstractGeometry: AbstractGeometry,
         ): MultiByteChannel {
             val nameWithoutByteNumber = "${geometryReference.name} -> ${channelNamePrototype(channel)}"
             val (dmxBreak, offsets) = try {
@@ -40,7 +52,16 @@ data class MultiByteChannel(
             } catch (exception: InvalidGdtfException) {
                 throw InvalidGdtfException("Error in channel '$nameWithoutByteNumber'", exception)
             }
-            return fromChannelNameBreakOffsets(channel, nameWithoutByteNumber, dmxBreak, offsets, channelFunctions, multiByteChannelInd)
+            return fromChannelNameBreakOffsets(
+                channel,
+                nameWithoutByteNumber,
+                dmxBreak,
+                offsets,
+                channelFunctions,
+                multiByteChannelInd,
+                geometryReference.name,
+                abstractGeometry,
+            )
         }
 
         private fun fromChannelNameBreakOffsets(
@@ -50,6 +71,8 @@ data class MultiByteChannel(
             offsets: List<Int>,
             channelFunctions: MutableList<GlowChannelFunction>,
             multiByteChannelInd: Int,
+            geometry: String,
+            abstractGeometry: AbstractGeometry? = null,
         ): MultiByteChannel {
             val bytes = offsets.size.toShort()
             if (bytes > 7) {
@@ -60,7 +83,7 @@ data class MultiByteChannel(
             channelFunctions.addAll(currentChannelFunctions)
             val channelFunctionIndexStop = channelFunctions.size - 1
             val channelFunctionIndices = channelFunctionIndexStart..channelFunctionIndexStop
-            return MultiByteChannel(nameWithoutByteNumber, dmxBreak, offsets, bytes, channelFunctionIndices)
+            return MultiByteChannel(nameWithoutByteNumber, dmxBreak, offsets, bytes, channelFunctionIndices, geometry, abstractGeometry, channelNamePrototype(channel))
         }
 
         /** Name Prototype where reference name has to be prepended and byte-number appended. */
@@ -73,11 +96,22 @@ data class MultiByteChannel(
         private fun DMXChannel.getOffsetList(): List<Int> = this.offset.split(",").map { it.toInt() }
 
         // TODO refactor for better readability
-        private fun DMXChannel.getChannelFunctions(bytes: Short, multiByteChannelInd: Int, multiByteChannelName: String): List<GlowChannelFunction> {
+        private fun DMXChannel.getChannelFunctions(
+            bytes: Short,
+            multiByteChannelInd: Int,
+            multiByteChannelName: String
+        ): List<GlowChannelFunction> {
             val channelFunctions: MutableList<GlowChannelFunction> = mutableListOf()
             // Raw DMX Channel Function
             channelFunctions.add(
-                GlowChannelFunction(multiByteChannelName, 0, (1L shl 8*bytes)-1, multiByteChannelInd, raw=true)
+                GlowChannelFunction(
+                    multiByteChannelName,
+                    0,
+                    (1L shl 8 * bytes) - 1,
+                    multiByteChannelInd,
+                    logicalChannel = null,
+                    originalChannelFunction = null
+                )
             )
             // Normal Channel Functions
             channelFunctions.addAll(this.logicalChannel.flatMap { logicalChannel ->
@@ -132,7 +166,16 @@ data class MultiByteChannel(
                     groupedByDmxFrom.values.flatMapIndexed { dmxFromIndex, channelFunctions ->
                         val dmxFrom = dmxFroms[dmxFromIndex]
                         val dmxTo = dmxTos[dmxFromIndex]
-                        channelFunctions.map { GlowChannelFunction(it.name, dmxFrom, dmxTo, multiByteChannelInd) }
+                        channelFunctions.map {
+                            GlowChannelFunction(
+                                it.name,
+                                dmxFrom,
+                                dmxTo,
+                                multiByteChannelInd,
+                                logicalChannel.attribute,
+                                originalChannelFunction = it,
+                            )
+                        }
                     }
                 }
                 glowChannelFunctions

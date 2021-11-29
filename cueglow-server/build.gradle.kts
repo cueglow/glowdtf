@@ -48,6 +48,7 @@ dependencies {
     implementation("com.beust:klaxon:5.5")
 
     implementation("org.jgrapht:jgrapht-core:1.5.1")
+    implementation("org.jgrapht:jgrapht-io:1.5.1")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.13.3")

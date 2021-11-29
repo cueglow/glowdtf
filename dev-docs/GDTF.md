@@ -89,6 +89,21 @@ Cycles in the ModeMaster Graph must result in an error for the GDTF file.
 Unreachable ChannelFunctions, where all Mode Master dependency weights have a
 length of 0 and there is at least one input, must result in a warning. 
 
+Mode Master References within the same DMXChannel are not an issue. 
+
+#### Mode Master and Abstract ChannelFunctions
+
+Three cases can be differentiated:
+- Abstract ChF depending on concrete ChF:  
+  This is fine. Every instance of the abstract channel function depends on the
+  concrete channel function
+- Concrete ChF depending on abstract ChF:  
+  Throw an error, as a channel function can only have one mode master
+- Abstract ChF depending on abstract ChF:  
+  This is only allowed if both ChFs reference the same top level geometry. Then
+  there is a 1:1 relationship between the instances for each GeometryReference.
+  Otherwise, throw an error. 
+
 ### Physical Values
 
 Each ChannelFunction has an associated unit and each DMX value has exactly one

@@ -2,14 +2,22 @@ package org.cueglow.server.json
 
 import com.beust.klaxon.*
 import com.github.michaelbull.result.*
+import org.apache.logging.log4j.LogManager
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.objects.messages.GlowTopic
+import org.jgrapht.graph.DirectedAcyclicGraph
+import org.jgrapht.nio.AttributeType
+import org.jgrapht.nio.DefaultAttribute
+import org.jgrapht.nio.json.JSONExporter
 import java.io.StringReader
+import java.io.StringWriter
 import java.util.*
 import kotlin.reflect.KClass
+
+val logger = LogManager.getLogger() ?: throw Exception("getLogger returned null")
 
 //--------------------------
 // Serialization and Parsing
@@ -26,6 +34,7 @@ fun GlowMessage.toJsonString(): String {
         .converter(UUIDConverter)
         .converter(DmxAddressConverter)
         .converter(ArtNetAddressConverter)
+        .converter(DirectedAcyclicGraphConverter)
         .toJsonString(this)
 }
 
@@ -41,6 +50,7 @@ fun GlowMessage.Companion.fromJsonString(input: String): GlowMessage = Klaxon()
     .converter(UUIDConverter)
     .converter(DmxAddressConverter)
     .converter(ArtNetAddressConverter)
+    .converter(DirectedAcyclicGraphConverter)
     .parse<GlowMessage>(StringReader(input))
     ?: throw KlaxonException("Klaxon Parser returned null after parsing '$input'")
 
@@ -114,6 +124,36 @@ object DmxAddressConverter: Converter {
         val value = jv.int ?: throw Error("No Int provided for DmxAddress")
         if (value == -1) {return null}
         return DmxAddress.tryFrom(value).unwrap()
+    }
+}
+
+object DirectedAcyclicGraphConverter: Converter {
+    private val graphExporter = JSONExporter<Int, Pair<*,*>>()
+
+    init {
+        graphExporter.setVertexIdProvider { it.toString() }
+        graphExporter.setEdgeAttributeProvider { edge ->
+            edge as Pair<Long, Long>
+            mapOf(
+                "modeFromClipped" to DefaultAttribute(edge.first, AttributeType.LONG),
+                "modeToClipped" to DefaultAttribute(edge.second, AttributeType.LONG),
+            )
+        }
+    }
+
+    override fun canConvert(cls: Class<*>)
+            = cls == DirectedAcyclicGraph::class.java
+
+    override fun toJson(value: Any): String {
+        val writer = StringWriter()
+        value as DirectedAcyclicGraph<Int, Pair<*,*>>
+        graphExporter.exportGraph(value, writer)
+        return writer.buffer.toString()
+    }
+
+    override fun fromJson(jv: JsonValue): DirectedAcyclicGraph<Int, Pair<*,*>> {
+        logger.error("Trying to parse a DirectedAcyclicGraph from JSON - not supported. Returning empty graph.")
+        return DirectedAcyclicGraph<Int, Pair<*,*>>(Pair::class.java)
     }
 }
 

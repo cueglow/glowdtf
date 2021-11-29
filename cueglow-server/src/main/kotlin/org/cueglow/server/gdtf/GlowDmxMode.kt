@@ -1,9 +1,13 @@
 package org.cueglow.server.gdtf
 
+import com.github.michaelbull.result.unwrap
+import org.apache.logging.log4j.LogManager
 import org.cueglow.gdtf.DMXChannel
 import org.cueglow.gdtf.DMXMode
 import org.cueglow.server.objects.InvalidGdtfException
 import org.jgrapht.graph.DirectedAcyclicGraph
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Represents a GDTF DMX Mode
@@ -33,6 +37,8 @@ data class GlowDmxMode(
 // Create from GDTF
 //--------------------
 
+val logger = LogManager.getLogger() ?: throw Exception("Logger from getLogger is null")
+
 fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): GlowDmxMode {
     // allocate
     val channelLayout: MutableList<MutableList<String?>> = mutableListOf(mutableListOf())
@@ -51,31 +57,77 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
             channelLayout.putMultiByteChannelNames(multiByteChannel)
         }
         // populate channelFunctionDependencies
-        mode.dmxChannels.dmxChannel.forEach { channel ->
-            channel.logicalChannel.forEach { logicalChannel ->
-                logicalChannel.channelFunction.forEach { channelFunction ->
-                    // check if modeMaster set
-                    val modeMaster = channelFunction.modeMaster ?: return@forEach
+        channelFunctions.forEachIndexed { dependentChFInd, dependentChF ->
+            // check if modeMaster set
+            val modeMaster = dependentChF.originalChannelFunction?.modeMaster ?: return@forEachIndexed
+            val dependentCh = multiByteChannels[dependentChF.multiByteChannelInd]
 
-                    // TODO
+            val dependencySequence = modeMaster.split(".")
 
-                    // find current channel function in channelfunction array
-                    // how? uniqueness of names?
+            val dependencyChs = multiByteChannels.filter { it.originalName == dependencySequence[0] }
 
-                    // get parent multibytechannel
-
-                    // parse modeFrom and modeTo
-                    // val modeFrom = channelFunction.modeFrom
-                    // val modeTo =
-
-                    // find modemaster in channelfunction array
-                    // how? uniqueness of names?
-
-                    // validations?
-
-                    // create vertex and edges
+            val dependencyCh: MultiByteChannel = if (dependencyChs.isEmpty()) {
+                throw InvalidGdtfException("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                        "the DMXChannel of mode master reference '${modeMaster}' couldn't be found.")
+            } else if (dependencyChs.size == 1) {
+                // either it is a concrete dependency or a singular abstract one - both are issue-free
+                dependencyChs[0]
+            } else {
+                // multiple dependency channels, which implies they are instances of an abstract channel
+                // this is only okay if dependent and dependency channels reference the same abstract geometry,
+                // then there is a 1:1 mapping for each Geometry Reference
+                if (dependentCh.abstractGeometry != dependencyChs[0].abstractGeometry) {
+                    throw InvalidGdtfException("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                            "the mode master reference '${modeMaster}' is to an abstract channel, but the abstract geometry of the depending channel is not the same.")
                 }
+                // abstractGeometry of dependentCh and all dependencyChs are the same
+                // select dependencyCh which has the same GeometryReference
+                dependencyChs.find { it.geometry == dependentCh.geometry } ?: throw Exception("The Channel Function '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                        "comes from an instantiated abstract channel and the mode master references an abstract channel with the same abstract geometry, but somehow " +
+                        "I couldn't find the instantiated Channel with the same geometry. This is likely a bug.")
             }
+
+            val dependencyChFInd = if (dependencySequence.size == 1) {
+                // reference to a channel means dependency on raw ChF
+                dependencyCh.channelFunctionIndices.first // first is raw ChF
+            } else if (dependencySequence.size == 3){
+                val candidateChFs = dependencyCh.channelFunctionIndices
+                var matchChF: Int? = null
+                for (i in candidateChFs) {
+                    val candidate = channelFunctions[i]
+                    if (candidate.logicalChannel == dependencySequence[1] && candidate.name == dependencySequence[2]) {
+                        matchChF = i
+                    }
+                }
+                matchChF ?: throw InvalidGdtfException("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                        "the mode master reference '${modeMaster}' could not be resolved")
+            } else {
+                throw InvalidGdtfException("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                        "the mode master reference '${modeMaster}' is invalid because it does not have either 1 part or 3 parts separated with dots.")
+            }
+
+            val dependencyChF = channelFunctions[dependencyChFInd]
+
+            // parse modeFrom and modeTo
+            val modeFrom = parseDmxValue(dependentChF.originalChannelFunction.modeFrom, dependencyCh.bytes).unwrap()
+            val modeTo = parseDmxValue(dependentChF.originalChannelFunction.modeTo, dependencyCh.bytes).unwrap()
+
+            if (modeTo < modeFrom) {
+                logger.warn("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                        "modeTo is smaller than modeFrom. The ChannelFunction is unreachable.")
+            }
+
+            val modeFromClipped = max(modeFrom, dependencyChF.dmxFrom)
+            val modeToClipped = min(modeTo, dependencyChF.dmxTo)
+
+            if (modeToClipped > modeFromClipped) {
+                logger.warn("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                        "modeTo is smaller than modeFrom after clipping to the DMX range of the dependency. The ChannelFunction is unreachable.")
+            }
+
+            channelFunctionDependencies.addVertex(dependencyChFInd)
+            channelFunctionDependencies.addVertex(dependentChFInd)
+            channelFunctionDependencies.addEdge(dependencyChFInd, dependentChFInd, Pair(modeFromClipped, modeToClipped))
         }
     } catch (exception: InvalidGdtfException) {
         throw InvalidGdtfException("Error in DMX Mode '${mode.name}'", exception)
@@ -96,7 +148,7 @@ fun instantiateChannel(
         // channel is abstract, so it is instantiated by each GeometryReference to AbstractGeometry
         abstractGeometry.referencedBy.mapIndexed { multiByteChannelIndOffset, geometryReference ->
             val multiByteChannelInd = multiByteChannelStartInd + multiByteChannelIndOffset
-            MultiByteChannel.fromAbstractChannel(channel, geometryReference, channelFunctions, multiByteChannelInd)
+            MultiByteChannel.fromAbstractChannel(channel, geometryReference, channelFunctions, multiByteChannelInd, abstractGeometry)
         }
     } else {
         // channel is concrete (i.e. not abstract)
