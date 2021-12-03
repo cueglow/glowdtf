@@ -4,34 +4,22 @@ import React, { useCallback, useContext, useMemo, useRef, useState } from "react
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { GlowTabulator } from "src/Components/GlowTabulator";
 import { LabelWithHotkey } from "src/Components/HotkeyHint";
+import { LeftRightSplit } from "src/Components/LeftRightSplit";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { DmxModeString, FixtureType, fixtureTypeString } from "../Types/FixtureType";
+import { } from 'styled-components/macro';
 
 export function FixtureTypes(props: RouteComponentProps) {
-    const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType|undefined>(undefined);
+    const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | undefined>(undefined);
 
     return (
-        <div style={{
-            position: "absolute",
-            top: bp.vars.ptNavbarHeight,
-            bottom: "0px",
-            width: "100%",
-            padding: bp.vars.ptGridSize,
-            display: "flex",
-            flexDirection: "row",
-        }}>
-            <div style={{
-                // as flex-item
-                minWidth: 0,
-                flexBasis: 0,
-                flexGrow: 1,
-                paddingRight: bp.vars.ptGridSize,
-                // as flex-container
-                display: "flex",
-                flexDirection: "column",
-            }}>
+        <LeftRightSplit>
+            <div css={`
+                display: flex;
+                flex-direction: column;
+            `}>
                 <div style={{
                     marginBottom: bp.vars.ptGridSize,
                 }}>
@@ -46,16 +34,15 @@ export function FixtureTypes(props: RouteComponentProps) {
                             (selectedData) => setSelectedFixtureType(selectedData[0])} />
                 </div>
             </div>
-            <div style={{ flexGrow: 1, flexBasis: 0, }}>
+            <>
                 <div style={{ display: "flex", }}>
                     <h4>Details</h4>
                     <div style={{ flexGrow: 1, }} />
                     <RemoveGdtfButton selectedFixtureType={selectedFixtureType} />
                 </div>
-                <FixtureTypeDetails fixtureType={selectedFixtureType}/>
-            </div>
-            
-        </div>
+                <FixtureTypeDetails fixtureType={selectedFixtureType} />
+            </>
+        </LeftRightSplit>
     );
 }
 
@@ -74,8 +61,8 @@ function FixtureTypeTable(props: { rowSelectionChanged: (data: FixtureType[]) =>
             // TODO fitDataStretch: When making window narrow, not all data is visible in column width 
             // and table-internal horizontal scrolling does not activate even though it should
             options={{
-                height: "100%", 
-                layout: "fitDataStretch", 
+                height: "100%",
+                layout: "fitDataStretch",
                 selectable: 1,
                 rowSelectionChanged: props.rowSelectionChanged,
             }} />
@@ -106,7 +93,7 @@ function AddGdtfButton() {
 
     function uploadFile() {
         // if empty do nothing
-        if (fileInput.current?.value === "") {return}
+        if (fileInput.current?.value === "") { return }
 
         const file = fileInput.current?.files?.[0]
         if (file == null) { return }
@@ -126,18 +113,18 @@ function AddGdtfButton() {
 }
 
 
-function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined}) {
+function RemoveGdtfButton(props: { selectedFixtureType: FixtureType | undefined }) {
     const selectedFixtureType = props.selectedFixtureType
 
     const patchData = useContext(PatchContext);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [numberOfFixturesThatWillBeDeleted, setNumberOfFixturesThatWillBeDeleted] = useState<number|undefined>(undefined);
+    const [numberOfFixturesThatWillBeDeleted, setNumberOfFixturesThatWillBeDeleted] = useState<number | undefined>(undefined);
 
     const removeFixtureType = useCallback(() => {
         if (selectedFixtureType !== undefined) {
             setNumberOfFixturesThatWillBeDeleted(
-                patchData.fixtures.filter((fixture) => 
+                patchData.fixtures.filter((fixture) =>
                     fixture.fixtureTypeId === selectedFixtureType.fixtureTypeId
                 ).length
             )
@@ -148,7 +135,7 @@ function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined})
             // with how many fixtures were removed and with undo button
         }
     }, [patchData.fixtures, selectedFixtureType])
-    
+
     const hotkeys = useMemo(() => [
         {
             combo: "del",
@@ -177,7 +164,7 @@ function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined})
     return (
         <>
             <Button minimal={true} icon="trash"
-                disabled={selectedFixtureType === undefined} 
+                disabled={selectedFixtureType === undefined}
                 onClick={removeFixtureType}
                 data-cy="remove_selected_fixture_type_button">
                 <LabelWithHotkey label="Remove" combo="Del" />
@@ -188,10 +175,10 @@ function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined})
                 canEscapeKeyClose={true}
                 canOutsideClickClose={true}
                 onClose={handleDialogClose}
-                className="bp3-dark" 
+                className="bp3-dark"
             >
                 <div className={Classes.DIALOG_BODY}>
-                    <RemoveDialogMessage numberOfFixturesThatWillBeDeleted={numberOfFixturesThatWillBeDeleted}/>
+                    <RemoveDialogMessage numberOfFixturesThatWillBeDeleted={numberOfFixturesThatWillBeDeleted} />
                 </div>
                 <div className={Classes.DIALOG_FOOTER}>
                     <div className={Classes.DIALOG_FOOTER_ACTIONS}>
@@ -200,9 +187,9 @@ function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined})
                             onClick={handleDialogClose}
                             autoFocus
                         />
-                        <Button 
+                        <Button
                             text="Remove"
-                            intent="danger" 
+                            intent="danger"
                             onClick={handleConfirmedRemove}
                             data-cy="confirm_fixture_type_remove_button"
                         />
@@ -213,12 +200,12 @@ function RemoveGdtfButton(props: {selectedFixtureType: FixtureType | undefined})
     );
 }
 
-function RemoveDialogMessage(props: {numberOfFixturesThatWillBeDeleted: number|undefined}) {
+function RemoveDialogMessage(props: { numberOfFixturesThatWillBeDeleted: number | undefined }) {
     const fixtureNumber = props.numberOfFixturesThatWillBeDeleted
 
     if (fixtureNumber === undefined || fixtureNumber < 0) {
-        console.error("Trying to assemble a remove warning message but the number of " + 
-        "fixtures that will be deleted is", fixtureNumber)
+        console.error("Trying to assemble a remove warning message but the number of " +
+            "fixtures that will be deleted is", fixtureNumber)
         return <p></p>
     }
 
@@ -231,7 +218,7 @@ function RemoveDialogMessage(props: {numberOfFixturesThatWillBeDeleted: number|u
     }
 }
 
-function FixtureTypeDetails(props: {fixtureType?: FixtureType}) {
+function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
     const fixtureType = props.fixtureType
     if (fixtureType === undefined) {
         return <div>Select a Fixture Type to show Details</div>

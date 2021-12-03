@@ -121,6 +121,7 @@ data class MultiByteChannel(
                 val modeMasterGroups = channelFunctions.groupBy {
                     Triple(
                         it.modeMaster,
+                        // TODO these should be parsed in terms of the bytes of the dependency channel, not the dependent channel
                         parseDmxValue(it.modeFrom, bytes).unwrap(), // TODO is this unwrap caught right?
                         parseDmxValue(it.modeTo, bytes).unwrap(), // TODO is this unwrap caught right?
                     )

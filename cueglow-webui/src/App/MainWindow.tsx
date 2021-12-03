@@ -2,6 +2,7 @@ import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, useHotkeys } fro
 import { RouteComponentProps, useNavigate } from "@reach/router";
 import { useMemo } from "react";
 import { LabelWithHotkey } from "src/Components/HotkeyHint";
+import { LeftRightSplit } from "src/Components/LeftRightSplit";
 
 export function MainWindow(props: RouteComponentProps) {
     const navigate = useNavigate();
@@ -17,17 +18,28 @@ export function MainWindow(props: RouteComponentProps) {
     useHotkeys(hotkeys);
 
     return (
-        <Navbar>
-            <NavbarGroup>
-                <NavbarHeading>
-                    CueGlow
-                </NavbarHeading>
-            </NavbarGroup>
-            <NavbarGroup align={Alignment.RIGHT}>
-                <Button minimal={true} icon="th" onClick={() => navigate("patch")} >
-                    <LabelWithHotkey label="Patch" combo={["⇧", "P"]} />
-                </Button>
-            </NavbarGroup>
-        </Navbar>
+        <>
+            <Navbar>
+                <NavbarGroup>
+                    <NavbarHeading>
+                        CueGlow
+                    </NavbarHeading>
+                </NavbarGroup>
+                <NavbarGroup align={Alignment.RIGHT}>
+                    <Button minimal={true} icon="th" onClick={() => navigate("patch")} >
+                        <LabelWithHotkey label="Patch" combo={["⇧", "P"]} />
+                    </Button>
+                </NavbarGroup>
+            </Navbar>
+            <LeftRightSplit>
+                <>
+                Fixture List
+                </>
+
+                <>
+                Channel Functions
+                </>
+            </LeftRightSplit>
+        </>
     );
 }
