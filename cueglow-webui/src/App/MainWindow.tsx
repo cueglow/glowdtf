@@ -1,8 +1,11 @@
 import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps, useNavigate } from "@reach/router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { LeftRightSplit } from "src/Components/LeftRightSplit";
+import { PatchFixture } from "src/Types/Patch";
+import { ChannelFunctions } from "./ChannelFunctions";
+import { FixtureSelection } from "./FixtureSelection";
 
 export function MainWindow(props: RouteComponentProps) {
     const navigate = useNavigate();
@@ -16,6 +19,8 @@ export function MainWindow(props: RouteComponentProps) {
         }
     ], [navigate]);
     useHotkeys(hotkeys);
+
+    const [selectedFixture, setSelectedFixture] = useState<PatchFixture | null>(null);
 
     return (
         <>
@@ -32,13 +37,8 @@ export function MainWindow(props: RouteComponentProps) {
                 </NavbarGroup>
             </Navbar>
             <LeftRightSplit>
-                <>
-                Fixture List
-                </>
-
-                <>
-                Channel Functions
-                </>
+                <FixtureSelection setSelectedFixture={setSelectedFixture} />
+                <ChannelFunctions selectedFixture={selectedFixture} />
             </LeftRightSplit>
         </>
     );
