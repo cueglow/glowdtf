@@ -36,7 +36,7 @@ export function FixtureTypes(props: RouteComponentProps) {
             </div>
             <>
                 <div style={{ display: "flex", }}>
-                    <h4>Details</h4>
+                    <h4 className="bp3-heading">Details</h4>
                     <div style={{ flexGrow: 1, }} />
                     <RemoveGdtfButton selectedFixtureType={selectedFixtureType} />
                 </div>
@@ -229,15 +229,22 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
             <div>
                 Manufacturer: {fixtureType.manufacturer}
             </div>
-            <div>
+            <div css={`
+                padding-bottom: ${2*bp.ptGridSizePx}px;
+            `}>
                 Name: {fixtureType.name}
             </div>
             <div>
-                <h5>Modes</h5>
+                <h5 className="bp3-heading">Modes</h5>
                 {fixtureType.modes.map((mode) => {
                     return (
                         <div key={mode.name}>
-                            {DmxModeString(mode)}
+                            <h6 className="bp3-heading">{DmxModeString(mode)}</h6>
+                            {mode.channelLayout.map( (dmxBreak, breakInd) => 
+                                dmxBreak.map( (channelName, channelInd) => 
+                                    <div>{breakInd+1}.{channelInd+1} {channelName}</div>
+                                )
+                            )}
                         </div>);
                 })}
             </div>

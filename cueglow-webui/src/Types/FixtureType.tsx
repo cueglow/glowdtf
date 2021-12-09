@@ -9,9 +9,25 @@ export type DmxMode = {
     name: string;
     channelCount: number;
     channelLayout: DmxBreak[];
+    channelFunctions: ChannelFunction[];
+    multiByteChannels: MultiByteChannel[];
+    //TODO channelFunctionDependencies: ?;
 };
 
 export type DmxBreak = (string | null)[]
+
+export type ChannelFunction = {
+    name: string;
+    dmxFrom: number;
+    dmxTo: number;
+    multiByteChannelInd: number;
+}
+
+export type MultiByteChannel = {
+    name: string;
+    bytes: number;
+    channelFunctionIndices: number[];
+}
 
 // Utilities
 
