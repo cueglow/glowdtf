@@ -3,6 +3,7 @@ package org.cueglow.server.json
 import com.beust.klaxon.*
 import com.github.michaelbull.result.*
 import org.apache.logging.log4j.LogManager
+import org.cueglow.server.gdtf.DependencyEdge
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.messages.GlowEvent
@@ -17,7 +18,7 @@ import java.io.StringWriter
 import java.util.*
 import kotlin.reflect.KClass
 
-val logger = LogManager.getLogger() ?: throw Exception("getLogger returned null")
+val logger = LogManager.getLogger()!!
 
 //--------------------------
 // Serialization and Parsing
@@ -128,15 +129,14 @@ object DmxAddressConverter: Converter {
 }
 
 object DirectedAcyclicGraphConverter: Converter {
-    private val graphExporter = JSONExporter<Int, Pair<*,*>>()
+    private val graphExporter = JSONExporter<Int, DependencyEdge>()
 
     init {
         graphExporter.setVertexIdProvider { it.toString() }
         graphExporter.setEdgeAttributeProvider { edge ->
-            edge as Pair<Long, Long>
             mapOf(
-                "modeFromClipped" to DefaultAttribute(edge.first, AttributeType.LONG),
-                "modeToClipped" to DefaultAttribute(edge.second, AttributeType.LONG),
+                "modeFromClipped" to DefaultAttribute(edge.from, AttributeType.LONG),
+                "modeToClipped" to DefaultAttribute(edge.to, AttributeType.LONG),
             )
         }
     }
@@ -146,7 +146,7 @@ object DirectedAcyclicGraphConverter: Converter {
 
     override fun toJson(value: Any): String {
         val writer = StringWriter()
-        value as DirectedAcyclicGraph<Int, Pair<*,*>>
+        value as DirectedAcyclicGraph<Int, DependencyEdge>
         graphExporter.exportGraph(value, writer)
         return writer.buffer.toString()
     }

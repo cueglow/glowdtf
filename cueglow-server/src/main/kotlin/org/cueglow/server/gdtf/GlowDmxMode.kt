@@ -1,10 +1,10 @@
 package org.cueglow.server.gdtf
 
 import com.github.michaelbull.result.unwrap
-import org.apache.logging.log4j.LogManager
 import org.cueglow.gdtf.DMXChannel
 import org.cueglow.gdtf.DMXMode
 import org.cueglow.server.objects.InvalidGdtfException
+import org.jgrapht.graph.DefaultEdge
 import org.jgrapht.graph.DirectedAcyclicGraph
 import kotlin.math.max
 import kotlin.math.min
@@ -29,27 +29,31 @@ data class GlowDmxMode(
     val channelCount: Int,
     val channelFunctions: List<GlowChannelFunction>,
     val multiByteChannels: List<MultiByteChannel>,
-    val channelFunctionDependencies: DirectedAcyclicGraph<Int, Pair<*, *>>, // should be Pair<Long, Long>
+    val channelFunctionDependencies: DirectedAcyclicGraph<Int, DependencyEdge>,
     val channelLayout: List<List<String?>>,
 )
+
+class DependencyEdge(val from: Long, val to: Long) : DefaultEdge() {
+    override fun toString() =
+        "${super.getSource()} --(${this.from}:${this.to})-> ${super.getTarget()}"
+}
 
 //--------------------
 // Create from GDTF
 //--------------------
-
-val logger = LogManager.getLogger() ?: throw Exception("Logger from getLogger is null")
 
 fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): GlowDmxMode {
     // allocate
     val channelLayout: MutableList<MutableList<String?>> = mutableListOf(mutableListOf())
     val channelFunctions: MutableList<GlowChannelFunction> = mutableListOf()
     val multiByteChannels: MutableList<MultiByteChannel> = mutableListOf()
-    val channelFunctionDependencies = DirectedAcyclicGraph<Int, Pair<*, *>>(Pair::class.java)
+    val channelFunctionDependencies = DirectedAcyclicGraph<Int, DependencyEdge>(DependencyEdge::class.java)
     try {
         // populate multiByteChannels
         mode.dmxChannels.dmxChannel.forEach { channel ->
             val multiByteChannelStartInd = multiByteChannels.size
-            val instantiatedChannels = instantiateChannel(channel, abstractGeometries, channelFunctions, multiByteChannelStartInd)
+            val instantiatedChannels =
+                instantiateChannel(channel, abstractGeometries, channelFunctions, multiByteChannelStartInd)
             multiByteChannels.addAll(instantiatedChannels)
         }
         // iterate over multiByteChannels while filling channelLayout
@@ -59,6 +63,11 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
         // populate channelFunctionDependencies
         channelFunctions.forEachIndexed { dependentChFInd, dependentChF ->
             // check if modeMaster set
+            logger.debug(
+                "Handling dependencies for ChannelFunction ${dependentChF.name} with " +
+                        "originalChannelFunction ${dependentChF.originalChannelFunction} and modeMaster String " +
+                        "${dependentChF.originalChannelFunction?.modeMaster}"
+            )
             val modeMaster = dependentChF.originalChannelFunction?.modeMaster ?: return@forEachIndexed
             val dependentCh = multiByteChannels[dependentChF.multiByteChannelInd]
 
@@ -67,8 +76,10 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
             val dependencyChs = multiByteChannels.filter { it.originalName == dependencySequence[0] }
 
             val dependencyCh: MultiByteChannel = if (dependencyChs.isEmpty()) {
-                throw InvalidGdtfException("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
-                        "the DMXChannel of mode master reference '${modeMaster}' couldn't be found.")
+                throw InvalidGdtfException(
+                    "In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                            "the DMXChannel of mode master reference '${modeMaster}' couldn't be found."
+                )
             } else if (dependencyChs.size == 1) {
                 // either it is a concrete dependency or a singular abstract one - both are issue-free
                 dependencyChs[0]
@@ -77,20 +88,24 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
                 // this is only okay if dependent and dependency channels reference the same abstract geometry,
                 // then there is a 1:1 mapping for each Geometry Reference
                 if (dependentCh.abstractGeometry != dependencyChs[0].abstractGeometry) {
-                    throw InvalidGdtfException("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
-                            "the mode master reference '${modeMaster}' is to an abstract channel, but the abstract geometry of the depending channel is not the same.")
+                    throw InvalidGdtfException(
+                        "In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                                "the mode master reference '${modeMaster}' is to an abstract channel, but the abstract geometry of the depending channel is not the same."
+                    )
                 }
                 // abstractGeometry of dependentCh and all dependencyChs are the same
                 // select dependencyCh which has the same GeometryReference
-                dependencyChs.find { it.geometry == dependentCh.geometry } ?: throw Exception("The Channel Function '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
-                        "comes from an instantiated abstract channel and the mode master references an abstract channel with the same abstract geometry, but somehow " +
-                        "I couldn't find the instantiated Channel with the same geometry. This is likely a bug.")
+                dependencyChs.find { it.geometry == dependentCh.geometry } ?: throw Exception(
+                    "The Channel Function '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                            "comes from an instantiated abstract channel and the mode master references an abstract channel with the same abstract geometry, but somehow " +
+                            "I couldn't find the instantiated Channel with the same geometry. This is likely a bug."
+                )
             }
 
             val dependencyChFInd = if (dependencySequence.size == 1) {
                 // reference to a channel means dependency on raw ChF
                 dependencyCh.channelFunctionIndices.first // first is raw ChF
-            } else if (dependencySequence.size == 3){
+            } else if (dependencySequence.size == 3) {
                 val candidateChFs = dependencyCh.channelFunctionIndices
                 var matchChF: Int? = null
                 for (i in candidateChFs) {
@@ -99,11 +114,15 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
                         matchChF = i
                     }
                 }
-                matchChF ?: throw InvalidGdtfException("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
-                        "the mode master reference '${modeMaster}' could not be resolved")
+                matchChF ?: throw InvalidGdtfException(
+                    "In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                            "the mode master reference '${modeMaster}' could not be resolved"
+                )
             } else {
-                throw InvalidGdtfException("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
-                        "the mode master reference '${modeMaster}' is invalid because it does not have either 1 part or 3 parts separated with dots.")
+                throw InvalidGdtfException(
+                    "In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                            "the mode master reference '${modeMaster}' is invalid because it does not have either 1 part or 3 parts separated with dots."
+                )
             }
 
             val dependencyChF = channelFunctions[dependencyChFInd]
@@ -113,27 +132,42 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
             val modeTo = parseDmxValue(dependentChF.originalChannelFunction.modeTo, dependencyCh.bytes).unwrap()
 
             if (modeTo < modeFrom) {
-                logger.warn("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
-                        "modeTo is smaller than modeFrom. The ChannelFunction is unreachable.")
+                logger.warn(
+                    "In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                            "modeTo is smaller than modeFrom. The ChannelFunction is unreachable."
+                )
             }
 
             val modeFromClipped = max(modeFrom, dependencyChF.dmxFrom)
             val modeToClipped = min(modeTo, dependencyChF.dmxTo)
 
-            if (modeToClipped > modeFromClipped) {
-                logger.warn("In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
-                        "modeTo is smaller than modeFrom after clipping to the DMX range of the dependency. The ChannelFunction is unreachable.")
+            if (modeToClipped < modeFromClipped) {
+                logger.warn(
+                    "In ChannelFunction '${dependentCh.name}.${dependentChF.logicalChannel}.${dependentChF.name}', " +
+                            "modeTo is smaller than modeFrom after clipping to the DMX range of the dependency. The ChannelFunction is unreachable."
+                )
             }
 
             channelFunctionDependencies.addVertex(dependencyChFInd)
             channelFunctionDependencies.addVertex(dependentChFInd)
-            channelFunctionDependencies.addEdge(dependencyChFInd, dependentChFInd, Pair(modeFromClipped, modeToClipped))
+            channelFunctionDependencies.addEdge(
+                dependencyChFInd,
+                dependentChFInd,
+                DependencyEdge(modeFromClipped, modeToClipped)
+            )
         }
     } catch (exception: InvalidGdtfException) {
         throw InvalidGdtfException("Error in DMX Mode '${mode.name}'", exception)
     }
     val channelCount: Int = channelLayout.sumBy { it.size }
-    return GlowDmxMode(mode.name, channelCount, channelFunctions, multiByteChannels, channelFunctionDependencies, channelLayout)
+    return GlowDmxMode(
+        mode.name,
+        channelCount,
+        channelFunctions,
+        multiByteChannels,
+        channelFunctionDependencies,
+        channelLayout
+    )
 }
 
 fun instantiateChannel(
@@ -148,7 +182,13 @@ fun instantiateChannel(
         // channel is abstract, so it is instantiated by each GeometryReference to AbstractGeometry
         abstractGeometry.referencedBy.mapIndexed { multiByteChannelIndOffset, geometryReference ->
             val multiByteChannelInd = multiByteChannelStartInd + multiByteChannelIndOffset
-            MultiByteChannel.fromAbstractChannel(channel, geometryReference, channelFunctions, multiByteChannelInd, abstractGeometry)
+            MultiByteChannel.fromAbstractChannel(
+                channel,
+                geometryReference,
+                channelFunctions,
+                multiByteChannelInd,
+                abstractGeometry
+            )
         }
     } else {
         // channel is concrete (i.e. not abstract)

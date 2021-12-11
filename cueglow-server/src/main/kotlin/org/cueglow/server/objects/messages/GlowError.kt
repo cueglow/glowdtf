@@ -36,6 +36,9 @@ class GdtfUnmarshalError(description: String): GlowError(description)
 class FixtureTypeAlreadyExistsError(fixtureTypeId: UUID): GlowError("A fixture type with the fixtureTypeId '$fixtureTypeId' already exists in the Patch. Updating Fixture Types is not supported. ")
 class InvalidGdtfError(description: String): GlowError(description)
 
+// Errors related to GDTF Fixture State
+class InvalidFixtureState(description: String): GlowError(description)
+
 // Errors related to the Network API
 class MissingFilePartError: GlowError("The GDTF upload request should include the GDTF file in a part with the name 'file'. ")
 class UnpatchedFixtureTypeIdError(fixtureTypeId: UUID): GlowError("The specified fixtureTypeId '${fixtureTypeId}' was not found in the Patch. ")

@@ -1,16 +1,21 @@
 package org.cueglow.server.test_utilities
 
+import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.unwrap
+import org.apache.logging.log4j.LogManager
 import org.awaitility.Awaitility
 import org.awaitility.pollinterval.FibonacciPollInterval.fibonacci
 import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.gdtf.parseGdtf
+import org.cueglow.server.json.toJsonString
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.patch.PatchFixture
 import java.io.InputStream
 import java.time.Duration
 import java.util.*
+
+val logger = LogManager.getLogger()
 
 /** Provides Example [GdtfWrapper] and an example [PatchFixture] for tests. **/
 object ExampleFixtureType {
@@ -45,6 +50,8 @@ object ExampleFixtureType {
         DmxAddress(1)
     )
 
+    val rigStateTestGdtf = fixtureTypeFromGdtfResource("RigStateTest/Test@FixtureStateTest@version2.gdtf", this.javaClass)
+
     // additional: Global settings for Awaitility
     init {
         Awaitility.setDefaultPollInterval(fibonacci())
@@ -55,6 +62,8 @@ object ExampleFixtureType {
 fun fixtureTypeFromGdtfResource(exampleGdtfFileName: String, cls: Class<*>): GdtfWrapper {
     val exampleGdtfInputStream: InputStream =
         cls.classLoader.getResourceAsStream(exampleGdtfFileName) ?: throw Error("inputStream is Null")
-    val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream).unwrap()
+    val parsedExampleGdtf = parseGdtf(exampleGdtfInputStream)
+        .mapError { logger.error(it.toJsonString()); it }
+        .unwrap()
     return GdtfWrapper(parsedExampleGdtf)
 }

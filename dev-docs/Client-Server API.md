@@ -361,6 +361,87 @@ The client may also send `updateFixtures`, `removeFixtures` or
 messages are the same as received from the server (see above), but the client
 adds a `messageId`. 
 
+## Topic: `rigState`
+
+The rig state is the state of all fixtures (the "rig"). 
+
+### `rigState` Events
+
+- `subscribe`/`unsubscribe`/`error`
+- `rigState` (sent by server)
+- `setChannelFunction`
+
+### Rig State Lifecycle
+
+
+Client sends:
+```json
+{
+    "event": "subscribe",
+    "data": "rigState"
+}
+```
+
+Server returns:
+```json
+{
+    "event": "rigState",
+    "data": [ // list of fixtures, ordered like in Patch
+        [ // list of channel functions for first fixture
+            { // first one is raw dmx
+                "value": 0,
+                "outOfRange": false,
+                "modeDisabled": null, // null -> not disabled
+            },
+            { // some channel function, e.g. from 0 - 127
+                "value": 0,
+                "outOfRange": false,
+                "modeDisabled": null,
+            },
+            { // some out of range channel function, e.g. from 128 - 255
+                "value": 255, // frozen value
+                "outOfRange": true,
+                "modeDisabled": null,
+            }
+        ],
+        [ // next fixture's channel functions
+            {
+                "value": 244,
+                "outOfRange": false,
+                "modeDisabled": "Dimmer 1 must be 200-255" // reason why disabled
+            }
+        ]
+    ]
+}
+```
+
+When the rig state changes, the server sends the whole `rigState` message again. 
+
+When the client wants to update the value of a channelFunction, he sends:
+```json
+{
+    "event": "setChannelFunction",
+    "data": {
+        "fixtureInd": 0,
+        "chFInd": 0,
+        "value": 255
+    }
+}
+```
+The server will first check that the value is inside the allowed dmxTo and
+dmxFrom range of the channel function. If not, he discards the message. 
+
+He then updates the rig state as described in the `dev-docs/GDTF.md`. The new
+state is sent as `rigState` message to the client. 
+
+To stop receiving updates, the client sends
+```json
+{
+    "event": "unsubscribe",
+    "data": "rigState"
+}
+```
+
 ## Ping
 
 To ensure a good user experience, the server and client require a reliable and
