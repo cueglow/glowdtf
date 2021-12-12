@@ -22,6 +22,13 @@ fun RigState.transition(transition: RigStateTransition, patch: GlowPatch): Unit 
     // check that newValue is inBounds
     assert(newValue in changedChF.dmxFrom..changedChF.dmxTo)
 
+    if (fixtureState[changedChFInd].modeDisabled != null) {
+        // changed ChF is disabled
+        // updates only affect the changed ChF
+        fixtureState[changedChFInd].value = newValue
+        return
+    }
+
     // Changes inside the DMXChannel
     // iterate over channelFunctions in the corresponding channel
     ch.channelFunctionIndices.forEach { chFInd ->

@@ -1,5 +1,6 @@
 package org.cueglow.server.gdtf
 
+import com.beust.klaxon.Json
 import org.cueglow.gdtf.DMXChannel
 import org.cueglow.gdtf.GeometryReference
 import org.cueglow.server.objects.InvalidGdtfException
@@ -15,6 +16,7 @@ data class MultiByteChannel(
     val geometry: String,
     val abstractGeometry: AbstractGeometry?, // if null, channel is not instantiated from abstract
     val originalName: String,
+    @Json(ignored = true)
     val initialChannelFunctionInd: Int,
 ) {
     companion object Factory {

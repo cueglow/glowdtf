@@ -20,5 +20,6 @@ data class GlowChannelFunction(
     // TODO controlled geometry and attribute (not in name!)
     // geometry should be in MultiByteChannel
 
+    @Json(ignored = true)
     val defaultValue: Long?, // null when raw DMX ChF
 )
