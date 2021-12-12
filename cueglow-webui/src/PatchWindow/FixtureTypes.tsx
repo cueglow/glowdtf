@@ -238,11 +238,15 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                 <h5 className="bp3-heading">Modes</h5>
                 {fixtureType.modes.map((mode) => {
                     return (
-                        <div key={mode.name}>
+                        <div key={fixtureType.fixtureTypeId + mode.name} css={`
+                        padding-bottom: ${bp.ptGridSizePx}px;
+                    `}>
                             <h6 className="bp3-heading">{DmxModeString(mode)}</h6>
                             {mode.channelLayout.map( (dmxBreak, breakInd) => 
                                 dmxBreak.map( (channelName, channelInd) => 
-                                    <div>{breakInd+1}.{channelInd+1} {channelName}</div>
+                                    <div key={breakInd + "_" + channelInd}>
+                                        {breakInd+1}.{channelInd+1} {channelName}
+                                    </div>
                                 )
                             )}
                         </div>);
