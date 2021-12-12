@@ -19,7 +19,7 @@ internal class ModeMasterDependencyGraphTest {
         val edges = deps.edgeSet()
 
         // print for debug
-        printModeMasterDependencies(dmxMode, edges)
+        printModeMasterDependencies(dmxMode)
 
         val expectedDependencies = setOf(
             Dep(0, Pair(0, 150), 3),
@@ -45,8 +45,9 @@ internal class ModeMasterDependencyGraphTest {
 
 fun printModeMasterDependencies(
     dmxMode: GlowDmxMode,
-    edges: MutableSet<DependencyEdge>,
 ) {
+    val deps = dmxMode.channelFunctionDependencies
+    val edges = deps.edgeSet()
     println()
     println("Channel Functions")
     println("===================")

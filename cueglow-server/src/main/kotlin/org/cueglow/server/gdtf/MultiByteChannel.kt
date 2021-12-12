@@ -15,6 +15,7 @@ data class MultiByteChannel(
     val geometry: String,
     val abstractGeometry: AbstractGeometry?, // if null, channel is not instantiated from abstract
     val originalName: String,
+    val initialChannelFunctionInd: Int,
 ) {
     companion object Factory {
         fun fromConcreteChannel(
@@ -83,7 +84,26 @@ data class MultiByteChannel(
             channelFunctions.addAll(currentChannelFunctions)
             val channelFunctionIndexStop = channelFunctions.size - 1
             val channelFunctionIndices = channelFunctionIndexStart..channelFunctionIndexStop
-            return MultiByteChannel(nameWithoutByteNumber, dmxBreak, offsets, bytes, channelFunctionIndices, geometry, abstractGeometry, channelNamePrototype(channel))
+
+            val originalName = channelNamePrototype(channel)
+
+            val initialFunctionSequence = channel.initialFunction?.split(".")
+            val initialChannelFunctionInd = if (initialFunctionSequence == null) {
+                // use default - first ChannelFunction after raw channel function
+                assert(currentChannelFunctions.size > 1)
+                channelFunctionIndexStart + 1
+            } else {
+                assert(initialFunctionSequence.size == 3)
+                assert(initialFunctionSequence[0] == originalName)
+                currentChannelFunctions.withIndex()
+                    .filter { it.value.logicalChannel == initialFunctionSequence[1] && it.value.name == initialFunctionSequence[2] }
+                    .map { it.index }[0] + channelFunctionIndexStart
+            }
+
+            return MultiByteChannel(
+                nameWithoutByteNumber, dmxBreak, offsets, bytes, channelFunctionIndices, geometry,
+                abstractGeometry, originalName, initialChannelFunctionInd
+            )
         }
 
         /** Name Prototype where reference name has to be prepended and byte-number appended. */
@@ -110,7 +130,8 @@ data class MultiByteChannel(
                     (1L shl 8 * bytes) - 1,
                     multiByteChannelInd,
                     logicalChannel = null,
-                    originalChannelFunction = null
+                    originalChannelFunction = null,
+                    defaultValue = null,
                 )
             )
             // Normal Channel Functions
@@ -168,6 +189,8 @@ data class MultiByteChannel(
                         val dmxFrom = dmxFroms[dmxFromIndex]
                         val dmxTo = dmxTos[dmxFromIndex]
                         channelFunctions.map {
+                            val defaultValue = parseDmxValue(it.default, bytes).unwrap()
+                            assert(defaultValue in dmxFrom..dmxTo)
                             GlowChannelFunction(
                                 it.name,
                                 dmxFrom,
@@ -175,6 +198,7 @@ data class MultiByteChannel(
                                 multiByteChannelInd,
                                 logicalChannel.attribute,
                                 originalChannelFunction = it,
+                                defaultValue,
                             )
                         }
                     }
