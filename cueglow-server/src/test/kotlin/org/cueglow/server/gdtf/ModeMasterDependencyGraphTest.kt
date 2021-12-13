@@ -22,16 +22,16 @@ internal class ModeMasterDependencyGraphTest {
         printModeMasterDependencies(dmxMode)
 
         val expectedDependencies = setOf(
-            Dep(0, Pair(0, 150), 3),
-            Dep(0, Pair(0, 150), 4),
-            Dep(0, Pair(100, 200), 5),
-            Dep(0, Pair(100, 200), 6),
-            Dep(0, Pair(0, 127), 8),
-            Dep(0, Pair(128, 255), 9),
-            Dep(8, Pair(0, 255), 11),
-            Dep(9, Pair(0, 255), 12),
-            Dep(17, Pair(0, 255), 14),
-            Dep(15, Pair(128, 255), 17),
+            Dep(3, Pair(0, 150), 0),
+            Dep(4, Pair(0, 150), 0),
+            Dep(5, Pair(100, 200), 0),
+            Dep(6, Pair(100, 200), 0),
+            Dep(8, Pair(0, 127), 0),
+            Dep(9, Pair(128, 255), 0),
+            Dep(11, Pair(0, 255), 8),
+            Dep(12, Pair(0, 255), 9),
+            Dep(14, Pair(0, 255), 17),
+            Dep(17, Pair(128, 255), 15),
         )
 
         val actualDependencies = edges

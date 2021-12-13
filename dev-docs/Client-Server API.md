@@ -387,52 +387,41 @@ Server returns:
 {
     "event": "rigState",
     "data": [ // list of fixtures, ordered like in Patch
-        [ // list of channel functions for first fixture
-            { // first one is raw dmx
-                "value": 0,
-                "outOfRange": false,
-                "modeDisabled": null, // null -> not disabled
-            },
-            { // some channel function, e.g. from 0 - 127
-                "value": 0,
-                "outOfRange": false,
-                "modeDisabled": null,
-            },
-            { // some out of range channel function, e.g. from 128 - 255
-                "value": 255, // frozen value
-                "outOfRange": true,
-                "modeDisabled": null,
-            }
-        ],
-        [ // next fixture's channel functions
-            {
-                "value": 244,
-                "outOfRange": false,
-                "modeDisabled": "Dimmer 1 must be 200-255" // reason why disabled
-            }
-        ]
+        { // first fixture
+            "chValues": [
+                0,
+                255
+            ],
+            "chFDisabled": [
+                null, // not disabled
+                null,
+                null,
+                "Dimmer 1 must be 128-255" // reason for being disabled
+            ]
+        },
+        { // second fixture
+            // ...
+        }
     ]
 }
 ```
 
 When the rig state changes, the server sends the whole `rigState` message again. 
 
-When the client wants to update the value of a channelFunction, he sends:
+When the client wants to update the value of a channel, he sends:
 ```json
 {
-    "event": "setChannelFunction",
+    "event": "setChannel",
     "data": {
         "fixtureInd": 0,
-        "chFInd": 0,
+        "chInd": 0,
         "value": 255
     }
 }
 ```
-The server will first check that the value is inside the allowed dmxTo and
-dmxFrom range of the channel function. If not, he discards the message. 
 
-He then updates the rig state as described in the `dev-docs/GDTF.md`. The new
-state is sent as `rigState` message to the client. 
+The server will update the rigSate and send out `rigState` if there are changes. 
+If the update was invalid, the server discards the message with a warning log. 
 
 To stop receiving updates, the client sends
 ```json

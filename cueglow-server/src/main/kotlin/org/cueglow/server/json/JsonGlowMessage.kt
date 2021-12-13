@@ -9,7 +9,7 @@ import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.objects.messages.GlowEvent
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.objects.messages.GlowTopic
-import org.jgrapht.graph.DirectedAcyclicGraph
+import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.nio.AttributeType
 import org.jgrapht.nio.DefaultAttribute
 import org.jgrapht.nio.json.JSONExporter
@@ -32,10 +32,11 @@ fun GlowMessage.toJsonString(): String {
         .converter(KlaxonGlowEventConverter)
         .converter(KlaxonGlowTopicConverter)
         .converter(ShortConverter)
+        .converter(ByteConverter)
         .converter(UUIDConverter)
         .converter(DmxAddressConverter)
         .converter(ArtNetAddressConverter)
-        .converter(DirectedAcyclicGraphConverter)
+        .converter(DefaultDirectedGraphConverter)
         .toJsonString(this)
 }
 
@@ -48,10 +49,11 @@ fun GlowMessage.Companion.fromJsonString(input: String): GlowMessage = Klaxon()
     .converter(KlaxonGlowEventConverter)
     .converter(KlaxonGlowTopicConverter)
     .converter(ShortConverter)
+    .converter(ByteConverter)
     .converter(UUIDConverter)
     .converter(DmxAddressConverter)
     .converter(ArtNetAddressConverter)
-    .converter(DirectedAcyclicGraphConverter)
+    .converter(DefaultDirectedGraphConverter)
     .parse<GlowMessage>(StringReader(input))
     ?: throw KlaxonException("Klaxon Parser returned null after parsing '$input'")
 
@@ -91,6 +93,17 @@ object ShortConverter: Converter {
             = jv.string!!.toShort()
 }
 
+object ByteConverter: Converter {
+    override fun canConvert(cls: Class<*>)
+            = cls == Byte::class.java
+
+    override fun toJson(value: Any): String
+            = """$value"""
+
+    override fun fromJson(jv: JsonValue): Byte
+            = jv.string!!.toByte()
+}
+
 object UUIDConverter: Converter {
     override fun canConvert(cls: Class<*>)
             = cls == UUID::class.java
@@ -128,7 +141,7 @@ object DmxAddressConverter: Converter {
     }
 }
 
-object DirectedAcyclicGraphConverter: Converter {
+object DefaultDirectedGraphConverter: Converter {
     private val graphExporter = JSONExporter<Int, DependencyEdge>()
 
     init {
@@ -142,18 +155,18 @@ object DirectedAcyclicGraphConverter: Converter {
     }
 
     override fun canConvert(cls: Class<*>)
-            = cls == DirectedAcyclicGraph::class.java
+            = cls == DefaultDirectedGraph::class.java
 
     override fun toJson(value: Any): String {
         val writer = StringWriter()
-        value as DirectedAcyclicGraph<Int, DependencyEdge>
+        value as DefaultDirectedGraph<Int, DependencyEdge>
         graphExporter.exportGraph(value, writer)
         return writer.buffer.toString()
     }
 
-    override fun fromJson(jv: JsonValue): DirectedAcyclicGraph<Int, Pair<*,*>> {
+    override fun fromJson(jv: JsonValue): DefaultDirectedGraph<Int, Pair<*,*>> {
         logger.error("Trying to parse a DirectedAcyclicGraph from JSON - not supported. Returning empty graph.")
-        return DirectedAcyclicGraph<Int, Pair<*,*>>(Pair::class.java)
+        return DefaultDirectedGraph<Int, Pair<*,*>>(Pair::class.java)
     }
 }
 

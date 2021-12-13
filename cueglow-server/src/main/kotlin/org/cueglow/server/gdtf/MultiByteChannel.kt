@@ -11,7 +11,7 @@ data class MultiByteChannel(
     val name: String,
     val dmxBreak: Int,
     val offsets: List<Int>,
-    val bytes: Short,
+    val bytes: Byte,
     val channelFunctionIndices: IntRange, // Raw ChannelFunction is always first one
     val geometry: String,
     val abstractGeometry: AbstractGeometry?, // if null, channel is not instantiated from abstract
@@ -77,7 +77,7 @@ data class MultiByteChannel(
             geometry: String,
             abstractGeometry: AbstractGeometry? = null,
         ): MultiByteChannel {
-            val bytes = offsets.size.toShort()
+            val bytes = offsets.size.toByte()
             if (bytes > 7) {
                 throw UnsupportedGdtfException("Channel '${nameWithoutByteNumber}' has $bytes Bytes but only up to 7 Bytes are supported.")
             }
@@ -119,7 +119,7 @@ data class MultiByteChannel(
 
         // TODO refactor for better readability
         private fun DMXChannel.getChannelFunctions(
-            bytes: Short,
+            bytes: Byte,
             multiByteChannelInd: Int,
             multiByteChannelName: String
         ): List<GlowChannelFunction> {

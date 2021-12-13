@@ -1,66 +1,82 @@
 package org.cueglow.server.gdtf
 
-import org.cueglow.server.rig.ChannelFunctionState
 import org.cueglow.server.rig.FixtureState
-import org.cueglow.server.rig.active
-import org.jgrapht.traverse.TopologicalOrderIterator
+import org.jgrapht.graph.DefaultDirectedGraph
+import org.jgrapht.traverse.BreadthFirstIterator
 
 fun gdtfDefaultState(dmxMode: GlowDmxMode): FixtureState {
-    // allocate
-    val state = MutableList(dmxMode.channelFunctions.size) {
-        ChannelFunctionState(0, false, null)
-    }
+    val chs = dmxMode.multiByteChannels
+    val chFs = dmxMode.channelFunctions
+
+    val chValues = MutableList(chs.size){-1L}
 
     // for each channel, the initialFunction determines which defaultValue we use
-    dmxMode.multiByteChannels.forEach { ch ->
-        val initialChF = dmxMode.channelFunctions[ch.initialChannelFunctionInd]
+    dmxMode.multiByteChannels.forEachIndexed { chInd, ch ->
+        val initialChF = chFs[ch.initialChannelFunctionInd]
         val defaultValue = initialChF.defaultValue!! // initial chF cannot be raw, therefore defaultValue is not null
-        for (i in ch.channelFunctionIndices) {
-            val chF = dmxMode.channelFunctions[i]
-            if (defaultValue in chF.dmxFrom..chF.dmxTo) {
-                // if defaultValue is in the DMX range of the ChF, outOfRange stays false and we can use the defaultValue
-                state[i].value = defaultValue
-            } else {
-                // outOfRange must be true
-                state[i].outOfRange = true
-                // use own default value
-                state[i].value =
-                    chF.defaultValue!! // outOfRange ChannelFunctions are never raw, so defaultValue is not null
-            }
-        }
+        chValues[chInd] = defaultValue
     }
 
-    // Then, go through the dependency graph edges, starting at root node, and set the modeDisabled fields accordingly
-    // if a state is modeDisabled, we use their own default Values
-    val graph = dmxMode.channelFunctionDependencies
-    val itr = TopologicalOrderIterator(graph)
-    itr.forEachRemaining { parentInd ->
-        parentInd ?: return@forEachRemaining
-        val outEdges = graph.outgoingEdgesOf(parentInd) ?: return@forEachRemaining
-        val parentValue = state[parentInd].value
-        val parent = dmxMode.channelFunctions[parentInd]
-        if (state[parentInd].active().not()) {
-            outEdges.forEach { inactiveEdge ->
-                val targetInd = graph.getEdgeTarget(inactiveEdge)
-                state[targetInd].modeDisabled = "${parent.name} must be active"
-                state[targetInd].value =
-                    dmxMode.channelFunctions[targetInd].defaultValue!! // chF is dependent part of dependency graph so is not raw
-            }
-        } else {
-            // parent is active
-            // check for each edge whether in ModeMaster range
-            outEdges.forEach { edge ->
+    val chFDisabled = generateChFDisabled(chValues, dmxMode)
 
-                if (parentValue !in edge.from..edge.to) {
-                    // target is disabled by ModeMaster value
-                    val targetInd = graph.getEdgeTarget(edge)
-                    state[targetInd].modeDisabled = "${parent.name} must be ${edge.from}-${edge.to}"
-                    state[targetInd].value =
-                        dmxMode.channelFunctions[targetInd].defaultValue!! // chF is dependent part in dependency graph so is not raw
-                }
+    // the remaining chFDisabled are expected null as default
+    return FixtureState(chValues, chFDisabled)
+}
+
+fun generateChFDisabled(
+    chValues: List<Long>,
+    dmxMode: GlowDmxMode,
+): MutableList<String?> {
+    val g = dmxMode.channelFunctionDependencies // dependency graph
+    val chFs = dmxMode.channelFunctions
+    // allocate
+    val chFDisabled = MutableList<String?>(chFs.size){null}
+    // for handling ModeMaster Dependencies, iterate over all ChF in the graph
+    val slaveIterator = BreadthFirstIterator(g)
+    slaveIterator.forEachRemaining { slaveChFInd ->
+        // iterate over its masters
+        val masterIterator =
+            BreadthFirstIterator(g, slaveChFInd) // Breadth-First is sufficient as each node only has one outgoing edge
+        val firstEdgeTrue = checkChannelFunctionModeMasterEdge(masterIterator.next(), chValues, dmxMode)
+        masterIterator.forEachRemaining { masterChFInd ->
+            val edgeTrue = checkChannelFunctionModeMasterEdge(masterChFInd, chValues, dmxMode)
+            if (!edgeTrue) {
+                // an edge which isn't the first one is false, which means the direct ModeMaster of the slaveChF is not active
+                // Therefore, put a message that the direct ModeMaster must be active
+                val firstOutEdges = g.outgoingEdgesOf(slaveChFInd)
+                assert(firstOutEdges.size == 1)
+                val firstOutEdge = firstOutEdges.first()
+                val directModeMasterInd = g.getEdgeTarget(firstOutEdge)
+                val directModeMaster = chFs[directModeMasterInd]
+                chFDisabled[slaveChFInd] = "${directModeMaster.name} must be active"
             }
         }
+        // master iteration finished without another edge being false
+        if (!firstEdgeTrue) {
+            val firstOutEdges = g.outgoingEdgesOf(slaveChFInd)
+            assert(firstOutEdges.size == 1)
+            val firstOutEdge = firstOutEdges.first()
+            val directModeMasterInd = g.getEdgeTarget(firstOutEdge)
+            val directModeMaster = chFs[directModeMasterInd]
+            chFDisabled[slaveChFInd] = "${directModeMaster.name} must be ${firstOutEdge.from}-${firstOutEdge.to}"
+        }
     }
+    return chFDisabled
+}
 
-    return state
+fun checkChannelFunctionModeMasterEdge(chFInd: Int, chValues: List<Long>, dmxMode: GlowDmxMode): Boolean {
+    val g = dmxMode.channelFunctionDependencies
+    val outgoingEdges = g.outgoingEdgesOf(chFInd)
+    if (outgoingEdges.size == 0) {
+        return true // null -> no outgoing edge -> no Mode Master -> true, because always enabled
+    }
+    assert(outgoingEdges.size == 1) // each chF can only have one ModeMaster
+    val outgoingEdge = outgoingEdges.first()
+    val masterChFInd = g.getEdgeTarget(outgoingEdge)
+    val masterChInd = dmxMode.channelFunctions[masterChFInd].multiByteChannelInd
+    val masterValue = chValues[masterChInd]
+    if (masterValue in outgoingEdge.from..outgoingEdge.to) {
+        return true
+    }
+    return false
 }

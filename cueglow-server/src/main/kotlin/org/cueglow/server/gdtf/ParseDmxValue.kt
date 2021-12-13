@@ -15,7 +15,7 @@ import org.cueglow.server.objects.messages.InvalidGdtfError
  * - Without an "s" in the string, we periodically repeat the bits and truncate to the wanted outputBytes
  * - With an "s" in the string, we just shift left, filling with zeros from the right.
  */
-fun parseDmxValue(str: String, outputBytes: Short): Result<Long, GlowError> {
+fun parseDmxValue(str: String, outputBytes: Byte): Result<Long, GlowError> {
     val parts = str.split("/")
     if (parts.size != 2) { return Err(InvalidGdtfError("The DMXValue '${str}' does not contain exactly one delimiting slash."))
     }
@@ -33,7 +33,7 @@ fun parseDmxValue(str: String, outputBytes: Short): Result<Long, GlowError> {
     val inputBytes = byteSpec.toByteOrNull() ?: return Err(InvalidGdtfError("The second part of the DMXValue '${str}' could not be parsed to a number of bytes."))
 
     // Validate Input Value is not too big for input bytes
-    val inputMaxValue = (1L shl 8*inputBytes) - 1
+    val inputMaxValue = maximumValueOfBytes(inputBytes)
     if (inputValue > inputMaxValue ) { return Err(InvalidGdtfError("The DMXValue '${str}' is too big for its number of bytes."))
     }
 
@@ -58,3 +58,5 @@ fun parseDmxValue(str: String, outputBytes: Short): Result<Long, GlowError> {
     }
     return Ok(output)
 }
+
+fun maximumValueOfBytes(bytes: Byte): Long = (1L shl 8*bytes) - 1

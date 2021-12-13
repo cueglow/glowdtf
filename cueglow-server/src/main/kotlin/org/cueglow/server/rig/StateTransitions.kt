@@ -5,10 +5,11 @@ import org.jgrapht.traverse.DepthFirstIterator
 
 data class RigStateTransition(
     val fixtureInd: Int,
-    val chFInd: Int,
+    val chInd: Int,
     val value: Long,
 )
 
+/*
 fun RigState.transition(transition: RigStateTransition, patch: GlowPatch): Unit {
     // get data
     val (fixtureInd, changedChFInd, newValue) = transition
@@ -74,4 +75,4 @@ fun RigState.transition(transition: RigStateTransition, patch: GlowPatch): Unit 
     // we take all ChannelFunction from the channel (they might have been updated),
     // check whether they are in the dependency tree
     // if yes, start at them and iterate through all their descendants in topological order
-}
+}*/

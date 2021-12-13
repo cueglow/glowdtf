@@ -4,8 +4,8 @@ import com.github.michaelbull.result.unwrap
 import org.cueglow.gdtf.DMXChannel
 import org.cueglow.gdtf.DMXMode
 import org.cueglow.server.objects.InvalidGdtfException
+import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
-import org.jgrapht.graph.DirectedAcyclicGraph
 import kotlin.math.max
 import kotlin.math.min
 
@@ -29,13 +29,13 @@ data class GlowDmxMode(
     val channelCount: Int,
     val channelFunctions: List<GlowChannelFunction>,
     val multiByteChannels: List<MultiByteChannel>,
-    val channelFunctionDependencies: DirectedAcyclicGraph<Int, DependencyEdge>,
+    val channelFunctionDependencies: DefaultDirectedGraph<Int, DependencyEdge>,
     val channelLayout: List<List<String?>>,
 )
 
 class DependencyEdge(val from: Long, val to: Long) : DefaultEdge() {
     override fun toString() =
-        "${super.getSource()} --(${this.from}:${this.to})-> ${super.getTarget()}"
+        "${super.getSource()} -(${this.from}:${this.to})-> ${super.getTarget()}"
 }
 
 //--------------------
@@ -47,7 +47,7 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
     val channelLayout: MutableList<MutableList<String?>> = mutableListOf(mutableListOf())
     val channelFunctions: MutableList<GlowChannelFunction> = mutableListOf()
     val multiByteChannels: MutableList<MultiByteChannel> = mutableListOf()
-    val channelFunctionDependencies = DirectedAcyclicGraph<Int, DependencyEdge>(DependencyEdge::class.java)
+    val channelFunctionDependencies = DefaultDirectedGraph<Int, DependencyEdge>(DependencyEdge::class.java)
     try {
         // populate multiByteChannels
         mode.dmxChannels.dmxChannel.forEach { channel ->
@@ -151,8 +151,8 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
             channelFunctionDependencies.addVertex(dependencyChFInd)
             channelFunctionDependencies.addVertex(dependentChFInd)
             channelFunctionDependencies.addEdge(
-                dependencyChFInd,
                 dependentChFInd,
+                dependencyChFInd,
                 DependencyEdge(modeFromClipped, modeToClipped)
             )
         }
