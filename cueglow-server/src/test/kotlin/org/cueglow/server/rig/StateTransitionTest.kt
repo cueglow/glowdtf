@@ -39,7 +39,7 @@ internal class StateTransitionTest {
 
     @Test
     fun trackingTest() {
-        val state: RigState = mutableListOf(gdtfDefaultState(dmxMode))
+        val state: RigStateList = mutableListOf(gdtfDefaultState(dmxMode))
         val fixtureState = state[0]
         // we'll focus on the Control1 through Control4 ChannelFunctions
         // first, set their ModeMaster so none of them are disabled
@@ -111,7 +111,7 @@ internal class StateTransitionTest {
 
     @Test
     fun nestedModeMaster() {
-        val state: RigState = mutableListOf(gdtfDefaultState(dmxMode))
+        val state: RigStateList = mutableListOf(gdtfDefaultState(dmxMode))
         val fixtureState = state[0]
 
         // we'll focus on the ColorEffects and ColorMacro channels

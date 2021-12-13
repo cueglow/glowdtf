@@ -39,6 +39,8 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
             GlowEvent.REMOVE_FIXTURES, GlowEvent.ADD_FIXTURE_TYPES,
             GlowEvent.REMOVE_FIXTURE_TYPES -> publish(GlowTopic.PATCH, glowMessage)
 
+            GlowEvent.RIG_STATE -> publish(GlowTopic.RIG_STATE, glowMessage)
+
             GlowEvent.SYNC -> activateSubscription((glowMessage as GlowMessage.Sync).data)
 
             else -> return
@@ -81,6 +83,15 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
                 }
                 val initialMessage = GlowMessage.PatchInitialState(initialPatchState)
                 subscriber.send(initialMessage)
+            }
+            GlowTopic.RIG_STATE -> {
+                lock.withLock {
+                    state.lock.withLock {
+                        val initialMessage = GlowMessage.RigState(state.rigState)
+                        subscriber.send(initialMessage)
+                    }
+                    activeSubscriptions[GlowTopic.RIG_STATE]!!.add(subscriber) // null asserted because all possible keys are initialized in init block
+                }
             }
         }
     }

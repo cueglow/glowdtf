@@ -1,6 +1,6 @@
 package org.cueglow.server.rig
 
-typealias RigState = MutableList<FixtureState>
+typealias RigStateList = MutableList<FixtureState>
 
 data class FixtureState(
     val chValues: MutableList<Long>, // size = multiByteChannels.size

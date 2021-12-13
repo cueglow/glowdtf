@@ -190,7 +190,9 @@ Execution failed for task ':npmInstall'.
 > A problem occurred starting process 'command 'npm''
 ```
 you can try running `./gradlew --stop` to stop the Gradle daemon and then re-run
-`./gradlew run`. 
+`./gradlew run`. For me, this occurs if the first start of the Gradle daemon
+occurs in IntelliJ, so try stopping and then running something in the terminal
+before trying it in IntelliJ again. 
 
 ### Still didn't work?
 

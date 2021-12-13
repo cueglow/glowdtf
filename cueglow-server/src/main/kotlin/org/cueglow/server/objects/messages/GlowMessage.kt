@@ -6,6 +6,8 @@ import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.json.KlaxonGlowMessageAdapter
 import org.cueglow.server.patch.PatchFixture
 import org.cueglow.server.patch.PatchFixtureUpdate
+import org.cueglow.server.rig.RigStateList
+import org.cueglow.server.rig.RigStateTransition
 import java.util.*
 
 /**
@@ -44,6 +46,11 @@ sealed class GlowMessage constructor(
     class RemoveFixtureTypes(@Json(index=1) val data: List<UUID>, messageId: Int? = null): GlowMessage(GlowEvent.REMOVE_FIXTURE_TYPES, messageId)
 
     class FixtureTypeAdded(@Json(index=1) val data: UUID, messageId: Int? = null): GlowMessage(GlowEvent.FIXTURE_TYPE_ADDED, messageId)
+
+    // rigState Topic
+
+    class RigState(@Json(index=1) val data: RigStateList, messageId: Int? = null): GlowMessage(GlowEvent.RIG_STATE, messageId)
+    class SetChannel(@Json(index=1) val data: RigStateTransition, messageId: Int? = null): GlowMessage(GlowEvent.SET_CHANNEL, messageId)
 
     companion object
 }

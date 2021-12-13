@@ -4,8 +4,7 @@ import com.github.michaelbull.result.*
 import org.cueglow.server.gdtf.GdtfWrapper
 import org.cueglow.server.gdtf.gdtfDefaultState
 import org.cueglow.server.objects.messages.*
-import org.cueglow.server.rig.FixtureState
-import org.cueglow.server.rig.RigState
+import org.cueglow.server.rig.RigStateList
 import java.util.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.locks.Lock
@@ -18,7 +17,7 @@ import kotlin.reflect.full.primaryConstructor
  *
  * The data is isolated such that it can only be modified by methods that notify the StreamHandler on change.
  */
-class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Lock, val rigState: RigState) {
+class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Lock, val rigState: RigStateList) {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
     private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 

@@ -369,7 +369,7 @@ The rig state is the state of all fixtures (the "rig").
 
 - `subscribe`/`unsubscribe`/`error`
 - `rigState` (sent by server)
-- `setChannelFunction`
+- `setChannel`
 
 ### Rig State Lifecycle
 

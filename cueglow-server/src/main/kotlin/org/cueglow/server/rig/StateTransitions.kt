@@ -10,7 +10,7 @@ data class RigStateTransition(
     val value: Long,
 )
 
-fun RigState.transition(transition: RigStateTransition, patch: GlowPatch) {
+fun RigStateList.transition(transition: RigStateTransition, patch: GlowPatch) {
     // get data
     val (fixtureInd, changedChInd, newValue) = transition
     val fixture = patch.fixtures[fixtureInd]

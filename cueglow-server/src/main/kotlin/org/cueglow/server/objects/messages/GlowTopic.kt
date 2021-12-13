@@ -1,7 +1,8 @@
 package org.cueglow.server.objects.messages
 
 enum class GlowTopic(val string: String) {
-    PATCH("patch"),;
+    PATCH("patch"),
+    RIG_STATE("rigState");
 
     override fun toString() = string
 

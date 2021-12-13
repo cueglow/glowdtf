@@ -27,7 +27,11 @@ enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessag
     ADD_FIXTURE_TYPES("addFixtureTypes", GlowMessage.AddFixtureTypes::class),
     REMOVE_FIXTURE_TYPES("removeFixtureTypes", GlowMessage.RemoveFixtureTypes::class),
 
-    FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowMessage.FixtureTypeAdded::class),;
+    FIXTURE_TYPE_ADDED("fixtureTypeAdded", GlowMessage.FixtureTypeAdded::class),
+
+    // Topic rigState
+    RIG_STATE("rigState", GlowMessage.RigState::class),
+    SET_CHANNEL("setChannel", GlowMessage.SetChannel::class),;
 
     override fun toString(): String {
         return string

@@ -3,6 +3,8 @@ package org.cueglow.server.objects.messages
 import com.github.michaelbull.result.getOrElse
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.StateProvider
+import org.cueglow.server.rig.transition
+import kotlin.concurrent.withLock
 
 abstract class IncomingGlowRequestHandler(private val state: StateProvider, private val subscriptionHandler: SubscriptionHandler): Logging {
     fun handle(request: GlowRequest) {
@@ -13,7 +15,16 @@ abstract class IncomingGlowRequestHandler(private val state: StateProvider, priv
             GlowEvent.UPDATE_FIXTURES -> handleUpdateFixture(request)
             GlowEvent.REMOVE_FIXTURES -> handleRemoveFixtures(request)
             GlowEvent.REMOVE_FIXTURE_TYPES -> handleRemoveFixtureTypes(request)
+            GlowEvent.SET_CHANNEL -> handleSetChannel(request)
             else -> logger.warn("Received a message with event ${request.originalMessage.event} which should not be sent by client. Discarding message. ")
+        }
+    }
+
+    private fun handleSetChannel(request: GlowRequest) {
+        val transition = (request.originalMessage as GlowMessage.SetChannel).data
+        state.lock.withLock {
+            state.rigState.transition(transition, state.patch.getGlowPatch())
+            state.outEventQueue.put(GlowMessage.RigState(state.rigState.map { it.copy() }.toMutableList()))
         }
     }
 
