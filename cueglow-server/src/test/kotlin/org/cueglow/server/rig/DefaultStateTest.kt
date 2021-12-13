@@ -61,6 +61,8 @@ internal class DefaultStateTest {
             fixtureType.modes[0].multiByteChannels.map{it.initialChannelFunctionInd}
         )
     }
+
+    // TODO test cyclic dependencies in channel functions
 }
 
 /**
