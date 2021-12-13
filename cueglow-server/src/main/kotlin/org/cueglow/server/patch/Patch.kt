@@ -2,7 +2,10 @@ package org.cueglow.server.patch
 
 import com.github.michaelbull.result.*
 import org.cueglow.server.gdtf.GdtfWrapper
+import org.cueglow.server.gdtf.gdtfDefaultState
 import org.cueglow.server.objects.messages.*
+import org.cueglow.server.rig.FixtureState
+import org.cueglow.server.rig.RigState
 import java.util.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.locks.Lock
@@ -15,7 +18,7 @@ import kotlin.reflect.full.primaryConstructor
  *
  * The data is isolated such that it can only be modified by methods that notify the StreamHandler on change.
  */
-class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Lock) {
+class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Lock, val rigState: RigState) {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
     private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 
@@ -82,7 +85,19 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Loc
             if (fixtureTypeModes.map { it.name }.contains(patchFixtureToAdd.dmxMode).not()) {
                 return@eachFixture Err(UnknownDmxModeError(patchFixtureToAdd.dmxMode, patchFixtureToAdd.fixtureTypeId))
             }
+            // add to Patch
             fixtures[patchFixtureToAdd.uuid] = patchFixtureToAdd
+            // reset default state and add new fixtures
+            rigState.clear()
+            val newDefaultState = fixtures
+                .values
+                .toList()
+                .map { fixture ->
+                    val fixtureType = fixtureTypes[fixture.fixtureTypeId]!! // already validated
+                    val dmxMode = fixtureType.modes.find{ it.name == fixture.dmxMode }!! // already validated
+                    gdtfDefaultState(dmxMode)
+                }
+            rigState.addAll(newDefaultState)
             return@eachFixture Ok(patchFixtureToAdd)
         }
 
@@ -106,6 +121,17 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Loc
     fun removeFixtures(uuids: Iterable<UUID>): Result<Unit, List<UnknownFixtureUuidError>> =
         executeWithErrorListAndSendOutEvent(GlowMessage.RemoveFixtures::class, uuids) eachFixture@{ uuidToRemove ->
             fixtures.remove(uuidToRemove) ?: return@eachFixture Err(UnknownFixtureUuidError(uuidToRemove))
+            rigState.clear()
+            val newDefaultState = fixtures
+                .values
+                .toList()
+                .filter { fixtureTypes.containsKey(it.fixtureTypeId) }
+                .map { fixture ->
+                    val fixtureType = fixtureTypes[fixture.fixtureTypeId]!! // filtered out before
+                    val dmxMode = fixtureType.modes.find{ it.name == fixture.dmxMode }!! // already validated
+                    gdtfDefaultState(dmxMode)
+                }
+            rigState.addAll(newDefaultState)
             return@eachFixture Ok(uuidToRemove)
         }
 

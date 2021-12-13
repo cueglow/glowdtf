@@ -10,7 +10,7 @@ import java.util.concurrent.*
 import java.util.concurrent.locks.ReentrantLock
 
 class ConcurrentPatchTest {
-    val patch = Patch(LinkedBlockingQueue(), ReentrantLock())
+    val patch = Patch(LinkedBlockingQueue(), ReentrantLock(), mutableListOf())
 
     private val exampleFixtureTypeList = listOf(
         ExampleFixtureType.esprite,

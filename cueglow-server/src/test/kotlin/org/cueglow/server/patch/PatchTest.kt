@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock
 
 internal class PatchTest {
 
-    private val patch = Patch(LinkedBlockingQueue(), ReentrantLock())
+    private val patch = Patch(LinkedBlockingQueue(), ReentrantLock(), mutableListOf())
 
     private val exampleFixtureType = ExampleFixtureType.esprite
 
