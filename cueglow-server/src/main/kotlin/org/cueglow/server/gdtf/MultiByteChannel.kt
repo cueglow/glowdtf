@@ -12,7 +12,7 @@ data class MultiByteChannel(
     val dmxBreak: Int,
     val offsets: List<Int>,
     val bytes: Byte,
-    val channelFunctionIndices: IntRange, // Raw ChannelFunction is always first one
+    val channelFunctionIndices: List<Int>, // Raw ChannelFunction is always first one
     val geometry: String,
     val abstractGeometry: AbstractGeometry?, // if null, channel is not instantiated from abstract
     val originalName: String,
@@ -85,7 +85,7 @@ data class MultiByteChannel(
             val channelFunctionIndexStart = channelFunctions.size
             channelFunctions.addAll(currentChannelFunctions)
             val channelFunctionIndexStop = channelFunctions.size - 1
-            val channelFunctionIndices = channelFunctionIndexStart..channelFunctionIndexStop
+            val channelFunctionIndices = (channelFunctionIndexStart..channelFunctionIndexStop).toList()
 
             val originalName = channelNamePrototype(channel)
 

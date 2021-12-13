@@ -104,7 +104,7 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
 
             val dependencyChFInd = if (dependencySequence.size == 1) {
                 // reference to a channel means dependency on raw ChF
-                dependencyCh.channelFunctionIndices.first // first is raw ChF
+                dependencyCh.channelFunctionIndices.first() // first is raw ChF
             } else if (dependencySequence.size == 3) {
                 val candidateChFs = dependencyCh.channelFunctionIndices
                 var matchChF: Int? = null

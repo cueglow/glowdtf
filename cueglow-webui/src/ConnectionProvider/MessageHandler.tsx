@@ -1,4 +1,5 @@
 import { patchDataHandler } from "./PatchDataProvider";
+import { rigStateHandler } from "./RigStateProvider";
 
 export class MessageHandler {
     constructor (private webSocket: WebSocket) {
@@ -22,6 +23,8 @@ export class MessageHandler {
             patchDataHandler.onUpdateFixtures(data)
         } else if (event === "removeFixtures") {
             patchDataHandler.onRemoveFixtures(data)
+        } else if (event === "rigState") {
+            rigStateHandler.onNewRigStateMessage(data)
         } else {
             console.log("Received unhandled WebSocket Message", message)
         }
