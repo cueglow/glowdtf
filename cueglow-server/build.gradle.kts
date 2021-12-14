@@ -50,6 +50,8 @@ dependencies {
     implementation("org.jgrapht:jgrapht-core:1.5.1")
     implementation("org.jgrapht:jgrapht-io:1.5.1")
 
+    implementation("de.deltaeight:LibArtNet:1.1.2-beta")
+
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.13.3")
 }

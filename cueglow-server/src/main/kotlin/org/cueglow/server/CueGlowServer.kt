@@ -2,11 +2,13 @@ package org.cueglow.server
 
 import io.javalin.Javalin
 import org.apache.logging.log4j.kotlin.Logging
+import org.cueglow.server.artnet.ArtNetSending
 import org.cueglow.server.gdtf.GdtfHandler
 import org.cueglow.server.json.JsonSubscriptionHandler
 import org.cueglow.server.rest.handleGdtfUpload
 import org.cueglow.server.websocket.GlowWebSocketHandler
 import org.eclipse.jetty.server.Server
+import java.util.concurrent.Executors
 
 
 fun main(args: Array<String>) {
@@ -52,6 +54,8 @@ class CueGlowServer(port: Int = 7000) : Logging {
 
     init {
         logger.info("Serving frontend at http://localhost:$port")
+
+        val artNetSendingFuture = Executors.newSingleThreadExecutor().submit(ArtNetSending(state))
     }
 
     fun stop() {

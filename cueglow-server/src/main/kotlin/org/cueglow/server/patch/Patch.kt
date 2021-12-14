@@ -17,7 +17,7 @@ import kotlin.reflect.full.primaryConstructor
  *
  * The data is isolated such that it can only be modified by methods that notify the StreamHandler on change.
  */
-class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Lock, val rigState: RigStateList) {
+class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Lock, private val rigState: RigStateList) {
     private val fixtures: HashMap<UUID, PatchFixture> = HashMap()
     private val fixtureTypes: HashMap<UUID, GdtfWrapper> = HashMap()
 
