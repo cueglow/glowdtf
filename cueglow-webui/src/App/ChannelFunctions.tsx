@@ -77,8 +77,8 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd }: ChannelFunctionSlide
         return rangeSize / numberOfLabels
     }, [chF])
 
-    const disabled = rigState[fixtureInd].chFDisabled[chFInd] // TODO something happens when they freshly show up from a different window
-    const chValue = rigState[fixtureInd].chValues[chInd] // TODO these cause an error: access to undefined "chFDisabled" once a fixture is removed
+    const disabled = rigState[fixtureInd]?.chFDisabled[chFInd]
+    const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
 
     return <div>
         <div>

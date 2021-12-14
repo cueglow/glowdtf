@@ -18,8 +18,6 @@ class ArtNetSending(val state: StateProvider) : Runnable {
     val frameTime = Duration.ofSeconds(1).dividedBy(frameRate.toLong())
 
     override fun run() {
-        logger.info("ArtNetSender starting up")
-
         val rateLimiter = RateLimiter(frameTime)
 
         var lastSent = Long.MIN_VALUE
@@ -32,7 +30,6 @@ class ArtNetSending(val state: StateProvider) : Runnable {
         sender.start()
 
         while (true) {
-            logger.info("rendering")
             // render data
             state.lock.withLock {
                 val glowPatch = state.patch.getGlowPatch()
@@ -68,13 +65,10 @@ class ArtNetSending(val state: StateProvider) : Runnable {
                     }
             }
 
-            logger.info("prevData is ${prevData.map { "${it.key}: ${it.value.slice(0..1).joinToString("\n")}" }}")
-            logger.info("builder data is ${builders.map { "${it.key}: ${it.value.data.slice(0..1).joinToString("\n")}" }}")
-
             // check if we should suppress
             // NOTE this could be done a per-universe basis
             if (builders.all { prevData[it.key]?.contentEquals(it.value.data) == true }) {
-                logger.info("checking for suppression")
+                // logger.info("checking for suppression")
                 if (System.nanoTime() - lastSent < suppressionTime) {
                     rateLimiter.limitRate()
                     continue
@@ -83,19 +77,13 @@ class ArtNetSending(val state: StateProvider) : Runnable {
 
             prevData = builders.mapValues { it.value.data }
 
-            logger.info("setting prevData to ${prevData.map { "${it.key}: ${it.value.slice(0..1).joinToString("\n")}" }}")
-
             rateLimiter.limitRate()
 
             builders.forEach { builderPair ->
-                logger.info("sending for universe ${builderPair.key.value}")
                 val builder = builderPair.value
                 val dataToSend = builder.build()
                 sender.send(InetAddress.getByName("192.168.1.255"), dataToSend)
             }
-
-            // TODO, somehow when suppressing we often send two packets in quick succession, followed by a suppression pause and another quick packet, and so on
-            // TODO diagnose this
 
             lastSent = System.nanoTime()
         }
