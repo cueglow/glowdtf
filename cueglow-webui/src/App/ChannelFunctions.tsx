@@ -6,7 +6,7 @@ import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "src/ConnectionProvider/PatchDataProvider";
-import { RigStateContext } from "src/ConnectionProvider/RigStateProvider";
+import { RigStateContext, RigStateProvider } from "src/ConnectionProvider/RigStateProvider";
 import { ChannelFunction, MultiByteChannel } from "src/Types/FixtureType";
 import { PatchFixture } from "src/Types/Patch";
 import { } from "styled-components/macro";
@@ -57,7 +57,7 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
         sortedGroups.push({ featureGroup: "Raw DMX", chFs: chFsByFeatureGroup["Raw DMX"] })
     }
 
-    return <>
+    return <RigStateProvider>
         <h3 className="bp3-heading" css={`margin-top: 0;`}>Channel Functions</h3>
         {/* {selectedFixture?.fid} {selectedFixture?.name} */}
         {sortedGroups.map(({ featureGroup, chFs }) => {
@@ -86,7 +86,7 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
                 })}
             </>
         })}
-    </>;
+    </RigStateProvider>;
 }
 
 type ChannelFunctionSliderProps = {
@@ -100,26 +100,53 @@ type ChannelFunctionSliderProps = {
 const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: ChannelFunctionSliderProps) => {
     const rigState = useContext(RigStateContext);
 
+    // Stuff that stays the same unless we were to change Channel Function
+
     const chInd = chF.multiByteChannelInd
+
+    const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
+
+    const disabled = rigState[fixtureInd]?.chFDisabled[chFInd];
+
+    const outOfRange = useMemo(() => !_.inRange(chValue, chF.dmxFrom, chF.dmxTo + 1), [chF.dmxFrom, chF.dmxTo, chValue]); // TODO deps
 
     const labelStepSize = useMemo(() => {
         const numberOfLabels = 8;
-        const rangeSize = chF.dmxTo - chF.dmxFrom
-        return rangeSize / numberOfLabels
-    }, [chF])
+        const rangeSize = chF.dmxTo - chF.dmxFrom;
+        return rangeSize / numberOfLabels;
+    }, [chF]);
 
-    const disabled = rigState[fixtureInd]?.chFDisabled[chFInd]
-    const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
-    const dmxAddress = channel.offsets.map((offset) =>
-        `${channel.dmxBreak}.${offset}`
-    ).join(", ")
+    const dmxAddress = useMemo(() => channel.offsets.map((offset) => `${channel.dmxBreak}.${offset}`
+    ).join(", "), [channel.dmxBreak, channel.offsets]);
 
-    const outOfRange = !_.inRange(chValue, chF.dmxFrom, chF.dmxTo+1)
 
-    const tooltipContent = <>
+    return useMemo(() => 
+    <ChannelFunctionWithValue channelName={channel.name} 
+    {...{chF, fixtureInd, chValue, geometry, chInd, disabled, outOfRange, dmxAddress, labelStepSize}} 
+    />, [chF, chInd, chValue, channel.name, disabled, dmxAddress, fixtureInd, geometry, labelStepSize, outOfRange])
+}
+
+type ChannelFunctionSliderValueProps = {
+    chF: ChannelFunction;
+    fixtureInd: number;
+    channelName: string;
+    chValue: number;
+    geometry: string;
+    chInd: number;
+    disabled: string|null;
+    outOfRange: boolean;
+    dmxAddress: string;
+    labelStepSize: number;
+}
+
+
+/* Things for ChannelFunction Slider that often, i.e. when the value or the disabled state changes */
+function ChannelFunctionWithValue(
+    {chF, fixtureInd, channelName, chValue, geometry, chInd, disabled, outOfRange, dmxAddress, labelStepSize}: ChannelFunctionSliderValueProps) {
+    const tooltipContent = useMemo(() => <>
         {outOfRange && <>
             <b>{"Value out of range"}</b>
-        <br />
+            <br />
         </>}
         {(disabled !== null) && <>
             <b>{"Disabled by ModeMaster"}</b>
@@ -131,10 +158,19 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: C
         <br />
         {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd + 1}`)}
         <br />
-        {"DMX Channel: " + channel.name}
+        {"DMX Channel: " + channelName}
         <br />
         {"DMX Offset: " + dmxAddress}
-    </>
+    </>, [chF.attribute, chInd, channelName, disabled, dmxAddress, geometry, outOfRange]);// TODO put in dependencies
+
+    const tooltipedChannelFunctionName = useMemo(() => 
+    <Tooltip2 content={tooltipContent}>
+        <>
+            {chF.name}
+            {disabled !== null && `  (${disabled})`}
+        </>
+    </Tooltip2>,
+        [chF.name, disabled, tooltipContent]);
 
     return <div css={`
         padding-left: ${2 * bp.ptGridSizePx}px;
@@ -144,14 +180,9 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: C
         `}>
         <div>
             <div css={`
-                color: ${(disabled !== null || outOfRange) ?  "gray" : "inherit"};
+                color: ${(disabled !== null || outOfRange) ? "gray" : "inherit"};
             `}>
-                <Tooltip2 content={tooltipContent}>
-                    <>
-                        {chF.name}
-                        {disabled !== null && `  (${disabled})`}
-                    </>
-                </Tooltip2>
+                {tooltipedChannelFunctionName}
             </div>
         </div>
         <Slider
@@ -165,12 +196,10 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: C
                     chInd: chInd,
                     value: newValue
                 }
-                )
-                connectionProvider.send(msg)
+                );
+                connectionProvider.send(msg);
             }}
-            disabled={disabled !== null}
-        />
-    </div>
+            disabled={disabled !== null} />
+    </div>;
 }
-
 

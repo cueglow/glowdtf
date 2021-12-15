@@ -10,12 +10,10 @@ export function App() {
   return (
     <HotkeysProvider>
       <PatchDataProvider>
-        <RigStateProvider>
-          <Router>
-            <MainWindow path="/" default />
-            <PatchWindow path="patch/*" />
-          </Router>
-        </RigStateProvider>
+        <Router>
+          <MainWindow path="/" default />
+          <PatchWindow path="patch/*" />
+        </Router>
       </PatchDataProvider>
     </HotkeysProvider>
   );
