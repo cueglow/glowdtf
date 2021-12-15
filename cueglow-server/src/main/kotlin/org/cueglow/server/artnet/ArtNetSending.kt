@@ -31,6 +31,9 @@ class ArtNetSending(val state: StateProvider) : Runnable {
         sender.start()
 
         while (true) {
+            try {
+
+
             // get copies of state to render
             val (glowPatch, rigState) = state.lock.withLock {
                 val glowPatch = state.patch.getGlowPatch()
@@ -90,6 +93,11 @@ class ArtNetSending(val state: StateProvider) : Runnable {
             }
 
             lastSent = System.nanoTime()
+        }
+            catch (e: Exception) {
+                logger.error("Error in ArtNetSending Loop", e)
+                Thread.sleep(2_000)
+            }
         }
     }
 }
