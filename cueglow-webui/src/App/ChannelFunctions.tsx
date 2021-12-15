@@ -121,6 +121,8 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: C
         <br />
         {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd + 1}`)}
         <br />
+        {"DMX Channel: " + channel.name}
+        <br />
         {"DMX Offset: " + dmxAddress}
     </>
 
