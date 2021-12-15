@@ -21,4 +21,6 @@ data class GlowChannelFunction(
     val defaultValue: Long?, // null when raw DMX ChF
 
     val attribute: String?, // null when raw DMX ChF
+
+    val featureGroup: String, // Should be "Raw DMX" for raw channel functions
 )

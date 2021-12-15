@@ -6,6 +6,8 @@ import org.cueglow.gdtf.GeometryReference
 import org.cueglow.server.objects.InvalidGdtfException
 import org.cueglow.server.objects.UnsupportedGdtfException
 import com.github.michaelbull.result.unwrap
+import org.cueglow.gdtf.Attribute
+import org.cueglow.gdtf.Attributes
 
 data class MultiByteChannel(
     val name: String,
@@ -23,7 +25,8 @@ data class MultiByteChannel(
         fun fromConcreteChannel(
             channel: DMXChannel,
             channelFunctions: MutableList<GlowChannelFunction>,
-            multiByteChannelInd: Int
+            multiByteChannelInd: Int,
+            attributes: List<Attribute>,
         ): MultiByteChannel {
             val nameWithoutByteNumber = channelNamePrototype(channel)
             val dmxBreak = channel.dmxBreak.toInt()
@@ -36,6 +39,7 @@ data class MultiByteChannel(
                 channelFunctions,
                 multiByteChannelInd,
                 channel.geometry,
+                attributes,
             )
         }
 
@@ -45,6 +49,7 @@ data class MultiByteChannel(
             channelFunctions: MutableList<GlowChannelFunction>,
             multiByteChannelInd: Int,
             abstractGeometry: AbstractGeometry,
+            attributes: List<Attribute>,
         ): MultiByteChannel {
             val nameWithoutByteNumber = "${geometryReference.name} -> ${channelNamePrototype(channel)}"
             val (dmxBreak, offsets) = try {
@@ -63,6 +68,7 @@ data class MultiByteChannel(
                 channelFunctions,
                 multiByteChannelInd,
                 geometryReference.name,
+                attributes,
                 abstractGeometry,
             )
         }
@@ -75,13 +81,14 @@ data class MultiByteChannel(
             channelFunctions: MutableList<GlowChannelFunction>,
             multiByteChannelInd: Int,
             geometry: String,
+            attributes: List<Attribute>,
             abstractGeometry: AbstractGeometry? = null,
         ): MultiByteChannel {
             val bytes = offsets.size.toByte()
             if (bytes > 7) {
                 throw UnsupportedGdtfException("Channel '${nameWithoutByteNumber}' has $bytes Bytes but only up to 7 Bytes are supported.")
             }
-            val currentChannelFunctions = channel.getChannelFunctions(bytes, multiByteChannelInd, nameWithoutByteNumber)
+            val currentChannelFunctions = channel.getChannelFunctions(bytes, multiByteChannelInd, nameWithoutByteNumber, attributes)
             val channelFunctionIndexStart = channelFunctions.size
             channelFunctions.addAll(currentChannelFunctions)
             val channelFunctionIndexStop = channelFunctions.size - 1
@@ -121,7 +128,8 @@ data class MultiByteChannel(
         private fun DMXChannel.getChannelFunctions(
             bytes: Byte,
             multiByteChannelInd: Int,
-            multiByteChannelName: String
+            multiByteChannelName: String,
+            attributes: List<Attribute>,
         ): List<GlowChannelFunction> {
             val channelFunctions: MutableList<GlowChannelFunction> = mutableListOf()
             // Raw DMX Channel Function
@@ -135,6 +143,7 @@ data class MultiByteChannel(
                     originalChannelFunction = null,
                     defaultValue = null,
                     attribute = null,
+                    featureGroup = "Raw DMX"
                 )
             )
             // Normal Channel Functions
@@ -193,6 +202,8 @@ data class MultiByteChannel(
                         val dmxTo = dmxTos[dmxFromIndex]
                         channelFunctions.map {
                             val defaultValue = parseDmxValue(it.default, bytes).unwrap()
+                            val attribute = attributes.find { attr -> attr.name == it.attribute } ?: TODO("Log attribute not found error and go to next ChannelFunction")
+                            val featureGroup = attribute.feature.split(".")[0]
                             assert(defaultValue in dmxFrom..dmxTo)
                             GlowChannelFunction(
                                 it.name,
@@ -203,6 +214,7 @@ data class MultiByteChannel(
                                 originalChannelFunction = it,
                                 defaultValue,
                                 it.attribute,
+                                featureGroup,
                             )
                         }
                     }

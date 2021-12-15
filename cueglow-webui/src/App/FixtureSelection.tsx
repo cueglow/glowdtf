@@ -10,7 +10,7 @@ export const FixtureSelection: FunctionComponent<{ setSelectedFixture: (arg0: Pa
         flex-direction: column;
         height: 100%;
     `}>
-        <h3 css={`margin-top: 0;`}>Fixtures</h3>
+        <h3 className="bp3-heading" css={`margin-top: 0;`}>Fixtures</h3>
         <div css={`
             flex-grow: 1;
             min-height: 0;

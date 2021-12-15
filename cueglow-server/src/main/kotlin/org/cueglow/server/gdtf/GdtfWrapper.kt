@@ -11,7 +11,7 @@ val logger = LogManager.getLogger()!!
 /**
  * Immutable wrapper around GDTF
  */
-class GdtfWrapper(@Json(ignored = true)val gdtf: GDTF) {
+class GdtfWrapper(@Json(ignored = true) val gdtf: GDTF) {
     val name: String = gdtf.fixtureType.name
     val manufacturer: String = gdtf.fixtureType.manufacturer
     val fixtureTypeId: UUID = UUID.fromString(gdtf.fixtureType.fixtureTypeID)
@@ -19,7 +19,13 @@ class GdtfWrapper(@Json(ignored = true)val gdtf: GDTF) {
         logger.info("Parsing GDTF: $manufacturer $name")
         val abstractGeometries = findAbstractGeometries(gdtf.fixtureType.geometries)
         // create each mode
-        gdtf.fixtureType.dmxModes.dmxMode.map { GlowDmxMode(it, abstractGeometries) }
+        gdtf.fixtureType.dmxModes.dmxMode.map {
+            GlowDmxMode(
+                it,
+                abstractGeometries,
+                gdtf.fixtureType.attributeDefinitions.attributes.attribute
+            )
+        }
     }
 }
 

@@ -22,6 +22,7 @@ export type ChannelFunction = {
     dmxTo: number;
     multiByteChannelInd: number;
     attribute: string;
+    featureGroup: string;
 }
 
 export type MultiByteChannel = {

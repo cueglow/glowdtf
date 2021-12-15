@@ -1,6 +1,8 @@
 package org.cueglow.server.gdtf
 
 import com.github.michaelbull.result.unwrap
+import org.cueglow.gdtf.Attribute
+import org.cueglow.gdtf.Attributes
 import org.cueglow.gdtf.DMXChannel
 import org.cueglow.gdtf.DMXMode
 import org.cueglow.server.objects.InvalidGdtfException
@@ -42,7 +44,7 @@ class DependencyEdge(val from: Long, val to: Long) : DefaultEdge() {
 // Create from GDTF
 //--------------------
 
-fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): GlowDmxMode {
+fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>, attributes: List<Attribute>): GlowDmxMode {
     // allocate
     val channelLayout: MutableList<MutableList<String?>> = mutableListOf(mutableListOf())
     val channelFunctions: MutableList<GlowChannelFunction> = mutableListOf()
@@ -53,7 +55,7 @@ fun GlowDmxMode(mode: DMXMode, abstractGeometries: List<AbstractGeometry>): Glow
         mode.dmxChannels.dmxChannel.forEach { channel ->
             val multiByteChannelStartInd = multiByteChannels.size
             val instantiatedChannels =
-                instantiateChannel(channel, abstractGeometries, channelFunctions, multiByteChannelStartInd)
+                instantiateChannel(channel, abstractGeometries, channelFunctions, multiByteChannelStartInd, attributes)
             multiByteChannels.addAll(instantiatedChannels)
         }
         // iterate over multiByteChannels while filling channelLayout
@@ -175,6 +177,7 @@ fun instantiateChannel(
     abstractGeometries: List<AbstractGeometry>,
     channelFunctions: MutableList<GlowChannelFunction>,
     multiByteChannelStartInd: Int,
+    attributes: List<Attribute>,
 ): List<MultiByteChannel> {
     // check if geometry referenced by channel is abstract
     val abstractGeometry = abstractGeometries.find { it.name == channel.geometry }
@@ -187,12 +190,13 @@ fun instantiateChannel(
                 geometryReference,
                 channelFunctions,
                 multiByteChannelInd,
-                abstractGeometry
+                abstractGeometry,
+                attributes,
             )
         }
     } else {
         // channel is concrete (i.e. not abstract)
-        listOf(MultiByteChannel.fromConcreteChannel(channel, channelFunctions, multiByteChannelStartInd))
+        listOf(MultiByteChannel.fromConcreteChannel(channel, channelFunctions, multiByteChannelStartInd, attributes))
     }
 }
 

@@ -1,5 +1,6 @@
-import { Slider, Tooltip } from "@blueprintjs/core";
+import { Slider } from "@blueprintjs/core";
 import { Tooltip2 } from "@blueprintjs/popover2";
+import _ from "lodash";
 import { FunctionComponent, useContext, useMemo } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
@@ -31,35 +32,58 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
 
     const fixtureInd = patchData.fixtures.findIndex(fixture => fixture.uuid === selectedFixture?.uuid)
 
+    const chFsByFeatureGroup = _.groupBy(channelFunctions, chF => chF.featureGroup)
+
+    const featureGroupOrder = ["Dimmer", "Position", "Color", "Gobo", "Beam", "Focus", "Shapers", "Video", "Control"]
+
+    const sortedGroups: { featureGroup: string, chFs: ChannelFunction[] }[] = []
+
+    // first the known Feature Groups in wanted order
+    featureGroupOrder.forEach(featureGroup => {
+        const chFs = chFsByFeatureGroup[featureGroup]
+        if (chFs != null) {
+            sortedGroups.push({ featureGroup, chFs })
+        }
+    })
+    // now the unknown Feature Groups
+    _.forEach(chFsByFeatureGroup, (chFs, featureGroup) => {
+        if (featureGroup !== "Raw DMX" && !featureGroupOrder.includes(featureGroup)) {
+            sortedGroups.push({ featureGroup, chFs })
+        }
+    })
+    // and last, Raw DMX
+    const rawDmxChFs = chFsByFeatureGroup["Raw DMX"]
+    if (rawDmxChFs != null) {
+        sortedGroups.push({ featureGroup: "Raw DMX", chFs: chFsByFeatureGroup["Raw DMX"] })
+    }
+
     return <>
-        <h3 css={`margin-top: 0;`}>Channel Functions</h3>
+        <h3 className="bp3-heading" css={`margin-top: 0;`}>Channel Functions</h3>
         {/* {selectedFixture?.fid} {selectedFixture?.name} */}
-        {channels?.flatMap((channel) => {
-            console.log("channel with channelFunctionIndices ", channel?.channelFunctionIndices)
-            return channel?.channelFunctionIndices?.slice(1).map((chFInd) => {
-                const channelFunction = channelFunctions[chFInd]
-                console.log("non-raw channelFunction ", channelFunction.name)
-                return <ChannelFunctionSlider
-                    chF={channelFunction}
-                    chFInd={chFInd}
-                    fixtureInd={fixtureInd}
-                    geometry={channel?.geometry}
-                    key={`${selectedFixture?.uuid}_${chFInd}`}
-                />
-            })
-        })}
-        <h4>Raw DMX</h4>
-        {channels?.map((channel) => {
-            const chFInd = channel?.channelFunctionIndices[0] ?? 0
-            const channelFunction = channelFunctions[chFInd]
-            console.log("raw channelFunction ", channelFunction.name)
-            return <ChannelFunctionSlider
-                chF={channelFunction}
-                chFInd={chFInd}
-                fixtureInd={fixtureInd}
-                geometry={channel?.geometry}
-                key={`${selectedFixture?.uuid}_${chFInd}`}
-            />
+        {sortedGroups.map(({ featureGroup, chFs }) => {
+            return <>
+
+                <h4 className="bp3-heading" css={`
+                    margin-top: ${2 * bp.ptGridSizePx}px;
+                `}>
+                    <Tooltip2 content={`Feature Group ${featureGroup}`}>
+                        {featureGroup}
+                    </Tooltip2>
+                </h4>
+
+                {chFs?.map((channelFunction) => {
+                    if (channels == null) { return <></> }
+                    const chFInd = channelFunctions.indexOf(channelFunction)
+                    const channel = channels[channelFunction.multiByteChannelInd]
+                    return <ChannelFunctionSlider
+                        chF={channelFunction}
+                        chFInd={chFInd}
+                        fixtureInd={fixtureInd}
+                        geometry={channel?.geometry}
+                        key={`${selectedFixture?.uuid}_${chFInd}`}
+                    />
+                })}
+            </>
         })}
     </>;
 }
@@ -86,9 +110,11 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry }: ChannelFun
     const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
 
     const tooltipContent = <>
+        {"Channel Function " + chF.name}
+        <br />
         {"Geometry: " + geometry}
         <br />
-        {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd+1}`)}
+        {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd + 1}`)}
     </>
 
     return <div css={`
