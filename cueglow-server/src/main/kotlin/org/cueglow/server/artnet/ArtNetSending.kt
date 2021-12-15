@@ -86,7 +86,7 @@ class ArtNetSending(val state: StateProvider) : Runnable {
             builders.forEach { builderPair ->
                 val builder = builderPair.value
                 val dataToSend = builder.build()
-                sender.send(InetAddress.getByName("192.168.1.255"), dataToSend)
+                sender.send(InetAddress.getByName("255.255.255.255"), dataToSend)
             }
 
             lastSent = System.nanoTime()
