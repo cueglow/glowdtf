@@ -30,6 +30,8 @@ export type MultiByteChannel = {
     bytes: number;
     channelFunctionIndices: number[];
     geometry: string;
+    dmxBreak: number;
+    offsets: number[];
 }
 
 // Utilities

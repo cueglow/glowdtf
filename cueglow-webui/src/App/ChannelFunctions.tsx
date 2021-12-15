@@ -7,7 +7,7 @@ import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "src/ConnectionProvider/PatchDataProvider";
 import { RigStateContext } from "src/ConnectionProvider/RigStateProvider";
-import { ChannelFunction } from "src/Types/FixtureType";
+import { ChannelFunction, MultiByteChannel } from "src/Types/FixtureType";
 import { PatchFixture } from "src/Types/Patch";
 import { } from "styled-components/macro";
 
@@ -80,6 +80,7 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
                         chFInd={chFInd}
                         fixtureInd={fixtureInd}
                         geometry={channel?.geometry}
+                        channel={channel}
                         key={`${selectedFixture?.uuid}_${chFInd}`}
                     />
                 })}
@@ -93,9 +94,10 @@ type ChannelFunctionSliderProps = {
     chFInd: number;
     fixtureInd: number;
     geometry: string;
+    channel: MultiByteChannel;
 }
 
-const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry }: ChannelFunctionSliderProps) => {
+const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: ChannelFunctionSliderProps) => {
     const rigState = useContext(RigStateContext);
 
     const chInd = chF.multiByteChannelInd
@@ -108,6 +110,9 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry }: ChannelFun
 
     const disabled = rigState[fixtureInd]?.chFDisabled[chFInd]
     const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
+    const dmxAddress = channel.offsets.map((offset) =>
+        `${channel.dmxBreak}.${offset}`
+    ).join(", ")
 
     const tooltipContent = <>
         {"Channel Function " + chF.name}
@@ -115,6 +120,8 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry }: ChannelFun
         {"Geometry: " + geometry}
         <br />
         {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd + 1}`)}
+        <br />
+        {"DMX Offset: " + dmxAddress}
     </>
 
     return <div css={`
