@@ -114,9 +114,19 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: C
         `${channel.dmxBreak}.${offset}`
     ).join(", ")
 
+    const outOfRange = !_.inRange(chValue, chF.dmxFrom, chF.dmxTo+1)
+
     const tooltipContent = <>
-        {"Channel Function " + chF.name}
+        {outOfRange && <>
+            <b>{"Value out of range"}</b>
         <br />
+        </>}
+        {(disabled !== null) && <>
+            <b>{"Disabled by ModeMaster"}</b>
+            <br />
+            <b>{disabled}</b>
+            <br />
+        </>}
         {"Geometry: " + geometry}
         <br />
         {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd + 1}`)}
@@ -134,11 +144,13 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: C
         `}>
         <div>
             <div css={`
-                color: ${disabled === null ? "inherit" : "gray"}
+                color: ${(disabled !== null || outOfRange) ?  "gray" : "inherit"};
             `}>
                 <Tooltip2 content={tooltipContent}>
-                    {chF.name}
-                    {disabled !== null && `  (${disabled})`}
+                    <>
+                        {chF.name}
+                        {disabled !== null && `  (${disabled})`}
+                    </>
                 </Tooltip2>
             </div>
         </div>
