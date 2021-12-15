@@ -86,6 +86,7 @@ class PatchOutEventQueueTest {
 
         // add fixture
         patch.addFixtures(listOf(examplePatchFixture))
+        assertTrue(queue.pollTimeout() is GlowMessage.RigState)
         val addMessage = queue.pollTimeout() as GlowMessage.AddFixtures
         assertEquals(1, addMessage.data.size)
         assertTrue(examplePatchFixture.isSimilar(addMessage.data[0]))
@@ -99,6 +100,7 @@ class PatchOutEventQueueTest {
 
         // remove fixture
         patch.removeFixtures(listOf(examplePatchFixture.uuid))
+        assertTrue(queue.pollTimeout() is GlowMessage.RigState)
         val removeMessage = queue.pollTimeout() as GlowMessage.RemoveFixtures
         assertEquals(1, removeMessage.data.size)
         assertEquals(examplePatchFixture.uuid, removeMessage.data[0])
@@ -113,9 +115,11 @@ class PatchOutEventQueueTest {
         assertTrue(queue.pollTimeout() is GlowMessage.AddFixtureTypes)
 
         patch.addFixtures(listOf(examplePatchFixture))
+        assertTrue(queue.pollTimeout() is GlowMessage.RigState)
         assertTrue(queue.pollTimeout() is GlowMessage.AddFixtures)
 
         patch.removeFixtureTypes(listOf(exampleFixtureType.fixtureTypeId))
+        assertTrue(queue.pollTimeout() is GlowMessage.RigState)
         val removeFixturesMessage = queue.pollTimeout() as GlowMessage.RemoveFixtures
 
         assertEquals(1, removeFixturesMessage.data.size)

@@ -21,12 +21,14 @@ export type ChannelFunction = {
     dmxFrom: number;
     dmxTo: number;
     multiByteChannelInd: number;
+    attribute: string;
 }
 
 export type MultiByteChannel = {
     name: string;
     bytes: number;
     channelFunctionIndices: number[];
+    geometry: string;
 }
 
 // Utilities

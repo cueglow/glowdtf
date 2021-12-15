@@ -134,6 +134,7 @@ data class MultiByteChannel(
                     logicalChannel = null,
                     originalChannelFunction = null,
                     defaultValue = null,
+                    attribute = null,
                 )
             )
             // Normal Channel Functions
@@ -201,6 +202,7 @@ data class MultiByteChannel(
                                 logicalChannel.attribute,
                                 originalChannelFunction = it,
                                 defaultValue,
+                                it.attribute,
                             )
                         }
                     }

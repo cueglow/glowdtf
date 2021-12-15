@@ -1,4 +1,5 @@
-import { Slider } from "@blueprintjs/core";
+import { Slider, Tooltip } from "@blueprintjs/core";
+import { Tooltip2 } from "@blueprintjs/popover2";
 import { FunctionComponent, useContext, useMemo } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
@@ -28,7 +29,7 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
 
     const channels = dmxModeObject?.multiByteChannels
 
-    const fixtureInd = patchData.fixtures.findIndex( fixture => fixture.uuid === selectedFixture?.uuid)
+    const fixtureInd = patchData.fixtures.findIndex(fixture => fixture.uuid === selectedFixture?.uuid)
 
     return <>
         <h3 css={`margin-top: 0;`}>Channel Functions</h3>
@@ -39,10 +40,11 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
                 const channelFunction = channelFunctions[chFInd]
                 console.log("non-raw channelFunction ", channelFunction.name)
                 return <ChannelFunctionSlider
-                chF={channelFunction}
-                chFInd={chFInd}
-                fixtureInd={fixtureInd}
-                key={`${selectedFixture?.uuid}_${chFInd}`}
+                    chF={channelFunction}
+                    chFInd={chFInd}
+                    fixtureInd={fixtureInd}
+                    geometry={channel?.geometry}
+                    key={`${selectedFixture?.uuid}_${chFInd}`}
                 />
             })
         })}
@@ -52,10 +54,11 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
             const channelFunction = channelFunctions[chFInd]
             console.log("raw channelFunction ", channelFunction.name)
             return <ChannelFunctionSlider
-            chF={channelFunction}
-            chFInd={chFInd}
-            fixtureInd={fixtureInd}
-            key={`${selectedFixture?.uuid}_${chFInd}`}
+                chF={channelFunction}
+                chFInd={chFInd}
+                fixtureInd={fixtureInd}
+                geometry={channel?.geometry}
+                key={`${selectedFixture?.uuid}_${chFInd}`}
             />
         })}
     </>;
@@ -65,9 +68,10 @@ type ChannelFunctionSliderProps = {
     chF: ChannelFunction;
     chFInd: number;
     fixtureInd: number;
+    geometry: string;
 }
 
-const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd }: ChannelFunctionSliderProps) => {
+const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry }: ChannelFunctionSliderProps) => {
     const rigState = useContext(RigStateContext);
 
     const chInd = chF.multiByteChannelInd
@@ -81,18 +85,26 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd }: ChannelFunctionSlide
     const disabled = rigState[fixtureInd]?.chFDisabled[chFInd]
     const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
 
+    const tooltipContent = <>
+        {"Geometry: " + geometry}
+        <br />
+        {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd+1}`)}
+    </>
+
     return <div css={`
-        padding-left: ${2*bp.ptGridSizePx}px;
-        padding-right: ${3*bp.ptGridSizePx}px;
-        padding-bottom: ${1*bp.ptGridSizePx}px;
+        padding-left: ${2 * bp.ptGridSizePx}px;
+        padding-right: ${3 * bp.ptGridSizePx}px;
+        padding-bottom: ${1 * bp.ptGridSizePx}px;
         overflow-x: hidden;
         `}>
         <div>
             <div css={`
                 color: ${disabled === null ? "inherit" : "gray"}
             `}>
-                {chF.name}
-                {disabled !== null && `  (${disabled})`}
+                <Tooltip2 content={tooltipContent}>
+                    {chF.name}
+                    {disabled !== null && `  (${disabled})`}
+                </Tooltip2>
             </div>
         </div>
         <Slider
@@ -100,11 +112,12 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd }: ChannelFunctionSlide
             max={chF.dmxTo}
             value={chValue}
             labelStepSize={labelStepSize}
-            onChange={ newValue => {
+            onChange={newValue => {
                 const msg = new ClientMessage.SetChannel({
-                    fixtureInd: fixtureInd, 
-                    chInd: chInd, 
-                    value: newValue}
+                    fixtureInd: fixtureInd,
+                    chInd: chInd,
+                    value: newValue
+                }
                 )
                 connectionProvider.send(msg)
             }}

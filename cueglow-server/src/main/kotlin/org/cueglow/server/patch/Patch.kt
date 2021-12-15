@@ -132,6 +132,7 @@ class Patch(private val outEventQueue: BlockingQueue<GlowMessage>, val lock: Loc
                     gdtfDefaultState(dmxMode)
                 }
             rigState.addAll(newDefaultState)
+            outEventQueue.put(GlowMessage.RigState(rigState.map { it.copy() }.toMutableList()))
             return@eachFixture Ok(uuidToRemove)
         }
 
