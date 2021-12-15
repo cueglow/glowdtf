@@ -13,10 +13,14 @@ export const patchDataHandler = new class {
 
     /**
      * Notify the subscriber via `onPatchChange`.  
-     * React's setState requires us to make a shallow copy before calling it. 
+     * React's setState requir us to make a shallow copy before calling it. 
+     * Also, React Tabulator won't react to changes if the identity of the arrays is the same. 
      */
     private notify() {
-        this.currentPatchData = { ...this.currentPatchData };
+        this.currentPatchData = { 
+            fixtures: [...this.currentPatchData.fixtures],
+            fixtureTypes: [...this.currentPatchData.fixtureTypes],
+        };
         this.onPatchChange(this.currentPatchData);
     }
 
