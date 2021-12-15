@@ -1,4 +1,4 @@
-import { Button, Classes, Dialog, useHotkeys } from "@blueprintjs/core";
+import { Button, Classes, Dialog, Position, Toaster, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
@@ -10,6 +10,7 @@ import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { DmxModeString, FixtureType, fixtureTypeString } from "../Types/FixtureType";
 import { } from 'styled-components/macro';
+import _ from "lodash";
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | undefined>(undefined);
@@ -82,6 +83,7 @@ function AddGdtfButton() {
     useHotkeys(hotkeys);
 
     const fileInput = useRef<HTMLInputElement>(null);
+    const toaster = useRef<Toaster>(null);
 
     function selectFile() {
         // Reset File Input
@@ -99,16 +101,37 @@ function AddGdtfButton() {
         if (file == null) { return }
         const formData = new FormData();
         formData.append("file", file);
-        fetch('/api/fixturetype', { method: "POST", body: formData });
-        // TODO handle response, especially error responses
+        const upload = fetch('/api/fixturetype', { method: "POST", body: formData });
+        upload.then(
+            async (successResponse) => {
+                if (!successResponse.ok) {
+                    const responseJson = await successResponse.json()
+                    const msg = <>
+                        <b>{_.startCase(responseJson.data.name)}</b>
+                        <br />
+                        {responseJson.data.description}
+                    </>
+                    toaster.current?.clear()
+                    toaster.current?.show({ intent: "danger", message: msg, timeout: 12_000 })
+                }
+            },
+            (failureResponse) => {
+                console.log("Network Error on GDTF Upload", failureResponse)
+                toaster.current?.clear()
+                toaster.current?.show({ intent: "danger", message: "Network Error", timeout: 12_000 })
+            },
+        )
     }
 
     return (
+        <>
         <Button intent="success" icon="plus" onClick={selectFile}>
             <LabelWithHotkey label="Add GDTF" combo="A" />
             <input type="file" id="gdtfFileInput" ref={fileInput} accept=".gdtf"
                 onChange={uploadFile} data-cy="gdtf_hidden_input" hidden />
         </Button>
+        <Toaster position={Position.BOTTOM} ref={toaster}/>
+        </>
     )
 }
 
