@@ -115,7 +115,8 @@ export function NewFixtureForm(props: RouteComponentProps) {
     // this is REALLY simple and stupid
     // e.g. when the channel count of the new fixtures is bigger than one, things might break afterwards
     const defaultAddress = useMemo(() => {
-        const highestPatchedFixture = _.maxBy(patchData.fixtures, ["universe", "address"])
+        const sortedFixtures = _.sortBy(patchData.fixtures, ["universe", "address"])
+        const highestPatchedFixture = sortedFixtures[sortedFixtures.length - 1]
         if (highestPatchedFixture) {
             const channelCount = patchData.fixtureTypes
             .find(fixtureType => fixtureType.fixtureTypeId === highestPatchedFixture?.fixtureTypeId)
