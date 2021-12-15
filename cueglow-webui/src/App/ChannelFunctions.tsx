@@ -1,5 +1,6 @@
 import { Slider } from "@blueprintjs/core";
 import { FunctionComponent, useContext, useMemo } from "react";
+import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "src/ConnectionProvider/PatchDataProvider";
@@ -80,7 +81,12 @@ const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd }: ChannelFunctionSlide
     const disabled = rigState[fixtureInd]?.chFDisabled[chFInd]
     const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
 
-    return <div>
+    return <div css={`
+        padding-left: ${2*bp.ptGridSizePx}px;
+        padding-right: ${3*bp.ptGridSizePx}px;
+        padding-bottom: ${1*bp.ptGridSizePx}px;
+        overflow-x: hidden;
+        `}>
         <div>
             <div css={`
                 color: ${disabled === null ? "inherit" : "gray"}
