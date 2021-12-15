@@ -1,7 +1,7 @@
 import { Slider } from "@blueprintjs/core";
 import { Tooltip2 } from "@blueprintjs/popover2";
 import _ from "lodash";
-import { FunctionComponent, useContext, useMemo } from "react";
+import React, { FunctionComponent, useContext, useMemo } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
@@ -9,6 +9,7 @@ import { PatchContext } from "src/ConnectionProvider/PatchDataProvider";
 import { RigStateContext, RigStateProvider } from "src/ConnectionProvider/RigStateProvider";
 import { ChannelFunction, MultiByteChannel } from "src/Types/FixtureType";
 import { PatchFixture } from "src/Types/Patch";
+import { RigState } from "src/Types/RigState";
 import { } from "styled-components/macro";
 
 export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture | null }> = ({ selectedFixture }) => {
@@ -57,122 +58,101 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
         sortedGroups.push({ featureGroup: "Raw DMX", chFs: chFsByFeatureGroup["Raw DMX"] })
     }
 
-    return <RigStateProvider>
+    const channelFunctionElements = sortedGroups.map(({ featureGroup, chFs }) => {
+        return <>
+            <h4 className="bp3-heading" css={`
+                margin-top: ${2 * bp.ptGridSizePx}px;
+            `}>
+                <Tooltip2 content={`Feature Group ${featureGroup}`}>
+                    {featureGroup}
+                </Tooltip2>
+            </h4>
+
+            {chFs?.map((channelFunction) => {
+                if (channels == null) { return <></> }
+                const chFInd = channelFunctions.indexOf(channelFunction)
+                return <ChannelFunctionElement
+                    chF={channelFunction}
+                    chFInd={chFInd}
+                    fixtureInd={fixtureInd}
+                    channels={channels}
+                    key={`${selectedFixture?.uuid}_${chFInd}`}
+                />
+            })}
+        </>
+    })
+
+    return <>
         <h3 className="bp3-heading" css={`margin-top: 0;`}>Channel Functions</h3>
-        {/* {selectedFixture?.fid} {selectedFixture?.name} */}
-        {sortedGroups.map(({ featureGroup, chFs }) => {
-            return <>
-
-                <h4 className="bp3-heading" css={`
-                    margin-top: ${2 * bp.ptGridSizePx}px;
-                `}>
-                    <Tooltip2 content={`Feature Group ${featureGroup}`}>
-                        {featureGroup}
-                    </Tooltip2>
-                </h4>
-
-                {chFs?.map((channelFunction) => {
-                    if (channels == null) { return <></> }
-                    const chFInd = channelFunctions.indexOf(channelFunction)
-                    const channel = channels[channelFunction.multiByteChannelInd]
-                    return <ChannelFunctionSlider
-                        chF={channelFunction}
-                        chFInd={chFInd}
-                        fixtureInd={fixtureInd}
-                        geometry={channel?.geometry}
-                        channel={channel}
-                        key={`${selectedFixture?.uuid}_${chFInd}`}
-                    />
-                })}
-            </>
-        })}
-    </RigStateProvider>;
+        <RigStateProvider>
+            {channelFunctionElements}
+        </RigStateProvider>
+    </>
 }
 
-type ChannelFunctionSliderProps = {
+type ChannelFunctionElementProps = {
     chF: ChannelFunction;
     chFInd: number;
     fixtureInd: number;
-    geometry: string;
-    channel: MultiByteChannel;
+    channels: MultiByteChannel[];
 }
 
-const ChannelFunctionSlider = ({ chF, chFInd, fixtureInd, geometry, channel }: ChannelFunctionSliderProps) => {
+const ChannelFunctionElement = ({ chF, chFInd, fixtureInd, channels }: ChannelFunctionElementProps) => {
+    const { chInd, geometry, channelName, dmxAddress, labelStepSize } = useMemo(() => {
+        const channel = channels[chF.multiByteChannelInd];
+        const geometry = channel?.geometry;
+        const chInd = chF.multiByteChannelInd;
+        // label step size
+        const numberOfLabels = 8;
+        const rangeSize = chF.dmxTo - chF.dmxFrom;
+        const labelStepSize = rangeSize / numberOfLabels;
+
+        const dmxAddress = channel.offsets.map((offset) => `${channel.dmxBreak}.${offset}`).join(", ");
+
+        const channelName = channel?.name;
+        return { chInd, geometry, channelName, dmxAddress, labelStepSize };
+    }, [chF, channels])
+
+    // boundary from chF-related to rigState-value-related
+
     const rigState = useContext(RigStateContext);
-
-    // Stuff that stays the same unless we were to change Channel Function
-
-    const chInd = chF.multiByteChannelInd
 
     const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
 
     const disabled = rigState[fixtureInd]?.chFDisabled[chFInd];
 
-    const outOfRange = useMemo(() => !_.inRange(chValue, chF.dmxFrom, chF.dmxTo + 1), [chF.dmxFrom, chF.dmxTo, chValue]); // TODO deps
+    const channelValueDependentElements = useMemo(() => {
+        const outOfRange = !_.inRange(chValue, chF.dmxFrom, chF.dmxTo + 1)
 
-    const labelStepSize = useMemo(() => {
-        const numberOfLabels = 8;
-        const rangeSize = chF.dmxTo - chF.dmxFrom;
-        return rangeSize / numberOfLabels;
-    }, [chF]);
-
-    const dmxAddress = useMemo(() => channel.offsets.map((offset) => `${channel.dmxBreak}.${offset}`
-    ).join(", "), [channel.dmxBreak, channel.offsets]);
-
-
-    return useMemo(() => 
-    <ChannelFunctionWithValue channelName={channel.name} 
-    {...{chF, fixtureInd, chValue, geometry, chInd, disabled, outOfRange, dmxAddress, labelStepSize}} 
-    />, [chF, chInd, chValue, channel.name, disabled, dmxAddress, fixtureInd, geometry, labelStepSize, outOfRange])
-}
-
-type ChannelFunctionSliderValueProps = {
-    chF: ChannelFunction;
-    fixtureInd: number;
-    channelName: string;
-    chValue: number;
-    geometry: string;
-    chInd: number;
-    disabled: string|null;
-    outOfRange: boolean;
-    dmxAddress: string;
-    labelStepSize: number;
-}
-
-
-/* Things for ChannelFunction Slider that often, i.e. when the value or the disabled state changes */
-function ChannelFunctionWithValue(
-    {chF, fixtureInd, channelName, chValue, geometry, chInd, disabled, outOfRange, dmxAddress, labelStepSize}: ChannelFunctionSliderValueProps) {
-    const tooltipContent = useMemo(() => <>
-        {outOfRange && <>
-            <b>{"Value out of range"}</b>
+        const tooltipContent = <>
+            {outOfRange && <>
+                <b>{"Value out of range"}</b>
+                <br />
+            </>}
+            {(disabled !== null) && <>
+                <b>{"Disabled by ModeMaster"}</b>
+                <br />
+                <b>{disabled}</b>
+                <br />
+            </>}
+            {"Geometry: " + geometry}
             <br />
-        </>}
-        {(disabled !== null) && <>
-            <b>{"Disabled by ModeMaster"}</b>
+            {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd + 1}`)}
             <br />
-            <b>{disabled}</b>
+            {"DMX Channel: " + channelName}
             <br />
-        </>}
-        {"Geometry: " + geometry}
-        <br />
-        {"Attribute: " + (chF.attribute ?? `Raw DMX Channel ${chInd + 1}`)}
-        <br />
-        {"DMX Channel: " + channelName}
-        <br />
-        {"DMX Offset: " + dmxAddress}
-    </>, [chF.attribute, chInd, channelName, disabled, dmxAddress, geometry, outOfRange]);// TODO put in dependencies
-
-    const tooltipedChannelFunctionName = useMemo(() => 
-    <Tooltip2 content={tooltipContent}>
-        <>
-            {chF.name}
-            {disabled !== null && `  (${disabled})`}
+            {"DMX Offset: " + dmxAddress}
         </>
-    </Tooltip2>,
-        [chF.name, disabled, tooltipContent]);
 
-    return <div css={`
+        const tooltipedChannelFunctionName = 
+            <Tooltip2 content={tooltipContent}>
+                <>
+                    {chF.name}
+                    {disabled !== null && `  (${disabled})`}
+                </>
+            </Tooltip2>
+
+        return <div css={`
         padding-left: ${2 * bp.ptGridSizePx}px;
         padding-right: ${3 * bp.ptGridSizePx}px;
         padding-bottom: ${1 * bp.ptGridSizePx}px;
@@ -200,6 +180,10 @@ function ChannelFunctionWithValue(
                 connectionProvider.send(msg);
             }}
             disabled={disabled !== null} />
-    </div>;
-}
+        </div>;
+    }, [chF, chInd, channelName, dmxAddress, fixtureInd, geometry, labelStepSize, chValue, disabled])
 
+    return channelValueDependentElements
+
+
+}
