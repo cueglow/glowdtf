@@ -58,8 +58,11 @@ class ArtNetSending(val state: StateProvider) : Runnable {
                             ?.modes
                             ?.find { it.name == fixture.dmxMode }!!
                         val values = renderGdtfStateToDmx(fixtureState.chValues, dmxMode)
-
-                        values.copyInto(buffer, dmxAddress - 1)
+                        val allowedChannels = 512 - dmxAddress + 1
+                        val valuesTruncated = if (dmxAddress + dmxMode.channelCount - 1 > 512) {
+                            values.slice(0 until allowedChannels).toByteArray()
+                        } else { values }
+                        valuesTruncated.copyInto(buffer, dmxAddress - 1)
                     }
                     val universeBuilder = builders[universe] ?: run {
                         val newBuilder = ArtDmxBuilder()

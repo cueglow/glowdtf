@@ -1,5 +1,5 @@
 
-import { Button, Toaster, useHotkeys } from "@blueprintjs/core";
+import { Button, Callout, Toaster, useHotkeys } from "@blueprintjs/core";
 import { NavigateFn, RouteComponentProps, useNavigate } from "@reach/router";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
@@ -10,6 +10,8 @@ import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchFixture } from "src/Types/Patch";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { fixtureTypeString } from "../Types/FixtureType";
+import { } from 'styled-components/macro';
+import _ from "lodash";
 
 export function FixturePatch(props: RouteComponentProps) {
     const navigate = useNavigate();
@@ -48,6 +50,7 @@ export function FixturePatch(props: RouteComponentProps) {
             display: "flex",
             flexDirection: "column",
         }}>
+            <ValidationMessage />
             <TopButtons 
             navigate={navigate} 
             selectedFixtureUuids={selectedFixtureUuids} 
@@ -63,6 +66,48 @@ export function FixturePatch(props: RouteComponentProps) {
             </div>
         </div>
     );
+}
+
+function ValidationMessage() {
+    const patchData = useContext(PatchContext);
+
+    const errorMessage = useMemo(() => {
+        // quickly validate Patch
+        const sortedFixtures = _.sortBy(patchData.fixtures, ["universe", "address"])
+
+        for (let i =0; i < sortedFixtures.length; i++) {
+            const fixture = sortedFixtures[i]
+
+            const channelCount = patchData.fixtureTypes
+            .find(fixtureType => fixtureType.fixtureTypeId === fixture?.fixtureTypeId)
+            ?.modes
+            .find(mode => mode.name === fixture?.dmxMode)
+            ?.channelCount ?? 1
+
+            const endAddress = fixture.address + channelCount - 1
+
+            if (endAddress > 512) {
+                return `Fixture ${fixture.name} at start address ${fixture.universe}.${fixture.address} ` +
+                `ends at address ${fixture.universe}.${endAddress}, which is outside the DMX universe. The ` +
+                `Art-Net output will be truncated. `
+            }
+
+            if (i >= sortedFixtures.length - 1) { return }
+
+            const nextFixture = sortedFixtures[i+1]
+
+            if (nextFixture.universe === fixture.universe && endAddress >= nextFixture.address) {
+                return `Fixture ${fixture.name} at start address ${fixture.universe}.${fixture.address} ` +
+                `ends at address ${fixture.universe}.${endAddress} and overlaps with fixture ${nextFixture.name} ` +
+                `at start address ${nextFixture.universe}.${nextFixture.address}. Overlapping channels are controlled by only ` +
+                `one of the fixtures.`
+            }
+        }
+    }, [patchData])
+
+    return errorMessage ? <Callout intent="danger" title="Error Found in Patch" css={`margin-bottom: ${1*bp.ptGridSizePx}px;`}>
+        {errorMessage}
+    </Callout> : <></>
 }
 
 function TopButtons(props: {

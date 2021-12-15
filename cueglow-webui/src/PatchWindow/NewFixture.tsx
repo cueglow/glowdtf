@@ -15,6 +15,7 @@ import { PatchContext } from '../ConnectionProvider/PatchDataProvider';
 import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types/FixtureType';
 import { ValidatedNumericInput } from './ValidatedNumericInput';
 import { ValidatedSuggest } from './ValidatedSuggest';
+import _ from 'lodash';
 
 export function NewFixtureWrapper(props: RouteComponentProps) {
     return (
@@ -43,7 +44,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
         setValue,
         trigger: triggerValidation,
         control,
-        formState: { errors }
+        formState: { errors },
     } = useForm({
         mode: "onTouched",
         reValidateMode: "onChange",
@@ -107,6 +108,32 @@ export function NewFixtureForm(props: RouteComponentProps) {
 
     const patchData = useContext(PatchContext);
 
+    const defaultFid = useMemo(() => (_.maxBy(patchData.fixtures, "fid")?.fid ?? 0) + 1, [patchData])
+    // if you reload, this will first return 1 because Fixtures are empty when rendering the from
+    // later, this will take the right value, but then defaultValue won't be updated anymore
+
+    // this is REALLY simple and stupid
+    // e.g. when the channel count of the new fixtures is bigger than one, things might break afterwards
+    const defaultAddress = useMemo(() => {
+        const highestPatchedFixture = _.maxBy(patchData.fixtures, ["universe", "address"])
+        if (highestPatchedFixture) {
+            const channelCount = patchData.fixtureTypes
+            .find(fixtureType => fixtureType.fixtureTypeId === highestPatchedFixture?.fixtureTypeId)
+            ?.modes
+            .find(mode => mode.name === highestPatchedFixture?.dmxMode)
+            ?.channelCount ?? 1
+            const possibleStartAddress = highestPatchedFixture.address + channelCount
+            if (possibleStartAddress <= 512) {
+                return {universe: highestPatchedFixture.universe, address: possibleStartAddress}
+            } else {
+                return {universe: highestPatchedFixture.universe+1, address: 1}
+            }
+        }
+        return {universe: 1, address: 1}
+    }, [patchData])
+    // also doesn't work properly if you reload on the form page
+
+
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ValidatedSuggest
@@ -169,7 +196,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
             <ValidatedNumericInput
                 label="FID"
                 name="fid"
-                defaultValue={1}
+                defaultValue={defaultFid}
                 min={i32MinValue}
                 max={i32MaxValue}
                 tabIndex={5}
@@ -179,6 +206,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
             <ValidatedNumericInput
                 label="Universe"
                 name="universe"
+                defaultValue={defaultAddress.universe}
                 min={0}
                 max={artnetMaxUniverse}
                 tabIndex={6}
@@ -188,6 +216,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
             <ValidatedNumericInput
                 label="Address"
                 name="address"
+                defaultValue={defaultAddress.address}
                 min={1}
                 max={512}
                 tabIndex={7}
