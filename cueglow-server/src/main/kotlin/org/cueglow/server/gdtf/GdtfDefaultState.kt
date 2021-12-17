@@ -38,7 +38,8 @@ fun generateChFDisabled(
         val masterIterator =
             BreadthFirstIterator(g, slaveChFInd) // Breadth-First is sufficient as each node only has one outgoing edge
         val firstEdgeTrue = checkChannelFunctionModeMasterEdge(masterIterator.next(), chValues, dmxMode)
-        masterIterator.forEachRemaining { masterChFInd ->
+        while (masterIterator.hasNext()) {
+            val masterChFInd = masterIterator.next()
             val edgeTrue = checkChannelFunctionModeMasterEdge(masterChFInd, chValues, dmxMode)
             if (!edgeTrue) {
                 // an edge which isn't the first one is false, which means the direct ModeMaster of the slaveChF is not active
@@ -49,10 +50,11 @@ fun generateChFDisabled(
                 val directModeMasterInd = g.getEdgeTarget(firstOutEdge)
                 val directModeMaster = chFs[directModeMasterInd]
                 chFDisabled[slaveChFInd] = "${directModeMaster.name} must be active"
+                break
             }
         }
-        // master iteration finished without another edge being false
-        if (!firstEdgeTrue) {
+        // if master iteration didn't find another false edge, check the first one
+        if (chFDisabled[slaveChFInd] == null && !firstEdgeTrue) {
             val firstOutEdges = g.outgoingEdgesOf(slaveChFInd)
             assert(firstOutEdges.size == 1)
             val firstOutEdge = firstOutEdges.first()

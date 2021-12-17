@@ -50,7 +50,7 @@ object ExampleFixtureType {
         DmxAddress(1)
     )
 
-    val rigStateTestGdtf = fixtureTypeFromGdtfResource("RigStateTest/Test@FixtureStateTest@version2.gdtf", this.javaClass)
+    val rigStateTestGdtf = fixtureTypeFromGdtfResource("RigStateTest/Test@FixtureStateTest@version_2-2_Cyclic_Dependencies.gdtf", this.javaClass)
 
     // additional: Global settings for Awaitility
     init {

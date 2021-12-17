@@ -1,5 +1,6 @@
 package org.cueglow.server.rig
 
+import com.google.common.truth.Truth.assertThat
 import org.apache.logging.log4j.LogManager
 import org.cueglow.server.gdtf.GlowDmxMode
 import org.cueglow.server.gdtf.gdtfDefaultState
@@ -24,6 +25,8 @@ internal class DefaultStateTest {
                 0, // body_ColorMacro1
                 0, // body_Pan
                 0, // body_Shutter1
+                0, // body_XYZ_X
+                0, // body_XYZ_Y
             ),
             chFDisabled = mutableListOf(
                 null, // body_Dimmer
@@ -44,12 +47,19 @@ internal class DefaultStateTest {
                 null, // Tilt 2
                 null, // body_Shutter1
                 "Tilt 2 must be 128-255", // Shutter1 1
+                null, // body_XYZ_X
+                "XYZ_Y 1 must be active", // XYZ_X 1
+                null, // body_XYZ_Y
+                "XYZ_X 1 must be 100-255", // XYZ_Y 1
             ),
         )
 
         validateFixtureState(expectedDefaultState, fixtureType.modes[0])
 
-        assertEquals(expectedDefaultState, gdtfDefaultState(fixtureType.modes[0]))
+        val defaultState = gdtfDefaultState(fixtureType.modes[0])
+
+        assertThat(defaultState.chValues).isEqualTo(expectedDefaultState.chValues)
+        assertThat(defaultState.chFDisabled).isEqualTo(expectedDefaultState.chFDisabled)
     }
 
     @Test
@@ -57,12 +67,10 @@ internal class DefaultStateTest {
         val fixtureType = ExampleFixtureType.rigStateTestGdtf
 
         assertEquals(
-            listOf(1, 3, 8, 11, 14, 17),
+            listOf(1, 3, 8, 11, 14, 17, 19, 21),
             fixtureType.modes[0].multiByteChannels.map{it.initialChannelFunctionInd}
         )
     }
-
-    // TODO test cyclic dependencies in channel functions
 }
 
 /**

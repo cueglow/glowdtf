@@ -32,6 +32,8 @@ internal class ModeMasterDependencyGraphTest {
             Dep(12, Pair(0, 255), 9),
             Dep(14, Pair(0, 255), 17),
             Dep(17, Pair(128, 255), 15),
+            Dep(19, Pair(0, 150), 21),
+            Dep(21, Pair(100, 255), 19)
         )
 
         val actualDependencies = edges

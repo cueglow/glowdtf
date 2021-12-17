@@ -52,6 +52,8 @@ internal class StateTransitionTest {
             0, // body_ColorMacro1
             0, // body_Pan
             0, // body_Shutter1
+            0, // body_XYZ_X
+            0, // body_XYZ_Y
         ))
         // the four interesting chF shouldn't be disabled now
         assertThat(fixtureState.chFDisabled).isEqualTo(listOf(
@@ -73,6 +75,10 @@ internal class StateTransitionTest {
             null, // Tilt 2
             null, // body_Shutter1
             "Tilt 2 must be 128-255", // Shutter1 1
+            null, // body_XYZ_X
+            "XYZ_Y 1 must be active", // XYZ_X 1
+            null, // body_XYZ_Y
+            "XYZ_X 1 must be 100-255", // XYZ_Y 1
         ))
         validateFixtureState(fixtureState, dmxMode)
 
@@ -85,6 +91,8 @@ internal class StateTransitionTest {
             0, // body_ColorMacro1
             0, // body_Pan
             0, // body_Shutter1
+            0, // body_XYZ_X
+            0, // body_XYZ_Y
         ))
         assertThat(fixtureState.chFDisabled).isEqualTo(listOf(
             null, // body_Dimmer
@@ -105,6 +113,10 @@ internal class StateTransitionTest {
             null, // Tilt 2
             null, // body_Shutter1
             "Tilt 2 must be 128-255", // Shutter1 1
+            null, // body_XYZ_X
+            "XYZ_Y 1 must be active", // XYZ_X 1
+            null, // body_XYZ_Y
+            "XYZ_X 1 must be 100-255", // XYZ_Y 1
         ))
         validateFixtureState(fixtureState, dmxMode)
     }
@@ -124,6 +136,8 @@ internal class StateTransitionTest {
             42, // body_ColorMacro1
             0, // body_Pan
             0, // body_Shutter1
+            0, // body_XYZ_X
+            0, // body_XYZ_Y
         ))
         assertThat(fixtureState.chFDisabled).isEqualTo(listOf<String?>(
             null, // body_Dimmer
@@ -144,6 +158,10 @@ internal class StateTransitionTest {
             null, // Tilt 2
             null, // body_Shutter1
             "Tilt 2 must be 128-255", // Shutter1 1
+            null, // body_XYZ_X
+            "XYZ_Y 1 must be active", // XYZ_X 1
+            null, // body_XYZ_Y
+            "XYZ_X 1 must be 100-255", // XYZ_Y 1
         ))
 
         // changing the root ModeMaster changes all nested dependencies' disabled state
@@ -155,6 +173,8 @@ internal class StateTransitionTest {
             42, // body_ColorMacro1
             0, // body_Pan
             0, // body_Shutter1
+            0, // body_XYZ_X
+            0, // body_XYZ_Y
         ))
         assertThat(fixtureState.chFDisabled).isEqualTo(listOf<String?>(
             null, // body_Dimmer
@@ -175,8 +195,88 @@ internal class StateTransitionTest {
             null, // Tilt 2
             null, // body_Shutter1
             "Tilt 2 must be 128-255", // Shutter1 1
+            null, // body_XYZ_X
+            "XYZ_Y 1 must be active", // XYZ_X 1
+            null, // body_XYZ_Y
+            "XYZ_X 1 must be 100-255", // XYZ_Y 1
         ))
     }
 
-    // TODO test cyclic ChannelFunction dependencies
+    @Test
+    fun cyclicDependencyTest() {
+        val state: RigStateList = mutableListOf(gdtfDefaultState(dmxMode))
+        val fixtureState = state[0]
+
+        state.transition(RigStateTransition(0, 6, 150), patch)// set body_XYZ_X as suggested in chFDisabled
+        assertThat(fixtureState.chValues).isEqualTo(listOf<Long>(
+            0, // body_Dimmer
+            0, // body_Control1
+            0, // bodyColorEffects1
+            0, // body_ColorMacro1
+            0, // body_Pan
+            0, // body_Shutter1
+            150, // body_XYZ_X
+            0, // body_XYZ_Y
+        ))
+        assertThat(fixtureState.chFDisabled).isEqualTo(listOf<String?>(
+            null, // body_Dimmer
+            null, // Dimmer 1
+            null, // body_Control1
+            null, // Control1 1
+            null, // Control2 2
+            "body_Dimmer must be 100-200", // Control3 3
+            "body_Dimmer must be 100-200", // Control 4 4
+            null, // body_ColorEffects1
+            null, // ColorEffects1 1
+            "body_Dimmer must be 128-255", // ColorEffects2 2
+            null, // body_ColorMacro1
+            null, // ColorMacro1 1
+            "ColorEffects2 2 must be active", // ColorMacro2 2
+            null, // body_Pan
+            "Shutter1 1 must be active", // Pan 1
+            null, // Tilt 2
+            null, // body_Shutter1
+            "Tilt 2 must be 128-255", // Shutter1 1
+            null, // body_XYZ_X
+            null, // XYZ_X 1
+            null, // body_XYZ_Y
+            null, // XYZ_Y 1
+        ))
+
+        state.transition(RigStateTransition(0, 7, 200), patch)// set body_XYZ_Y out of ModeMaster range - both should disable
+        assertThat(fixtureState.chValues).isEqualTo(listOf<Long>(
+            0, // body_Dimmer
+            0, // body_Control1
+            0, // bodyColorEffects1
+            0, // body_ColorMacro1
+            0, // body_Pan
+            0, // body_Shutter1
+            150, // body_XYZ_X
+            200, // body_XYZ_Y
+        ))
+        assertThat(fixtureState.chFDisabled).isEqualTo(listOf<String?>(
+            null, // body_Dimmer
+            null, // Dimmer 1
+            null, // body_Control1
+            null, // Control1 1
+            null, // Control2 2
+            "body_Dimmer must be 100-200", // Control3 3
+            "body_Dimmer must be 100-200", // Control 4 4
+            null, // body_ColorEffects1
+            null, // ColorEffects1 1
+            "body_Dimmer must be 128-255", // ColorEffects2 2
+            null, // body_ColorMacro1
+            null, // ColorMacro1 1
+            "ColorEffects2 2 must be active", // ColorMacro2 2
+            null, // body_Pan
+            "Shutter1 1 must be active", // Pan 1
+            null, // Tilt 2
+            null, // body_Shutter1
+            "Tilt 2 must be 128-255", // Shutter1 1
+            null, // body_XYZ_X
+            "XYZ_Y 1 must be 0-150", // XYZ_X 1
+            null, // body_XYZ_Y
+            "XYZ_X 1 must be active", // XYZ_Y 1
+        ))
+    }
 }
