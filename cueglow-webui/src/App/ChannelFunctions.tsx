@@ -9,7 +9,6 @@ import { PatchContext } from "src/ConnectionProvider/PatchDataProvider";
 import { RigStateContext, RigStateProvider } from "src/ConnectionProvider/RigStateProvider";
 import { ChannelFunction, MultiByteChannel } from "src/Types/FixtureType";
 import { PatchFixture } from "src/Types/Patch";
-import { RigState } from "src/Types/RigState";
 import { } from "styled-components/macro";
 
 export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture | null }> = ({ selectedFixture }) => {
@@ -179,7 +178,8 @@ const ChannelFunctionElement = ({ chF, chFInd, fixtureInd, channels }: ChannelFu
                 );
                 connectionProvider.send(msg);
             }}
-            disabled={disabled !== null} />
+            disabled={disabled !== null}
+            />
         </div>;
     }, [chF, chInd, channelName, dmxAddress, fixtureInd, geometry, labelStepSize, chValue, disabled])
 

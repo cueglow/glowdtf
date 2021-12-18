@@ -4,18 +4,20 @@
 // Please manually add all custom commands to the Cypress namespace
 // Info on Typing: https://docs.cypress.io/guides/tooling/typescript-support#Types-for-custom-commands
 
-declare namespace Cypress {
-    interface Chainable {
-        /**
-         * Custom command to select DOM element by data-cy attribute.
-         * @example cy.dataCy('greeting')
-         */
-        dataCy(value: string): Chainable
+declare global {
+    namespace Cypress {
+        interface Chainable {
+            /**
+             * Custom command to select DOM element by data-cy attribute.
+             * @example cy.dataCy('greeting')
+             */
+            dataCy(value: string): Chainable
 
-        /**
-         * Remove all patched Fixture Types and their associated Fixtures
-         */
-        clearFixtureTypes(): void
+            /**
+             * Remove all patched Fixture Types and their associated Fixtures
+             */
+            clearFixtureTypes(): void
+        }
     }
 }
 
@@ -23,10 +25,14 @@ Cypress.Commands.add('dataCy', (value) => {
     return cy.get(`[data-cy=${value}]`)
 })
 
+export function openWebSocket() {
+    const urlWithoutProtocol = Cypress.config().baseUrl.replace(/(^\w+:|^)\/\//, '');
+    return new WebSocket(`ws://${urlWithoutProtocol}/ws`)
+}
+
 Cypress.Commands.add("clearFixtureTypes", () => {
     // setup: remove all patched fixture types
-    const urlWithoutProtocol = Cypress.config().baseUrl.replace(/(^\w+:|^)\/\//, '');
-    const ws = new WebSocket(`ws://${urlWithoutProtocol}/ws`)
+    const ws = openWebSocket()
     ws.onopen = () => {
         ws.send(JSON.stringify({
             event: "subscribe",

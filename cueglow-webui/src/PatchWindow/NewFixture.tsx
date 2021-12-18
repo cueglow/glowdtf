@@ -71,7 +71,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
         const quantity = data.quantity
         const fid = data.fid // TODO auto-increment and error when i32 boundary exceeded
         const universe = data.universe
-        const address = data.address
+        let address = data.address
 
         const names = generateFixtureNames(name, quantity)
 
@@ -86,6 +86,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
                 universe: universe,
                 address: address,
             })
+            address += data.dmxMode.channelCount;
         }
         const msg = new ClientMessage.AddFixtures(fixtureArray)
         connectionProvider.send(msg)
