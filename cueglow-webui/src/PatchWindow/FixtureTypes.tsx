@@ -265,6 +265,10 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                         padding-bottom: ${bp.ptGridSizePx}px;
                     `}>
                             <h6 className="bp3-heading">{DmxModeString(mode)}</h6>
+                            <div css={`
+                                column-width: ${23*bp.ptGridSizePx}px;
+                                column-count: 4;
+                            `}>
                             {mode.channelLayout.map( (dmxBreak, breakInd) => 
                                 dmxBreak.map( (channelName, channelInd) => 
                                     <div key={breakInd + "_" + channelInd}>
@@ -272,6 +276,7 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                                     </div>
                                 )
                             )}
+                            </div>
                         </div>);
                 })}
             </div>
