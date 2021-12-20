@@ -10,6 +10,7 @@ import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { DmxModeString, FixtureType, fixtureTypeString } from "../Types/FixtureType";
 import { } from 'styled-components/macro';
+import styled from 'styled-components';
 import _ from "lodash";
 
 export function FixtureTypes(props: RouteComponentProps) {
@@ -241,6 +242,18 @@ function RemoveDialogMessage(props: { numberOfFixturesThatWillBeDeleted: number 
     }
 }
 
+const AttributeTable = styled.table`
+    td:nth-child(1) {  
+        vertical-align: top;
+        text-align: end;
+        padding-right: .2em;
+        font-weight: bold;
+        padding-bottom: .2em;
+        white-space: nowrap;
+    }
+    margin-bottom: ${2*bp.ptGridSizePx}px;
+`
+
 function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
     const fixtureType = props.fixtureType
     if (fixtureType === undefined) {
@@ -249,20 +262,45 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
 
     return (
         <div>
-            <div>
-                Manufacturer: {fixtureType.manufacturer}
-            </div>
-            <div css={`
-                padding-bottom: ${2*bp.ptGridSizePx}px;
-            `}>
-                Name: {fixtureType.name}
-            </div>
+            <AttributeTable>
+                <tr>
+                    <td>Manufacturer</td>
+                    <td>{fixtureType.manufacturer}</td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>{fixtureType.name}</td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>{fixtureType.description}</td>
+                </tr>
+                <tr>
+                    <td>Short Name</td>
+                    <td>{fixtureType.shortName}</td>
+                </tr>
+                <tr>
+                    <td>Long Name</td>
+                    <td>{fixtureType.longName}</td>
+                </tr>
+                <tr>
+                    <td>Fixture Type ID</td>
+                    <td>{fixtureType.fixtureTypeId}</td>
+                </tr>
+                {fixtureType.refFT && 
+                    <tr>
+                        <td>Referenced Fixture Type</td>
+                        <td>{fixtureType.refFT}</td>
+                    </tr>
+                }
+            </AttributeTable>
             <div>
                 <h5 className="bp3-heading">Modes</h5>
                 {fixtureType.modes.map((mode) => {
                     return (
                         <div key={fixtureType.fixtureTypeId + mode.name} css={`
                         padding-bottom: ${bp.ptGridSizePx}px;
+                        padding-top: ${bp.ptGridSizePx}px;
                     `}>
                             <h6 className="bp3-heading">{DmxModeString(mode)}</h6>
                             <div css={`
@@ -271,7 +309,7 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                             `}>
                             {mode.channelLayout.map( (dmxBreak, breakInd) => 
                                 dmxBreak.map( (channelName, channelInd) => 
-                                    <div key={breakInd + "_" + channelInd}>
+                                    <div key={breakInd + "_" + channelInd} css={`padding: .2em;`}>
                                         {breakInd+1}.{channelInd+1} {channelName}
                                     </div>
                                 )
@@ -279,6 +317,27 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                             </div>
                         </div>);
                 })}
+            </div>
+            <div css={`padding-bottom: ${bp.ptGridSizePx}px;`}>
+                <h5 className="bp3-heading">Revisions</h5>
+                <table className="bp3-html-table bp3-html-table-striped bp3-html-table-condensed bp3-html-table-bordered">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Date</th>
+                            <th>Text</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {fixtureType.revisions.map( revision => 
+                            <tr>
+                                <td>{revision.userId}</td>
+                                <td>{revision.date}</td>
+                                <td>{revision.text}</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
         </div>
     )

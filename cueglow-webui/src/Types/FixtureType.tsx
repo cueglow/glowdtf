@@ -3,6 +3,11 @@ export type FixtureType = {
     manufacturer: string;
     name: string;
     modes: DmxMode[];
+    shortName: string;
+    longName: string;
+    description: string;
+    refFT: string|null;
+    revisions: Revision[];
 };
 
 export type DmxMode = {
@@ -32,6 +37,12 @@ export type MultiByteChannel = {
     geometry: string;
     dmxBreak: number;
     offsets: number[];
+}
+
+export type Revision = {
+    date: string;
+    text: string;
+    userId: number;
 }
 
 // Utilities
