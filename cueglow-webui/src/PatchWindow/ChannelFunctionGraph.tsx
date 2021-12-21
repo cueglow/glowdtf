@@ -23,7 +23,7 @@ export const ChannelFunctionGraphWrapper = (props: ChannelFunctionGraphProps & {
         onClose={() => setIsOpen(false)}
         transitionDuration={0}
         className="bp3-dark"
-        style={{width: "95vw", height: "95vh", paddingBottom: "0",}}
+        style={{width: "97vw", height: "97vh", paddingBottom: 0, margin: 0,}}
         >
             <div css={`
                 padding: ${bp.ptGridSizePx}px;
@@ -32,7 +32,7 @@ export const ChannelFunctionGraphWrapper = (props: ChannelFunctionGraphProps & {
                 display: flex;
                 flex-direction: column;
             `}>
-                <p css={`flex-grow: 0;`}>{`${props.fixtureTypeName}, ${props.dmxMode.name}`}</p>
+                <p css={`flex-grow: 0;`}>{`${props.fixtureTypeName} (${props.dmxMode.name})`}</p>
                 <ChannelFunctionGraph {...props}/>
             </div>
         </Dialog>
@@ -40,8 +40,6 @@ export const ChannelFunctionGraphWrapper = (props: ChannelFunctionGraphProps & {
 }
 
 export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => {
-    // TODO optimize default layout
-    // TODO Make it look a bit nicer and refactor styles
 
     const cy = useRef<Core|null>(null);
 
@@ -92,7 +90,7 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
                 label: `${chF.name} (${chF.dmxFrom}-${chF.dmxTo})`,
                 parent: dmxMode.multiByteChannels[chF.multiByteChannelInd].name
             },
-            grabbable: false,
+            // grabbable: false,
         }
     })
 
@@ -124,24 +122,20 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
         {
             selector: 'node',
             style: {
-                opacity: 1,
                 width: 250,
+                textMaxWidth: 245,
                 height: 40,
-                backgroundOpacity: 0,
+                backgroundOpacity: 0.13,
+                backgroundColor: "black",
                 shape: 'rectangle',
                 color: "white",
                 textValign: "center",
                 textHalign: "center",
                 textWrap: "wrap",
-                textMaxWidth: 245,
-                //textBorderStyle: "solid",
-                //textBorderColor: "white",
-                //textBorderWidth: "3",
-                //textBorderOpacity: "1",
                 borderWidth: 3,
                 borderStyle: "solid",
                 borderColor: "white",
-                //textBackgroundPadding: 100,
+                textBackgroundPadding: 10,
             }
         },
         {
@@ -159,17 +153,17 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
         {
             selector: 'edge',
             style: {
-                //targetEndpoint: "90deg",
-                //sourceEndpoint: "270deg",
-                curveStyle: "bezier",
-                width: 5,
+                curveStyle: "unbundled-bezier",
+                width: 3,
+                arrowScale: 1.5,
                 targetArrowShape: "triangle",
                 targetArrowColor: "white",
-                //targetArrowScale: 10,
                 label: "data(label)",
-                color: "white",
-                textBackgroundColor: "black",
-                textBackgroundPadding: 1,
+                color: "black",
+                lineColor: "white",
+                textBackgroundColor: "white",
+                textBackgroundPadding: 3,
+                textBackgroundShape: "round-rectangle",
                 textBackgroundOpacity: 1,
             }
         }
@@ -181,7 +175,8 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
         relativePlacementConstraint: placementConstraints,
         alignmentConstraint: alignConstraints,
         quality: "proof",
-        randomize: false,  
+        gravity: 1000,
+        gravityRange: 2,
     }
 
 
