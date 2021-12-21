@@ -11,51 +11,56 @@ export type ChannelFunctionGraphProps = {
     dmxMode: DmxMode;
 }
 
+// register fcose layout algorithm
 Cytoscape.use(fcose)
-fcose(cytoscape)
+
 
 export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => {
-    // TODO Refactor this messy code below
     // TODO move to its own window
     // TODO optimize default layout
-    // TODO Make it look a bit nicer...
+    // TODO Make it look a bit nicer and refactor styles
 
     const cy = useRef<Core|null>(null);
 
     const deps = dmxMode.channelFunctionDependencies
+
     // first, get the channels of which there are ChannelFunctions in the dependency graph
     const channelInds = new Set<number>();
+
     deps.nodes.map((n) => parseInt(n.id)).forEach((chFInd) => {
         const chF = dmxMode.channelFunctions[chFInd]
-        channelInds.add(chF.multiByteChannelInd)
+        const chInd = chF.multiByteChannelInd
+        channelInds.add(chInd)
     })
 
+    // iterate over channels to find relevant channel functions and layout constraints
     const chFInds: number[] = []
-    const constraints: RelativePlacementConstraint[] = []
+    const placementConstraints: RelativePlacementConstraint[] = []
     const alignConstraints: AlignmentConstraint = {vertical: [[]]}
 
-    for (let channelInd of channelInds) {
-        const channel = dmxMode.multiByteChannels[channelInd]
+    channelInds.forEach((chInd) => {
+        // channel functions
+        const channel = dmxMode.multiByteChannels[chInd]
         chFInds.push(...channel.channelFunctionIndices)
-
+        // placement constraints: All channel functions from a channel in order of their index
         channel.channelFunctionIndices.slice(1).forEach((chFInd) => {
-            constraints.push({ 
+            placementConstraints.push({ 
                 top: (chFInd-1).toString(),
                 bottom: chFInd.toString(),
                 gap: 10,
             })
         })
-
-        
-        alignConstraints.vertical?.push([])
+        // alignment constraints: All channel functions from a channel vertically aligned
         channel.channelFunctionIndices.forEach((chFInd) => {
-            // vertical was initialized above
+            // vertical was initialized above, so can't be undefined
             alignConstraints.vertical![alignConstraints.vertical!.length - 1].push(chFInd.toString())
         })
-    }
-    alignConstraints.vertical?.shift()
-    console.log("alignConstraints", alignConstraints)
+        alignConstraints.vertical?.push([])
+    })
+    // remove last element because it's empty
+    alignConstraints.vertical?.pop()
 
+    // assemble nodes - first normal channel functions
     const nodes: ElementDefinition[] = chFInds.map((chFInd) => {
         const chF = dmxMode.channelFunctions[chFInd]
         return {
@@ -68,6 +73,7 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
         }
     })
 
+    // add a compound node for each channel to be referenced as parent
     channelInds.forEach((channelInd) => {
         const channel = dmxMode.multiByteChannels[channelInd]
         nodes.push({
@@ -77,6 +83,7 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
         })
     })
 
+    // construct elements with edges from dependency graph
     const elements = CytoscapeComponent.normalizeElements({
         nodes: nodes,
         edges: deps.edges.map((edge) => {
@@ -89,15 +96,7 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
             }
         }),
     })
-    /* const elements = [
-        { data: { id: 'one', label: 'Node 1111111 1111 11111111 1111 11111' }, position: { x: 200, y: 150 } },
-        { data: { id: 'two', label: 'Node 2222222' }, position: { x: 100, y: 100 } },
-        {e
-          data: { source: 'one', target: 'two', label: 'Edge from Node1 to Node2' }
-        }
-      ]*/
 
-    //const stylesheet = cytoscape().style('node { background-color: cyan; }');
     const stylesheet = [
         {
             selector: 'node',
@@ -156,7 +155,7 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
     const layout = { 
         name: 'fcose', 
         animate: false, 
-        relativePlacementConstraint: constraints,
+        relativePlacementConstraint: placementConstraints,
         alignmentConstraint: alignConstraints,
         quality: "proof",
     }
