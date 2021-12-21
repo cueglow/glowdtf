@@ -1,5 +1,6 @@
 import { Button, Classes, Dialog, Position, Toaster, useHotkeys } from "@blueprintjs/core";
 import { RouteComponentProps } from "@reach/router";
+import _ from "lodash";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { GlowTabulator } from "src/Components/GlowTabulator";
@@ -7,12 +8,11 @@ import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { LeftRightSplit } from "src/Components/LeftRightSplit";
 import { ClientMessage } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
+import styled from 'styled-components';
+import { } from 'styled-components/macro';
 import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { DmxModeString, FixtureType, fixtureTypeString } from "../Types/FixtureType";
-import { } from 'styled-components/macro';
-import styled from 'styled-components';
-import _ from "lodash";
-import { ChannelFunctionGraph } from "./ChannelFunctionGraph";
+import { ChannelFunctionGraphWrapper } from "./ChannelFunctionGraph";
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | undefined>(undefined);
@@ -309,6 +309,7 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                             <div css={`
                                 column-width: ${23*bp.ptGridSizePx}px;
                                 column-count: 4;
+                                margin-bottom: ${bp.ptGridSizePx}px;
                             `}>
                             {mode.channelLayout.map( (dmxBreak, breakInd) => 
                                 dmxBreak.map( (channelName, channelInd) => 
@@ -318,8 +319,7 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                                 )
                             )}
                             </div>
-                            <h6 className="bp3-heading" css={`margin-top: 1em;`}>Channel Function Dependencies</h6>
-                            <ChannelFunctionGraph dmxMode={mode}/>
+                            <ChannelFunctionGraphWrapper dmxMode={mode} fixtureTypeName={fixtureTypeString(fixtureType)}/>
                         </div>);
                 })}
             </div>

@@ -1,22 +1,45 @@
-import cytoscape, { Core, ElementDefinition } from "cytoscape"
-import CytoscapeComponent from "react-cytoscapejs"
-import { DmxMode } from "src/Types/FixtureType"
-import { } from 'styled-components/macro'
-import Cytoscape from 'cytoscape';
+import { Button, Dialog } from "@blueprintjs/core";
+import Cytoscape, { Core, ElementDefinition } from 'cytoscape';
 import fcose from 'cytoscape-fcose';
-import { useRef } from "react";
-import { useEffect } from "react";
+import { useRef, useState } from "react";
+import CytoscapeComponent from "react-cytoscapejs";
+import { bp } from "src/BlueprintVariables/BlueprintVariables";
+import { DmxMode } from "src/Types/FixtureType";
+import { } from 'styled-components/macro';
+
+// register fcose layout algorithm
+Cytoscape.use(fcose)
 
 export type ChannelFunctionGraphProps = {
     dmxMode: DmxMode;
 }
 
-// register fcose layout algorithm
-Cytoscape.use(fcose)
-
+export const ChannelFunctionGraphWrapper = (props: ChannelFunctionGraphProps & {fixtureTypeName: string}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return <>
+        <Button onClick={() => setIsOpen(true)}>Show ModeMaster Dependencies</Button>
+        <Dialog title="ModeMaster Dependency Graph"
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        transitionDuration={0}
+        className="bp3-dark"
+        style={{width: "95vw", height: "95vh", paddingBottom: "0",}}
+        >
+            <div css={`
+                padding: ${bp.ptGridSizePx}px;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            `}>
+                <p css={`flex-grow: 0;`}>{`${props.fixtureTypeName}, ${props.dmxMode.name}`}</p>
+                <ChannelFunctionGraph {...props}/>
+            </div>
+        </Dialog>
+    </>
+}
 
 export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => {
-    // TODO move to its own window
     // TODO optimize default layout
     // TODO Make it look a bit nicer and refactor styles
 
@@ -158,6 +181,7 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
         relativePlacementConstraint: placementConstraints,
         alignmentConstraint: alignConstraints,
         quality: "proof",
+        randomize: false,  
     }
 
 
@@ -168,7 +192,7 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         layout={layout as any}
         css={`
-            height: 700px;
+            flex-grow: 10;
         `}
         cy={(newCy) => cy.current = newCy}
     />
