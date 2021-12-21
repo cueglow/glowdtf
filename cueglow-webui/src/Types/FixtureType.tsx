@@ -16,7 +16,15 @@ export type DmxMode = {
     channelLayout: DmxBreak[];
     channelFunctions: ChannelFunction[];
     multiByteChannels: MultiByteChannel[];
-    //TODO channelFunctionDependencies: ?;
+    channelFunctionDependencies: {
+        nodes: { id: string }[];
+        edges: { 
+            source: string;
+            target: string;
+            modeFromClipped: number;
+            modeToClipped: number;
+         }[];
+    };
 };
 
 export type DmxBreak = (string | null)[]

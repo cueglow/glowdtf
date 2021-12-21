@@ -12,12 +12,13 @@ import { DmxModeString, FixtureType, fixtureTypeString } from "../Types/FixtureT
 import { } from 'styled-components/macro';
 import styled from 'styled-components';
 import _ from "lodash";
+import { ChannelFunctionGraph } from "./ChannelFunctionGraph";
 
 export function FixtureTypes(props: RouteComponentProps) {
     const [selectedFixtureType, setSelectedFixtureType] = useState<FixtureType | undefined>(undefined);
 
     return (
-        <LeftRightSplit>
+        <LeftRightSplit growLeft={.5}>
             <div css={`
                 display: flex;
                 flex-direction: column;
@@ -38,7 +39,7 @@ export function FixtureTypes(props: RouteComponentProps) {
             </div>
             <>
                 <div style={{ display: "flex", }}>
-                    <h4 className="bp3-heading">Details</h4>
+                    <h3 className="bp3-heading">Details</h3>
                     <div style={{ flexGrow: 1, }} />
                     <RemoveGdtfButton selectedFixtureType={selectedFixtureType} />
                 </div>
@@ -263,6 +264,7 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
     return (
         <div>
             <AttributeTable>
+                <tbody>
                 <tr>
                     <td>Manufacturer</td>
                     <td>{fixtureType.manufacturer}</td>
@@ -293,16 +295,17 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                         <td>{fixtureType.refFT}</td>
                     </tr>
                 }
+                </tbody>
             </AttributeTable>
             <div>
-                <h5 className="bp3-heading">Modes</h5>
+                <h4 className="bp3-heading">Modes</h4>
                 {fixtureType.modes.map((mode) => {
                     return (
                         <div key={fixtureType.fixtureTypeId + mode.name} css={`
                         padding-bottom: ${bp.ptGridSizePx}px;
                         padding-top: ${bp.ptGridSizePx}px;
                     `}>
-                            <h6 className="bp3-heading">{DmxModeString(mode)}</h6>
+                            <h5 className="bp3-heading">{DmxModeString(mode)}</h5>
                             <div css={`
                                 column-width: ${23*bp.ptGridSizePx}px;
                                 column-count: 4;
@@ -315,11 +318,13 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                                 )
                             )}
                             </div>
+                            <h6 className="bp3-heading" css={`margin-top: 1em;`}>Channel Function Dependencies</h6>
+                            <ChannelFunctionGraph dmxMode={mode}/>
                         </div>);
                 })}
             </div>
             <div css={`padding-bottom: ${bp.ptGridSizePx}px;`}>
-                <h5 className="bp3-heading">Revisions</h5>
+                <h4 className="bp3-heading">Revisions</h4>
                 <table className="bp3-html-table bp3-html-table-striped bp3-html-table-condensed bp3-html-table-bordered">
                     <thead>
                         <tr>
@@ -330,7 +335,7 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                     </thead>
                     <tbody>
                         {fixtureType.revisions.map( revision => 
-                            <tr>
+                            <tr key={revision.date}>
                                 <td>{revision.userId}</td>
                                 <td>{revision.date}</td>
                                 <td>{revision.text}</td>

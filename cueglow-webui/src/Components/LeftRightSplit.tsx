@@ -2,7 +2,7 @@ import React, { FunctionComponent } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import styled from "styled-components/macro";
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{growLeft?: number}>`
     position: absolute;
     top: ${bp.vars.ptNavbarHeight};
     bottom: 0px;
@@ -11,6 +11,10 @@ const Wrapper = styled.div`
     padding-right: 0;
     display: flex;
     flex-direction: row;
+
+    div:first-child {
+        flex-grow: ${props => props.growLeft ?? 1};
+    }
 `
 
 const Child = styled.div`
@@ -21,13 +25,17 @@ const Child = styled.div`
     overflow: auto;
 `
 
+export type LeftRightSplitProps = {
+    growLeft?: number;
+}
+
 /**
  * Top-level Element that evenly distribute the children from left to right with
  * flexbox.
  */
-export const LeftRightSplit: FunctionComponent = ({ children }) => {
+export const LeftRightSplit: FunctionComponent<LeftRightSplitProps> = ({ children, growLeft }) => {
     return (
-        <Wrapper>
+        <Wrapper growLeft={growLeft}>
             {React.Children.map(children, child => {
                 return <Child>
                     {child}
