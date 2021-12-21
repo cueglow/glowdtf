@@ -18,18 +18,22 @@ const pingDelay = 1*60*1000; // 1 minute in ms
 const pingMessage = JSON.stringify({event: "ping"})
 
 class Connection {
-    readonly webSocket = new WebSocket(webSocketPath);
-    readonly subscriptions = new SubscriptionProvider(this.webSocket);
-    readonly messageHandler = new MessageHandler(this.webSocket);
+    readonly webSocket; 
+    readonly subscriptions;
+    readonly messageHandler;
 
     constructor() {
+        this.webSocket = new WebSocket(webSocketPath);
         // regularly send ping messages to prevent WebSocket timeout
         this.webSocket.addEventListener(
             "open", () => setInterval(() => {
                 this.webSocket.send(pingMessage)
             }, pingDelay)
         )
-    }
+
+        this.subscriptions = new SubscriptionProvider(this.webSocket);
+        this.messageHandler = new MessageHandler(this.webSocket);
+        }
         
 }
 
