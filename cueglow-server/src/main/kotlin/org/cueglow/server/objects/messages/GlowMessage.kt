@@ -52,6 +52,10 @@ sealed class GlowMessage constructor(
     class RigState(@Json(index=1) val data: RigStateList, messageId: Int? = null): GlowMessage(GlowEvent.RIG_STATE, messageId)
     class SetChannel(@Json(index=1) val data: RigStateTransition, messageId: Int? = null): GlowMessage(GlowEvent.SET_CHANNEL, messageId)
 
+    // Simplified Ping API
+
+    class Ping(messageId: Int? = null): GlowMessage(GlowEvent.PING, messageId)
+
     companion object
 }
 

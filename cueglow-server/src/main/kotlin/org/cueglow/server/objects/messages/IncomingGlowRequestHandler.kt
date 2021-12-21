@@ -16,6 +16,7 @@ abstract class IncomingGlowRequestHandler(private val state: StateProvider, priv
             GlowEvent.REMOVE_FIXTURES -> handleRemoveFixtures(request)
             GlowEvent.REMOVE_FIXTURE_TYPES -> handleRemoveFixtureTypes(request)
             GlowEvent.SET_CHANNEL -> handleSetChannel(request)
+            GlowEvent.PING -> logger.info("Received Ping from Client")
             else -> logger.warn("Received a message with event ${request.originalMessage.event} which should not be sent by client. Discarding message. ")
         }
     }

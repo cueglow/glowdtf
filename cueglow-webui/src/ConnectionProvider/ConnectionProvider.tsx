@@ -14,10 +14,23 @@ export enum ConnectionState {
 
 const webSocketPath = "ws://" + window.location.host + "/ws";
 
+const pingDelay = 1*60*1000; // 1 minute in ms
+const pingMessage = JSON.stringify({event: "ping"})
+
 class Connection {
     readonly webSocket = new WebSocket(webSocketPath);
     readonly subscriptions = new SubscriptionProvider(this.webSocket);
     readonly messageHandler = new MessageHandler(this.webSocket);
+
+    constructor() {
+        // regularly send ping messages to prevent WebSocket timeout
+        this.webSocket.addEventListener(
+            "open", () => setInterval(() => {
+                this.webSocket.send(pingMessage)
+            }, pingDelay)
+        )
+    }
+        
 }
 
 export const connectionProvider = new class {
