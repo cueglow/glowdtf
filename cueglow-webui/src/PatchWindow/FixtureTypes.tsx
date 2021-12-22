@@ -328,7 +328,10 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                                 )
                             )}
                             </div>
+                            {mode.channelFunctionDependencies.edges.length !== 0 
+                            && 
                             <ChannelFunctionGraphWrapper dmxMode={mode} fixtureTypeName={fixtureTypeString(fixtureType)}/>
+                            }
                         </div>);
                 })}
             </div>
