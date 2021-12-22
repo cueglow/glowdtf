@@ -13,14 +13,10 @@ export const patchDataHandler = new class {
 
     /**
      * Notify the subscriber via `onPatchChange`.  
-     * React's setState requir us to make a shallow copy before calling it. 
-     * Also, React Tabulator won't react to changes if the identity of the arrays is the same. 
+     * React's setState requires us to make a shallow copy before calling it. 
      */
     private notify() {
-        this.currentPatchData = { 
-            fixtures: [...this.currentPatchData.fixtures],
-            fixtureTypes: [...this.currentPatchData.fixtureTypes],
-        };
+        this.currentPatchData = { ...this.currentPatchData };
         this.onPatchChange(this.currentPatchData);
     }
 
@@ -30,67 +26,51 @@ export const patchDataHandler = new class {
     }
 
     onAddFixtureTypes(fixtureTypesToAdd: FixtureType[]) {
-        this.currentPatchData.fixtureTypes.push(...fixtureTypesToAdd)
+        // alway copy, never mutate old array because of React Tabulator diffing
+        this.currentPatchData.fixtureTypes = [
+            ...this.currentPatchData.fixtureTypes, 
+            ...fixtureTypesToAdd
+        ]
         this.notify()
     }
 
     onRemoveFixtureTypes(fixtureTypesToRemove: string[]) {
-        fixtureTypesToRemove.forEach((uuidString) => {
-            const removed = removeIf(this.currentPatchData.fixtureTypes, 
-                (fixtureType) => fixtureType.fixtureTypeId === uuidString)
-            if (removed == null) {
-                console.error("server wanted to remove unknown fixture type");
-                // TODO re-subscribe and stop removing fixture types
-            }
-        })
+        this.currentPatchData.fixtureTypes = this.currentPatchData.fixtureTypes.filter((fixtureType) => 
+            !fixtureTypesToRemove.includes(fixtureType.fixtureTypeId)
+        )
         this.notify()
     }
 
     onAddFixtures(fixturesToAdd: PatchFixture[]) {
-        this.currentPatchData.fixtures.push(...fixturesToAdd)
+        this.currentPatchData.fixtures = [
+            ...this.currentPatchData.fixtures,
+            ...fixturesToAdd
+        ]
         this.notify()
     }
 
     onUpdateFixtures(fixtureUpdates: PatchFixtureUpdate[]) {
-        fixtureUpdates.forEach((fixtureUpdate) => {
-            const oldFixture = this.currentPatchData.fixtures.find(
-                (fixture) => fixtureUpdate.uuid === fixture.uuid)
-            if (oldFixture === undefined) {
-                console.error("Server wanted to update unknown Fixture")
-                // TODO re-subscribe and stop updating fixtures
-                return
+        this.currentPatchData.fixtures = this.currentPatchData.fixtures.map((oldFixture) => {
+            const update = fixtureUpdates.find((fixtureUpdate) => fixtureUpdate.uuid === oldFixture.uuid)
+            if (update === undefined) {
+                return oldFixture
+            } else {
+                return _.mergeWith(oldFixture, update, (oldValue, updateValue) => updateValue ?? oldValue)
             }
-            _.mergeWith(oldFixture, fixtureUpdate, 
-                (oldValue, updateValue) => updateValue ?? oldValue)
         })
         this.notify()
     }
 
     onRemoveFixtures(uuidsToRemove: string[]) {
-        uuidsToRemove.forEach((uuidString) => {
-            const removed = removeIf(this.currentPatchData.fixtures, 
-                (fixture) => fixture.uuid === uuidString)
-            if (removed == null) {
-                console.error("server wanted to remove unknown fixture");
-                // TODO re-subscribe and stop removing fixtures
-            }
-        })
+        this.currentPatchData.fixtures = this.currentPatchData.fixtures.filter((fixture) => 
+            !uuidsToRemove.includes(fixture.uuid)
+        )
         this.notify();
     }
 
     // callback that PatchDataProvider component hooks into
     onPatchChange = (newPatchData: PatchData) => { }
 }()
-
-function removeIf<T>(array: T[], callback: (value: T) => boolean): T | null {
-    var i = array.length;
-    while (i--) {
-        if (callback(array[i])) {
-            return array.splice(i, 1)[0];
-        }
-    }
-    return null
-};
 
 export function PatchDataProvider(props: { children: ReactNode }) {
     const [patchData, setPatchData] = useState(patchDataHandler.current)

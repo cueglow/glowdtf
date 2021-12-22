@@ -59,6 +59,12 @@ function FixtureTypeTable(props: { rowSelectionChanged: (data: FixtureType[]) =>
 
     return (
         <GlowTabulator
+            // It is important that the data array is NEVER mutated, only
+            // replaced. This is because the diffing algorithm of
+            // react-tabulator does not make a copy of the previous state for
+            // later comparison. It could therefore happen that the new state is
+            // the same as the old one, because the old one was modified in the
+            // same way that created the new one. 
             data={patchData.fixtureTypes}
             columns={columns}
             // TODO fitDataStretch: When making window narrow, not all data is visible in column width 
