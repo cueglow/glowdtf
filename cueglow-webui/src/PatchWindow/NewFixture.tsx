@@ -45,6 +45,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
         trigger: triggerValidation,
         control,
         formState: { errors },
+        setError
     } = useForm({
         mode: "onTouched",
         reValidateMode: "onChange",
@@ -77,6 +78,14 @@ export function NewFixtureForm(props: RouteComponentProps) {
 
         const fixtureArray: PatchFixture[] = []
         for (let i = 0; i < quantity; i++) {
+            if (address > 512) {
+                // start address would be outside universe
+                setError("quantity", {
+                    type: "universeOverflow",
+                    message: `Only ${i} fixtures fit into universe`
+                })
+                return
+            }
             fixtureArray.push({
                 uuid: uuidv4(),
                 fid: fid,
@@ -86,12 +95,22 @@ export function NewFixtureForm(props: RouteComponentProps) {
                 universe: universe,
                 address: address,
             })
+            // create next start address
             address += data.dmxMode.channelCount;
+            const currentEndAddress = address - 1
+            if (currentEndAddress > 512) {
+                // just created fixture overflows universe
+                setError("quantity", {
+                    type: "universeOverflow",
+                    message: `Only ${i} fixtures fit into universe`
+                })
+                return
+            }
         }
         const msg = new ClientMessage.AddFixtures(fixtureArray)
         connectionProvider.send(msg)
-        navigate("patch")
-    }, [navigate])
+        navigate("/patch")
+    }, [navigate, setError])
 
     const hotkeys = useMemo(() => [
         {
