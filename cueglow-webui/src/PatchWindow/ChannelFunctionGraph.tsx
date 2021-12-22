@@ -1,7 +1,7 @@
 import { Button, Dialog } from "@blueprintjs/core";
 import Cytoscape, { Core, ElementDefinition } from 'cytoscape';
 import fcose from 'cytoscape-fcose';
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { DmxMode } from "src/Types/FixtureType";
@@ -16,11 +16,33 @@ export type ChannelFunctionGraphProps = {
 
 export const ChannelFunctionGraphWrapper = (props: ChannelFunctionGraphProps & {fixtureTypeName: string}) => {
     const [isOpen, setIsOpen] = useState(false);
+
+    // this is registered globally to close the dialog because we can't get
+    // keydown events on the graph canvas or its parents
+    const handleEscape = useCallback((e: KeyboardEvent) => {
+        console.log("global keydown", e)
+        if (e.key === "Escape") {
+            e.stopImmediatePropagation()
+            setIsOpen(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (isOpen) {
+            window.addEventListener("keydown", handleEscape)
+        } else {
+            window.removeEventListener("keydown", handleEscape)
+        }
+    }, [handleEscape, isOpen])
+
     return <>
         <Button onClick={() => setIsOpen(true)}>Show ModeMaster Dependencies</Button>
         <Dialog title="ModeMaster Dependency Graph"
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={(e) => {
+            e.nativeEvent.stopImmediatePropagation()
+            setIsOpen(false)
+        }}
         transitionDuration={0}
         className="bp3-dark"
         style={{width: "97vw", height: "97vh", paddingBottom: 0, margin: 0,}}
@@ -31,9 +53,12 @@ export const ChannelFunctionGraphWrapper = (props: ChannelFunctionGraphProps & {
                 height: 100%;
                 display: flex;
                 flex-direction: column;
-            `}>
+            `}
+            >
                 <p css={`flex-grow: 0;`}>{`${props.fixtureTypeName} (${props.dmxMode.name})`}</p>
-                <ChannelFunctionGraph {...props}/>
+                <div css={`flex-grow: 1;`}>
+                    <ChannelFunctionGraph {...props}/>
+                </div>
             </div>
         </Dialog>
     </>
@@ -187,7 +212,7 @@ export const ChannelFunctionGraph = ({ dmxMode }: ChannelFunctionGraphProps) => 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         layout={layout as any}
         css={`
-            flex-grow: 10;
+            height: 100%;
         `}
         cy={(newCy) => cy.current = newCy}
     />

@@ -12,7 +12,7 @@ export function NavbarExitWithTitle(props: { title: string; exitPath: string; })
             combo: "esc",
             global: true,
             label: "Go Back",
-            onKeyDown: () => navigate(props.exitPath),
+            onKeyDown: () => document.body.classList.contains("bp3-overlay-open") || navigate(props.exitPath)
         },
     ], [navigate, props.exitPath]);
     useHotkeys(hotkeys);

@@ -27,13 +27,13 @@ export function PatchTabWrapper(props: RouteComponentProps) {
             combo: "i",
             global: true,
             label: "Navigate to the Fixture Patch",
-            onKeyDown: () => navigate("/patch/fixtures"),
+            onKeyDown: () => document.body.classList.contains("bp3-overlay-open") || navigate("/patch/fixtures"),
         },
         {
             combo: "p",
             global: true,
             label: "Navigate to Fixture Types",
-            onKeyDown: () => navigate("/patch/fixtureTypes"),
+            onKeyDown: () => document.body.classList.contains("bp3-overlay-open") || navigate("/patch/fixtureTypes"),
         },
     ], [navigate]);
     useHotkeys(hotkeys);

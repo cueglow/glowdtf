@@ -79,7 +79,7 @@ function AddGdtfButton() {
             combo: "a",
             global: true,
             label: "Add New GDTF Fixture Type",
-            onKeyDown: selectFile
+            onKeyDown: () => document.body.classList.contains("bp3-overlay-open") || selectFile()
         }
     ], []);
     useHotkeys(hotkeys);
@@ -166,7 +166,7 @@ function RemoveGdtfButton(props: { selectedFixtureType: FixtureType | undefined 
             combo: "del",
             global: true,
             label: "Remove the selected fixture type",
-            onKeyDown: () => removeFixtureType(),
+            onKeyDown: () => document.body.classList.contains("bp3-overlay-open") || removeFixtureType(),
             disabled: selectedFixtureType === undefined,
         },
     ], [removeFixtureType, selectedFixtureType]);
@@ -199,7 +199,10 @@ function RemoveGdtfButton(props: { selectedFixtureType: FixtureType | undefined 
                 isOpen={isDialogOpen && selectedFixtureType !== undefined}
                 canEscapeKeyClose={true}
                 canOutsideClickClose={true}
-                onClose={handleDialogClose}
+                onClose={(e) => {
+                    e.nativeEvent.stopImmediatePropagation()
+                    handleDialogClose()
+                }}
                 className="bp3-dark"
             >
                 <div className={Classes.DIALOG_BODY}>

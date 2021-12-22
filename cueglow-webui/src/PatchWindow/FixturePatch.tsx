@@ -28,14 +28,14 @@ export function FixturePatch(props: RouteComponentProps) {
             combo: "del",
             global: true,
             label: "Remove the selected fixtures",
-            onKeyDown: () => removeSelectedFixtures(),
+            onKeyDown: () => document.body.classList.contains("bp3-overlay-open") || removeSelectedFixtures(),
             disabled: selectedFixtureUuids.length === 0,
         },
         {
             combo: "a",
             global: true,
             label: "Add New Fixtures",
-            onKeyDown: () => navigate("/patch/newFixture"),
+            onKeyDown: () => document.body.classList.contains("bp3-overlay-open") || navigate("/patch/newFixture"),
         }
     ], [removeSelectedFixtures, selectedFixtureUuids, navigate]);
     useHotkeys(hotkeys);
