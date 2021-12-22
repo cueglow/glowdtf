@@ -6,7 +6,7 @@ import { Control, Controller } from 'react-hook-form';
 export function ValidatedNumericInput(
     props: {
         name: string, control: Control, defaultValue?: number, label?: string,
-        id?: string, min?: number, max?: number, tabIndex?: number
+        id?: string, min?: number, max?: number, tabIndex?: number, onEscape?: ()=>void,
     }
 ) {
     return <Controller name={props.name} control={props.control} defaultValue={props.defaultValue}
@@ -33,7 +33,12 @@ export function ValidatedNumericInput(
                         name={field.name}
                         selectAllOnFocus selectAllOnIncrement
                         id={props.id}
-                        tabIndex={props.tabIndex} />
+                        tabIndex={props.tabIndex}
+                        onKeyDown={(e) => {
+                            e.nativeEvent.key === "Escape" && props.onEscape && props.onEscape()
+                            return
+                        }}
+                        />
                 </Tooltip2>
             </FormGroup>} />;
 }

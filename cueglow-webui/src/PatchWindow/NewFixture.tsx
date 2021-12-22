@@ -202,6 +202,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
                     id="addFixture_nameInput" tabIndex={3}
                     inputRef={nameRef}
                     {...nameRegister}
+                    onKeyDown={(e) => e.nativeEvent.key === "Escape" && navigate("/patch")}
                 />
             </FormGroup>
             <ValidatedNumericInput
@@ -213,6 +214,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
                 tabIndex={4}
                 id="addFixture_quantityInput"
                 control={control}
+                onEscape={() => navigate("/patch")}
             />
             <ValidatedNumericInput
                 label="FID"
@@ -223,6 +225,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
                 tabIndex={5}
                 id="addFixture_fidInput"
                 control={control}
+                onEscape={() => navigate("/patch")}
             />
             <ValidatedNumericInput
                 label="Universe"
@@ -233,6 +236,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
                 tabIndex={6}
                 id="addFixture_universeInput"
                 control={control}
+                onEscape={() => navigate("/patch")}
             />
             <ValidatedNumericInput
                 label="Address"
@@ -243,6 +247,7 @@ export function NewFixtureForm(props: RouteComponentProps) {
                 tabIndex={7}
                 id="addFixture_addressInput"
                 control={control}
+                onEscape={() => navigate("/patch")}
             />
             <div style={{
                 display: "flex",
