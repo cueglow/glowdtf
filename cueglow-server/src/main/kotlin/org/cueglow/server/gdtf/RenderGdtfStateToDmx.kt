@@ -1,9 +1,5 @@
 package org.cueglow.server.gdtf
 
-import org.apache.logging.log4j.LogManager
-import org.cueglow.server.rig.FixtureState
-
-
 
 fun renderGdtfStateToDmx(chValues: List<Long>, dmxMode: GlowDmxMode): ByteArray {
     val output = mutableListOf<Byte>()
@@ -20,7 +16,7 @@ fun renderGdtfStateToDmx(chValues: List<Long>, dmxMode: GlowDmxMode): ByteArray 
                     .reversed() // from least to most significant
                     .forEachIndexed { offsetIndex, offset ->
                         //logger.info("doing offset $offset with offsetIndex $offsetIndex")
-                        val byteValue = (chValue shr 8*offsetIndex).toByte()
+                        val byteValue = (chValue shr 8 * offsetIndex).toByte()
                         // grow to right size
                         val dmxChannelInd = startInd + offset - 1
                         //logger.info("#wanting to insert at $dmxChannelInd")

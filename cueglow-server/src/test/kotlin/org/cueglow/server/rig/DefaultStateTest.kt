@@ -2,10 +2,7 @@ package org.cueglow.server.rig
 
 import com.google.common.truth.Truth.assertThat
 import org.apache.logging.log4j.LogManager
-import org.cueglow.server.gdtf.GlowDmxMode
-import org.cueglow.server.gdtf.gdtfDefaultState
-import org.cueglow.server.gdtf.maximumValueOfBytes
-import org.cueglow.server.gdtf.printModeMasterDependencies
+import org.cueglow.server.gdtf.*
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -68,7 +65,7 @@ internal class DefaultStateTest {
 
         assertEquals(
             listOf(1, 3, 8, 11, 14, 17, 19, 21),
-            fixtureType.modes[0].multiByteChannels.map{it.initialChannelFunctionInd}
+            fixtureType.modes[0].multiByteChannels.map { it.initialChannelFunctionInd }
         )
     }
 }

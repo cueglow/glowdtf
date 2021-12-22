@@ -2,15 +2,19 @@ package org.cueglow.server.patch
 
 import com.github.michaelbull.result.Ok
 import com.google.common.truth.Truth.assertThat
+import org.cueglow.server.RigStateContainer
 import org.cueglow.server.test_utilities.ExampleFixtureType
 import org.cueglow.server.test_utilities.concurrentTaskListTest
 import org.junit.jupiter.api.Test
 import java.util.*
-import java.util.concurrent.*
+import java.util.concurrent.CyclicBarrier
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 
 class ConcurrentPatchTest {
-    val patch = Patch(LinkedBlockingQueue(), ReentrantLock(), mutableListOf())
+    val patch = Patch(LinkedBlockingQueue(), ReentrantLock(), RigStateContainer())
 
     private val exampleFixtureTypeList = listOf(
         ExampleFixtureType.esprite,
@@ -29,8 +33,16 @@ class ConcurrentPatchTest {
      * wrapper around [concurrentTaskListTest] from utilites to always use the same [iterationCount] and
      * [printPatchStateAfterException].
      */
-    private fun <T> concurrentTaskListTest(concurrentTaskList: List<(CyclicBarrier) -> T>, afterConcurrentTasks: (List<T>) -> Unit) {
-        concurrentTaskListTest(iterationCount, concurrentTaskList, afterConcurrentTasks, ::printPatchStateAfterException)
+    private fun <T> concurrentTaskListTest(
+        concurrentTaskList: List<(CyclicBarrier) -> T>,
+        afterConcurrentTasks: (List<T>) -> Unit
+    ) {
+        concurrentTaskListTest(
+            iterationCount,
+            concurrentTaskList,
+            afterConcurrentTasks,
+            ::printPatchStateAfterException
+        )
     }
 
     @Test
@@ -68,7 +80,13 @@ class ConcurrentPatchTest {
     }
 
     private fun <T> singleTaskConcurrentTest(task: (CyclicBarrier) -> T, afterConcurrentTest: (List<T>) -> Unit) {
-        org.cueglow.server.test_utilities.singleTaskConcurrentTest(threadCount, iterationCount, task, afterConcurrentTest, ::printPatchStateAfterException)
+        org.cueglow.server.test_utilities.singleTaskConcurrentTest(
+            threadCount,
+            iterationCount,
+            task,
+            afterConcurrentTest,
+            ::printPatchStateAfterException
+        )
     }
 
     @Test
@@ -98,7 +116,7 @@ class ConcurrentPatchTest {
             barrier.await(2, TimeUnit.SECONDS)
             val addResult = patch.addFixtureTypes(exampleFixtureTypeList)
             barrier.await(2, TimeUnit.SECONDS)
-            val removeResult = patch.removeFixtureTypes(exampleFixtureTypeList.map{it.fixtureTypeId})
+            val removeResult = patch.removeFixtureTypes(exampleFixtureTypeList.map { it.fixtureTypeId })
             Pair(addResult, removeResult)
         },
         afterConcurrentTest = { results ->
@@ -111,18 +129,24 @@ class ConcurrentPatchTest {
 
     private fun setupExampleFixtures() {
         patch.addFixtureTypes(exampleFixtureTypeList)
-        patch.addFixtures(listOf(ExampleFixtureType.esprite_fixture, ExampleFixtureType.esprite_fixture2, ExampleFixtureType.channelLayoutTestGdtfFixture))
+        patch.addFixtures(
+            listOf(
+                ExampleFixtureType.esprite_fixture,
+                ExampleFixtureType.esprite_fixture2,
+                ExampleFixtureType.channelLayoutTestGdtfFixture
+            )
+        )
     }
 
     private fun testGettersConcurrentlyWhileRemoving(getterLambda: (CyclicBarrier) -> Unit) {
         val removeTask = { barrier: CyclicBarrier ->
             barrier.await(2, TimeUnit.SECONDS)
-            patch.removeFixtureTypes(exampleFixtureTypeList.map{it.fixtureTypeId})
+            patch.removeFixtureTypes(exampleFixtureTypeList.map { it.fixtureTypeId })
             Unit
         }
 
         val taskList = mutableListOf(removeTask).apply {
-            repeat(threadCount - 1) {this.add(getterLambda)}
+            repeat(threadCount - 1) { this.add(getterLambda) }
         }
 
         setupExampleFixtures()
@@ -134,7 +158,7 @@ class ConcurrentPatchTest {
 
     @Test
     fun getFixturesReturnsCoherentStateDuringRemove() {
-        testGettersConcurrentlyWhileRemoving{ barrier ->
+        testGettersConcurrentlyWhileRemoving { barrier ->
             barrier.await(2, TimeUnit.SECONDS)
             val returnedFixtures = patch.getFixtures()
             assertThat(returnedFixtures.size).isAnyOf(0, 3)
@@ -143,7 +167,7 @@ class ConcurrentPatchTest {
 
     @Test
     fun getFixtureTypesReturnsCoherentStateDuringRemove() {
-        testGettersConcurrentlyWhileRemoving{ barrier ->
+        testGettersConcurrentlyWhileRemoving { barrier ->
             barrier.await(2, TimeUnit.SECONDS)
             val returnedFixtureTypes = patch.getFixtureTypes()
             assertThat(returnedFixtureTypes.size).isAnyOf(0, 2)
@@ -152,7 +176,7 @@ class ConcurrentPatchTest {
 
     @Test
     fun getGlowPatchReturnsCoherentStateDuringRemove() {
-        testGettersConcurrentlyWhileRemoving{ barrier ->
+        testGettersConcurrentlyWhileRemoving { barrier ->
             barrier.await(2, TimeUnit.SECONDS)
             val returnedGlowPatch = patch.getGlowPatch()
             assertThat(returnedGlowPatch.fixtures.size).isAnyOf(0, 3)

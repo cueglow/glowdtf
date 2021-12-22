@@ -36,7 +36,8 @@ class RateLimiter(frameTime: Duration) {
         // to determine run Wireshark with Art-Net filter (udp port 6454), then go to Statistics -> I/O Graph.
         // use udp.time_delta as Y_FIELD and display MAX, AVG and MIN. Choose 100 ms window size.
         // Target is less then +- 200 us jitter.
-        val spinForMax: Long = 4_000_000
+        val spinForMax: Long = 0 // 4_000_000 resulted in relatively consistent timing in earlier testing,
+        // but currently we don't do any Effects rendering that updates state constantly, so we might as well save some power by not spin-sleeping
         val sleepFor = smartSleepFor - spinForMax
         if (sleepFor > 0) {
             val sleepForMillis = sleepFor / 1_000_000

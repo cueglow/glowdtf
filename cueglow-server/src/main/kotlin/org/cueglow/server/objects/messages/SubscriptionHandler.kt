@@ -12,7 +12,7 @@ import kotlin.concurrent.withLock
 /**
  * Handles Subscribe/Unsubscribe Events. Receives OutEvents from the OutEventHandler and sends them to the subscribers.
  **/
-abstract class SubscriptionHandler: OutEventReceiver, Logging {
+abstract class SubscriptionHandler : OutEventReceiver, Logging {
     val lock = ReentrantLock()
 
     private val activeSubscriptions = EnumMap<GlowTopic, MutableSet<AsyncClient>>(GlowTopic::class.java)
@@ -52,7 +52,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
             val topicSubscribers = activeSubscriptions[topic]
             if (topicSubscribers!!.isNotEmpty()) { // null asserted because all possible keys are initialized in init block
                 val messageString = serializeMessage(glowMessage)
-                topicSubscribers.forEach {it.send(messageString)}
+                topicSubscribers.forEach { it.send(messageString) }
             }
         }
     }
@@ -67,7 +67,9 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
 
     fun subscribe(subscriber: AsyncClient, topic: GlowTopic, state: StateProvider) {
         // unsubscribe before subscribing
-        if (internalUnsubscribe(subscriber, topic)) {logger.warn("Client $subscriber subscribed to $topic but was already subscribed. Subscription was reset. ")}
+        if (internalUnsubscribe(subscriber, topic)) {
+            logger.warn("Client $subscriber subscribed to $topic but was already subscribed. Subscription was reset. ")
+        }
         when (topic) {
             GlowTopic.PATCH -> {
                 val syncUuid = UUID.randomUUID()
@@ -87,7 +89,7 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
             GlowTopic.RIG_STATE -> {
                 lock.withLock {
                     state.lock.withLock {
-                        val initialMessage = GlowMessage.RigState(state.rigState)
+                        val initialMessage = GlowMessage.RigState(state.rigStateContainer.rigState)
                         subscriber.send(initialMessage)
                     }
                     activeSubscriptions[GlowTopic.RIG_STATE]!!.add(subscriber) // null asserted because all possible keys are initialized in init block
@@ -97,25 +99,28 @@ abstract class SubscriptionHandler: OutEventReceiver, Logging {
     }
 
     fun unsubscribe(subscriber: AsyncClient, topic: GlowTopic) {
-        if (!internalUnsubscribe(subscriber, topic)) {logger.warn("Client $subscriber unsubscribed from $topic but was not subscribed")}
+        if (!internalUnsubscribe(subscriber, topic)) {
+            logger.warn("Client $subscriber unsubscribed from $topic but was not subscribed")
+        }
     }
 
     /** Returns true if the subscriber was successfully unsubscribed and false if the subscriber wasn't subscribed */
     private fun internalUnsubscribe(subscriber: AsyncClient, topic: GlowTopic): Boolean {
         lock.withLock {
             val numberOfSubscriptionsRemovedFromPending = pendingSubscriptions
-                .filter {it.value.first == topic && it.value.second == subscriber}
+                .filter { it.value.first == topic && it.value.second == subscriber }
                 .keys
-                .map {pendingSubscriptions.remove(it)}
+                .map { pendingSubscriptions.remove(it) }
                 .size
-            val removedFromActive = activeSubscriptions[topic]!!.remove(subscriber) // null asserted because all possible keys are initialized in init block
+            val removedFromActive =
+                activeSubscriptions[topic]!!.remove(subscriber) // null asserted because all possible keys are initialized in init block
             return removedFromActive || numberOfSubscriptionsRemovedFromPending > 0
         }
     }
 
     fun unsubscribeFromAllTopics(subscriber: AsyncClient) {
         lock.withLock {
-            pendingSubscriptions.filter {it.value.second == subscriber}.keys.map { pendingSubscriptions.remove(it) }
+            pendingSubscriptions.filter { it.value.second == subscriber }.keys.map { pendingSubscriptions.remove(it) }
             activeSubscriptions.values.forEach {
                 it.remove(subscriber)
             }

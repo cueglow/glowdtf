@@ -16,18 +16,18 @@ export enum GlowTopic {
 
 // In Updates, uuid must be contained and fixtureTypeId/dmxMode must not be
 // contained (currently immutable after creation). 
-export type PatchFixtureUpdate = 
+export type PatchFixtureUpdate =
     Pick<PatchFixture, "uuid"> &
-    Partial<Omit<PatchFixture, "fixtureTypeId"|"dmxMode">>
+    Partial<Omit<PatchFixture, "fixtureTypeId" | "dmxMode">>
 
 export type SetChannelUpdate = {
-    fixtureInd: number,
+    fixtureUuid: string,
     chInd: number,
     value: number,
 }
 
 export class ClientMessage {
-    private constructor(readonly event: ClientEvent) {}
+    private constructor(readonly event: ClientEvent) { }
 
     static Subscribe = class extends ClientMessage {
         constructor(readonly data: GlowTopic) {

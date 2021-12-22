@@ -3,6 +3,7 @@ package org.cueglow.server.patch
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.unwrap
+import org.cueglow.server.RigStateContainer
 import org.cueglow.server.objects.ArtNetAddress
 import org.cueglow.server.objects.DmxAddress
 import org.cueglow.server.test_utilities.ExampleFixtureType
@@ -15,14 +16,18 @@ import java.util.concurrent.locks.ReentrantLock
 
 internal class PatchTest {
 
-    private val patch = Patch(LinkedBlockingQueue(), ReentrantLock(), mutableListOf())
+    private val patch = Patch(LinkedBlockingQueue(), ReentrantLock(), RigStateContainer())
 
     private val exampleFixtureType = ExampleFixtureType.esprite
 
-    private val exampleFixture = PatchFixture(UUID.randomUUID(),1, "", exampleFixtureType.fixtureTypeId,
-        "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap())
-    private val exampleFixture2 = PatchFixture(UUID.randomUUID(),2, "", exampleFixtureType.fixtureTypeId,
-        "mode1", ArtNetAddress.tryFrom(2).unwrap(), DmxAddress.tryFrom(1).unwrap())
+    private val exampleFixture = PatchFixture(
+        UUID.randomUUID(), 1, "", exampleFixtureType.fixtureTypeId,
+        "mode1", ArtNetAddress.tryFrom(1).unwrap(), DmxAddress.tryFrom(1).unwrap()
+    )
+    private val exampleFixture2 = PatchFixture(
+        UUID.randomUUID(), 2, "", exampleFixtureType.fixtureTypeId,
+        "mode1", ArtNetAddress.tryFrom(2).unwrap(), DmxAddress.tryFrom(1).unwrap()
+    )
 
     @Test
     fun patchList() {
@@ -53,7 +58,7 @@ internal class PatchTest {
 
         // updating unpatched fixture does not work
         val aRandomUuid = UUID.fromString("59fa8699-8478-45ca-91e7-b72eec895954")
-        assertTrue(patch.updateFixtures(listOf(PatchFixtureUpdate(aRandomUuid, name="a name"))) is Err)
+        assertTrue(patch.updateFixtures(listOf(PatchFixtureUpdate(aRandomUuid, name = "a name"))) is Err)
 
         // removing unknown fixture type does not work
         val randomUuid = UUID.fromString("8eff8f2b-c818-4a3e-87a3-ba5b43f8fd0c")
@@ -102,17 +107,22 @@ internal class PatchTest {
         assertEquals(2, patch.getFixtures().size)
         assertEquals(1, fixtures.size)
         // we should not be able to cast the map to a mutable map
-        assertThrows <Exception> { (fixtures as MutableMap).remove(exampleFixture.uuid) }
+        assertThrows<Exception> { (fixtures as MutableMap).remove(exampleFixture.uuid) }
         // nothing should have changed from trying to cast
         assertEquals(2, patch.getFixtures().size)
         assertEquals(1, fixtures.size)
         // update a fixture
-        patch.updateFixtures(listOf(PatchFixtureUpdate(
-            exampleFixture.uuid,
-            fid = 42,
-            name = "newName",
-            universe = Ok(ArtNetAddress.tryFrom(42).unwrap()),
-            address = Ok(DmxAddress.tryFrom(42).unwrap()))))
+        patch.updateFixtures(
+            listOf(
+                PatchFixtureUpdate(
+                    exampleFixture.uuid,
+                    fid = 42,
+                    name = "newName",
+                    universe = Ok(ArtNetAddress.tryFrom(42).unwrap()),
+                    address = Ok(DmxAddress.tryFrom(42).unwrap())
+                )
+            )
+        )
         // old map should not change, getting again should change
         assertTrue(exampleFixture.isSimilar(fixtures[exampleFixture.uuid]!!))
         assertFalse(exampleFixture.isSimilar(patch.getFixtures()[exampleFixture.uuid]!!))
@@ -131,7 +141,7 @@ internal class PatchTest {
         assertEquals(0, patch.getFixtureTypes().size)
         assertEquals(1, fixtureTypes.size)
         // we should not be able to cast the map to a mutable map
-        assertThrows <Exception> { (fixtureTypes as MutableMap).remove(exampleFixtureType.fixtureTypeId) }
+        assertThrows<Exception> { (fixtureTypes as MutableMap).remove(exampleFixtureType.fixtureTypeId) }
         // nothing should have changed from trying to cast
         assertEquals(0, patch.getFixtureTypes().size)
         assertEquals(1, fixtureTypes.size)

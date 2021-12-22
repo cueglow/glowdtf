@@ -386,8 +386,8 @@ Server returns:
 ```json
 {
     "event": "rigState",
-    "data": [ // list of fixtures, ordered like in Patch
-        { // first fixture
+    "data": { // map from fixture uuid to fixture state
+        "1465f08b-4746-4c45-9f47-c9f3f3039bb7": { // first fixture
             "chValues": [
                 0,
                 255
@@ -399,21 +399,21 @@ Server returns:
                 "Dimmer 1 must be 128-255" // reason for being disabled
             ]
         },
-        { // second fixture
+        "55394860-2e07-4633-b555-14e3699e92de": { // second fixture
             // ...
         }
-    ]
+    }
 }
 ```
 
 When the rig state changes, the server sends the whole `rigState` message again. 
 
-When the client wants to update the value of a channel, he sends:
+When the client wants to update the value of a channel, it sends:
 ```json
 {
     "event": "setChannel",
     "data": {
-        "fixtureInd": 0,
+        "fixtureUuid": "1465f08b-4746-4c45-9f47-c9f3f3039bb7",
         "chInd": 0,
         "value": 255
     }

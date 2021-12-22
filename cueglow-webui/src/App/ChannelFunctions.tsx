@@ -30,8 +30,6 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
 
     const channels = dmxModeObject?.multiByteChannels
 
-    const fixtureInd = patchData.fixtures.findIndex(fixture => fixture.uuid === selectedFixture?.uuid)
-
     const chFsByFeatureGroup = _.groupBy(channelFunctions, chF => chF.featureGroup)
 
     const featureGroupOrder = ["Dimmer", "Position", "Color", "Gobo", "Beam", "Focus", "Shapers", "Video", "Control"]
@@ -57,7 +55,7 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
         sortedGroups.push({ featureGroup: "Raw DMX", chFs: chFsByFeatureGroup["Raw DMX"] })
     }
 
-    const channelFunctionElements = sortedGroups.map(({ featureGroup, chFs }) => {
+    const channelFunctionElements = selectedFixture && sortedGroups.map(({ featureGroup, chFs }) => {
         return <>
             <h4 className="bp3-heading" css={`
                 margin-top: ${2 * bp.ptGridSizePx}px;
@@ -73,7 +71,7 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
                 return <ChannelFunctionElement
                     chF={channelFunction}
                     chFInd={chFInd}
-                    fixtureInd={fixtureInd}
+                    fixtureUuid={selectedFixture?.uuid}
                     channels={channels}
                     key={`${selectedFixture?.uuid}_${chFInd}`}
                 />
@@ -92,11 +90,11 @@ export const ChannelFunctions: FunctionComponent<{ selectedFixture: PatchFixture
 type ChannelFunctionElementProps = {
     chF: ChannelFunction;
     chFInd: number;
-    fixtureInd: number;
+    fixtureUuid: string;
     channels: MultiByteChannel[];
 }
 
-const ChannelFunctionElement = ({ chF, chFInd, fixtureInd, channels }: ChannelFunctionElementProps) => {
+const ChannelFunctionElement = ({ chF, chFInd, fixtureUuid, channels }: ChannelFunctionElementProps) => {
     const { chInd, geometry, channelName, dmxAddress, labelStepSize } = useMemo(() => {
         const channel = channels[chF.multiByteChannelInd];
         const geometry = channel?.geometry;
@@ -116,9 +114,11 @@ const ChannelFunctionElement = ({ chF, chFInd, fixtureInd, channels }: ChannelFu
 
     const rigState = useContext(RigStateContext);
 
-    const chValue = rigState[fixtureInd]?.chValues[chInd] ?? 0
+    const fixtureState = rigState[fixtureUuid]
 
-    const disabled = rigState[fixtureInd]?.chFDisabled[chFInd];
+    const chValue = fixtureState?.chValues[chInd] ?? 0
+
+    const disabled = fixtureState?.chFDisabled[chFInd];
 
     const channelValueDependentElements = useMemo(() => {
         const outOfRange = !_.inRange(chValue, chF.dmxFrom, chF.dmxTo + 1)
@@ -143,7 +143,7 @@ const ChannelFunctionElement = ({ chF, chFInd, fixtureInd, channels }: ChannelFu
             {"DMX Offset: " + dmxAddress}
         </>
 
-        const tooltipedChannelFunctionName = 
+        const tooltipedChannelFunctionName =
             <Tooltip2 content={tooltipContent}>
                 <>
                     {chF.name}
@@ -157,31 +157,31 @@ const ChannelFunctionElement = ({ chF, chFInd, fixtureInd, channels }: ChannelFu
         padding-bottom: ${1 * bp.ptGridSizePx}px;
         overflow-x: hidden;
         `}>
-        <div>
-            <div css={`
+            <div>
+                <div css={`
                 color: ${(disabled !== null || outOfRange) ? "gray" : "inherit"};
             `}>
-                {tooltipedChannelFunctionName}
+                    {tooltipedChannelFunctionName}
+                </div>
             </div>
-        </div>
-        <Slider
-            min={chF.dmxFrom}
-            max={chF.dmxTo}
-            value={chValue}
-            labelStepSize={labelStepSize}
-            onChange={newValue => {
-                const msg = new ClientMessage.SetChannel({
-                    fixtureInd: fixtureInd,
-                    chInd: chInd,
-                    value: newValue
-                }
-                );
-                connectionProvider.send(msg);
-            }}
-            disabled={disabled !== null}
+            <Slider
+                min={chF.dmxFrom}
+                max={chF.dmxTo}
+                value={chValue}
+                labelStepSize={labelStepSize}
+                onChange={newValue => {
+                    const msg = new ClientMessage.SetChannel({
+                        fixtureUuid: fixtureUuid,
+                        chInd: chInd,
+                        value: newValue
+                    }
+                    );
+                    connectionProvider.send(msg);
+                }}
+                disabled={disabled !== null}
             />
         </div>;
-    }, [chF, chInd, channelName, dmxAddress, fixtureInd, geometry, labelStepSize, chValue, disabled])
+    }, [chF, chInd, channelName, dmxAddress, fixtureUuid, geometry, labelStepSize, chValue, disabled])
 
     return channelValueDependentElements
 

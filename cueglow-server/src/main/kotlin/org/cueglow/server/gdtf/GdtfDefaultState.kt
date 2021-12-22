@@ -1,14 +1,18 @@
 package org.cueglow.server.gdtf
 
-import org.cueglow.server.rig.FixtureState
-import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.traverse.BreadthFirstIterator
+
+data class FixtureState(
+    val chValues: List<Long>, // size = multiByteChannels.size
+    val chFDisabled: List<String?>, // size = channelFunctions.size
+    // chFDisabled is null if enabled or string with reason if disabled
+)
 
 fun gdtfDefaultState(dmxMode: GlowDmxMode): FixtureState {
     val chs = dmxMode.multiByteChannels
     val chFs = dmxMode.channelFunctions
 
-    val chValues = MutableList(chs.size){-1L}
+    val chValues = MutableList(chs.size) { -1L }
 
     // for each channel, the initialFunction determines which defaultValue we use
     dmxMode.multiByteChannels.forEachIndexed { chInd, ch ->
@@ -30,7 +34,7 @@ fun generateChFDisabled(
     val g = dmxMode.channelFunctionDependencies // dependency graph
     val chFs = dmxMode.channelFunctions
     // allocate
-    val chFDisabled = MutableList<String?>(chFs.size){null}
+    val chFDisabled = MutableList<String?>(chFs.size) { null }
     // for handling ModeMaster Dependencies, iterate over all ChF in the graph
     val slaveIterator = BreadthFirstIterator(g)
     slaveIterator.forEachRemaining { slaveChFInd ->

@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { RigState } from "src/Types/RigState";
 
-const emptyRigState: RigState = []
+const emptyRigState: RigState = {}
 export const RigStateContext = createContext(emptyRigState);
 
 export const rigStateHandler = new class {
