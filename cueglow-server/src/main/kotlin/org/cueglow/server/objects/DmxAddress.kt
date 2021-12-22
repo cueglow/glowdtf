@@ -16,8 +16,7 @@ import org.cueglow.server.objects.messages.InvalidDmxAddress
  *
  * @property[value] A Short representing the DMX Address.
  */
-// TODO constructor can't be private due to Klaxon, so move validation of input from companion object to throwing constructor
-data class DmxAddress constructor(val value: Short) {
+class DmxAddress private constructor(val value: Short) {
     companion object Factory {
         /**
          * Instantiate DmxAddress from Short.
@@ -37,5 +36,20 @@ data class DmxAddress constructor(val value: Short) {
                 Err(InvalidDmxAddress(input))
             }
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DmxAddress
+
+        if (value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return value.toInt()
     }
 }

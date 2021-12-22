@@ -35,7 +35,7 @@ object ExampleFixtureType {
         uuid = UUID.randomUUID(),
         fid = 2,
         name = "exampleFixture2",
-        address = DmxAddress(100)
+        address = DmxAddress.tryFrom(100).unwrap()
     )
 
     val channelLayoutTestGdtf = fixtureTypeFromGdtfResource("ChannelLayoutTest/Test@Channel_Layout_Test@v1_first_try.gdtf", this.javaClass)
@@ -46,8 +46,8 @@ object ExampleFixtureType {
         "channelLayoutTest1",
         channelLayoutTestGdtf.fixtureTypeId,
         "Mode 1",
-        ArtNetAddress(2),
-        DmxAddress(1)
+        ArtNetAddress.tryFrom(2).unwrap(),
+        DmxAddress.tryFrom(1).unwrap()
     )
 
     val rigStateTestGdtf = fixtureTypeFromGdtfResource("RigStateTest/Test@FixtureStateTest@version_2-2_Cyclic_Dependencies.gdtf", this.javaClass)

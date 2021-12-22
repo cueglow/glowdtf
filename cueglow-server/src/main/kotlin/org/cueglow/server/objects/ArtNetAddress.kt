@@ -13,9 +13,7 @@ import org.cueglow.server.objects.messages.*
  *
  * @property[value] A Short representing the 15-bit Port-Address.
  */
-// TODO constructor cannot be private due to Klaxon, so do validation in constructor instead of companion object by throwing
-data class ArtNetAddress constructor(val value: Short) {
-
+class ArtNetAddress private constructor(val value: Short) {
     companion object Factory {
         /**
          * Instantiate ArtNetAddress from Short.
@@ -89,4 +87,19 @@ data class ArtNetAddress constructor(val value: Short) {
      * set to 0.
      */
     fun getUniverse() = value.toInt() and 0b1111
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ArtNetAddress
+
+        if (value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return value.toInt()
+    }
 }
