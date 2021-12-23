@@ -1,4 +1,4 @@
-# CueGlow Server Code Documentation
+# GlowDTF Server Code Documentation
 
 ## Network Handler/Receiver/State Structure
 
