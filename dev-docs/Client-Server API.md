@@ -493,7 +493,7 @@ case)
 # WebSocket Transport
 
 The CueGlow WebSocket Transport uses WebSocket (RFC 6455). It
-provides access to the JSON API by connecting to the URI `/ws`. Then, text
+provides access to the JSON API by connecting to the URI `/webSocket`. Then, text
 messages according to the JSON API are exchanged between client
 and server. 
 

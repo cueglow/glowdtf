@@ -27,7 +27,7 @@ Cypress.Commands.add('dataCy', (value) => {
 
 export function openWebSocket() {
     const urlWithoutProtocol = Cypress.config().baseUrl.replace(/(^\w+:|^)\/\//, '');
-    return new WebSocket(`ws://${urlWithoutProtocol}/ws`)
+    return new WebSocket(`ws://${urlWithoutProtocol}/webSocket`)
 }
 
 Cypress.Commands.add("clearFixtureTypes", () => {

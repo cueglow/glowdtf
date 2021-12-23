@@ -12,7 +12,7 @@ export enum ConnectionState {
     Closed,
 }
 
-const webSocketPath = "ws://" + window.location.host + "/ws";
+const webSocketPath = "ws://" + window.location.host + "/webSocket";
 
 const pingDelay = 1*60*1000; // 1 minute in ms
 const pingMessage = JSON.stringify({event: "ping"})

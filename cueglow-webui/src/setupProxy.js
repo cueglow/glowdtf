@@ -4,7 +4,7 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = app => {
-    app.use(createProxyMiddleware('ws://localhost:7000/ws'))
+    app.use(createProxyMiddleware('ws://localhost:7000/webSocket'))
     app.use(createProxyMiddleware('http://localhost:7000/api/fixturetype'))
 }
 

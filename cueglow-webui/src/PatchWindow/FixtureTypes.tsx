@@ -69,12 +69,11 @@ function FixtureTypeTable(props: { rowSelectionChanged: (data: FixtureType[]) =>
             columns={columns}
             // TODO fitDataStretch: When making window narrow, not all data is visible in column width 
             // and table-internal horizontal scrolling does not activate even though it should
-            options={{
-                height: "100%",
-                layout: "fitDataStretch",
-                selectable: 1,
-                rowSelectionChanged: props.rowSelectionChanged,
-            }} />
+            height="100%"
+            layout="fitDataStretch"
+            selectable={1}
+            onRowSelectionChanged={props.rowSelectionChanged}
+             />
     );
 }
 

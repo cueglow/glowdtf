@@ -37,12 +37,10 @@ function FixtureSelectionTable(props: { rowSelectionChanged: (selectedData: Patc
             <GlowTabulator
                 data={patchData.fixtures}
                 columns={columns}
-                options={{
-                    height: "100%",
-                    layout: "fitDataStretch",
-                    selectable: 1,
-                    rowSelectionChanged: props.rowSelectionChanged,
-                }}
+                height="100%"
+                layout="fitDataStretch"
+                selectable={1}
+                onRowSelectionChanged={props.rowSelectionChanged}
             />
         </>
     );

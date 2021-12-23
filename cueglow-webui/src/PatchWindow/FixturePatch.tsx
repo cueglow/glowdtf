@@ -1,17 +1,18 @@
 
 import { Button, Callout, HotkeyConfig, Toaster, useHotkeys } from "@blueprintjs/core";
+import _ from "lodash";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { GlowTabulator } from "src/Components/GlowTabulator";
 import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { ClientMessage, PatchFixtureUpdate } from "src/ConnectionProvider/ClientMessage";
 import { connectionProvider } from "src/ConnectionProvider/ConnectionProvider";
+import { fixtureTypeString } from "src/Types/FixtureType";
 import { PatchFixture } from "src/Types/Patch";
-import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
-import { fixtureTypeString } from "../Types/FixtureType";
 import { } from 'styled-components/macro';
-import _ from "lodash";
-import { useNavigate } from "react-router-dom";
+import { Tabulator } from "tabulator-tables";
+import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 
 export function FixturePatch() {
     const navigate = useNavigate();
@@ -64,8 +65,9 @@ export function FixturePatch() {
                 minHeight: 0,
             }}>
                 <PatchTable rowSelectionChanged={
-                    (selectedData) => setSelectedFixtureUuids(
-                        selectedData.map((fixture) => fixture.uuid))} />
+                    (selectedData) => {
+                        setSelectedFixtureUuids(selectedData.map((fixture) => fixture.uuid))}} 
+                />
             </div>
         </div>
     );
@@ -149,10 +151,10 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                 max: 2147483647,
             },
             validator: [
-                "integer",
-                "min:-2147483648",
-                "max:2147483647",
-                "required"
+                "integer" as Tabulator.StandardValidatorType,
+                "min:-2147483648" as Tabulator.StandardValidatorType,
+                "max:2147483647" as Tabulator.StandardValidatorType,
+                "required" as Tabulator.StandardValidatorType
             ],
         },
         { field: "name", title: "Name", editor: "input" as Tabulator.Editor },
@@ -166,10 +168,10 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                 max: 32767,
             },
             validator: [
-                "required",
-                "integer",
-                "min:0",
-                "max:32767",
+                "required" as Tabulator.StandardValidatorType,
+                "integer" as Tabulator.StandardValidatorType,
+                "min:0" as Tabulator.StandardValidatorType,
+                "max:32767" as Tabulator.StandardValidatorType,
             ],
             formatter: displayNegativeAddressAsEmptyString
         },
@@ -181,9 +183,9 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
                 max: 512,
             },
             validator: [
-                "integer",
-                "min:1",
-                "max:512",
+                "integer" as Tabulator.StandardValidatorType,
+                "min:1" as Tabulator.StandardValidatorType,
+                "max:512" as Tabulator.StandardValidatorType,
             ],
             mutator: translateBetweenNegativeAddressAndEmptyString
         },
@@ -229,24 +231,19 @@ function PatchTable(props: { rowSelectionChanged: (selectedData: PatchFixture[])
 
     return (
         <>
-            <GlowTabulator
+           <GlowTabulator
                 data={data}
                 columns={columns}
-                options={{
-                    height: "100%",
-                    layout: "fitDataStretch",
-                    selectable: true,
-                    selectableRangeMode: "click",
-                    rowSelectionChanged: props.rowSelectionChanged,
-                    validationFailed: showValidationFailPopover,
-                    cellEdited: cellEdited,
-                    cellEditCancelled: () => validationFailToaster.current?.clear(),
-                    keybindings: {
-                        navPrev: "shift+9",
-                        navUp: "38",
-                        navDown: "40",
-                    },
-                }}
+                height="100%"
+                layout="fitDataStretch"
+                selectable={true}
+                selectableRangeMode="click"
+                onRowSelectionChanged={props.rowSelectionChanged}
+                onValidationFailed={showValidationFailPopover}
+                onCellEdited={cellEdited}
+                // While this clears toasts on EditCancelled, the red border around the cell stays.
+                // Please track https://github.com/olifolkerd/tabulator/issues/3515
+                onCellEditCancelled={() => validationFailToaster.current?.clear()}
             />
             <Toaster ref={validationFailToaster} />
         </>
