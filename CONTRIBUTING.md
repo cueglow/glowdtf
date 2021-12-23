@@ -1,47 +1,34 @@
-# CueGlow Contribution Guide
+# GlowDTF Developer Guide
 
-You can help to improve CueGlow in many different ways: 
-
-- Reporting Bugs
-- Suggesting New Features
-- Triaging Issues
-- Programming
-- UX and Design Work
-- Telling Other People about CueGlow
-
-If you are not sure how you can contribute, don't hesitate to [open an
-issue](https://github.com/cueglow/cueglow/issues/new). We'd love to hear from
-you!
-
-The following sections will help you to build CueGlow and to contribute code. 
+This document will help you to build GlowDTF and develop the code. 
 
 ## How to Build
 
 Make sure you have the following dependencies installed: 
 
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-- [JDK 16 with Hotspot](https://adoptium.net/installation.html?variant=openjdk16&jvmVariant=hotspot)
+- JDK 11 (Hotspot) or higher, e.g. from [Azul](https://www.azul.com/downloads)
 - [Node.js 14 LTS](https://nodejs.org/) (we recommend a version manager like [nvm](https://github.com/nvm-sh/nvm) for Linux/macOS or [nvm-windows](https://github.com/coreybutler/nvm-windows) for Windows)
 
 First clone the CueGlow repository by running
-```
+```sh
 git clone https://github.com/cueglow/cueglow.git
 ```
 
 On **Windows**, build and run the server with
 
-```
+```cmd
 cd cueglow\cueglow-server
 gradlew run
 ```
 
 For the rest of this file, all commands will be given for Linux/macOS. If you
 are on Windows, adapt accordingly: Run `gradlew` instead of `./gradlew`, replace
-forward with backward slashes, etc. 
+`/` with `\`, etc. 
 
 On **Linux/macOS**, build and run the server with
 
-```
+```sh
 cd cueglow/cueglow-server
 ./gradlew run
 ```
@@ -54,22 +41,22 @@ UI. If you run into any problems, have a look at our [known issues](#known-issue
 
 The repository contains two main projects: The folder `cueglow-server` is a
 Gradle Kotlin project, the folder `cueglow-webui` is an npm project based on
-create-react-app with Typescript. When building the backend server with
+create-react-app with TypeScript. When building the backend server with
 `./gradlew run`, Gradle calls `npm run build` to produce a production build of
 the website and bundles it with the generated jar file before starting the
 compiled jar. 
 
 ## Getting Started with Frontend Development
 
-Starting from the root directory of the repository, build and run the backend
-server without building the frontend by executing
-```
+First, run the backend server without building the frontend by
+executing
+```sh
 cd cueglow-server
 ./gradlew runNoNpm
 ```
 
 Then start the frontend development server with
-```
+```sh
 cd cueglow-webui
 npm start
 ```
@@ -88,7 +75,7 @@ To learn how to setup your editor, refer to the docs of
 
 We use Cypress for frontend testing. To test the site served by the frontend
 development server, use our custom npm script `cy`:
-```
+```sh
 cd cueglow-webui
 npm run cy
 ```
@@ -99,17 +86,16 @@ Docs](https://docs.cypress.io/guides/overview/why-cypress.html).
 If you want to test the production site bundled with the backend server at
 `localhost:7000`, you can use the custom npm script `e2e` (for End-to-End
 testing):
-```
+```sh
 cd cueglow-webui
 npm run e2e
 ```
 
-For simple, non-GUI unit tests we use Jest which you can run with
-```
+For non-GUI unit tests, [Jest](https://jestjs.io/) and [Testing Library](https://testing-library.com/docs/) are available and can be run with
+```sh
 npm test
 ```
-[Testing Library](https://testing-library.com/docs/) is installed, but we
-currently don't use Jest for UI tests and use Cypress instead. 
+But currently there are no tests written for Jest, we only use Cypress. 
 
 ### Frontend Code Structure
 
@@ -118,7 +104,7 @@ It builds on components from the [Blueprint.js](https://blueprintjs.com/docs/)
 library.
 
 Other notable tools are:
-- Client-Side Routing: `react-router` v6
+- Client-Side Routing: `react-router` (v6)
 - Utilities: `lodash`
 - CSS-in-JS: `styled-components`
     - `styled` interface: `import styled from 'styled-components/macro'`
@@ -127,13 +113,13 @@ Other notable tools are:
     - Where possible, use SCSS Variables from Blueprint.js which are exported to
       JavaScript in [BlueprintVariables](cueglow-webui/src/BlueprintVariables/BlueprintVariables.ts)
 - Tables: 
-    - `tabulator-tables`/`react-tabulator` is currently used for the Patch, but
-      has typing issues (I had to [re-wrap
-      it](cueglow-webui/src/Components/GlowTabulator.tsx)) and does not support
-      cell-level selection
-    - Future components should use `react-table` with `react-table-plugins` and
-      a custom frontend based on the Blueprint.js Table (which can't be used due
-      to [Firefox Scrolling Bug](https://github.com/palantir/blueprint/issues/1712))
+    - `tabulator-tables` for tables. We built a React
+      [wrapper](cueglow-webui/src/Components/GlowTabulator.tsx) for it. 
+    - Since `tabulator-tables` does not support cell level editing or selection,
+      future components should use `react-table` with `react-table-plugins` and
+      a custom frontend based on the Blueprint.js Table (which shouldn't be used
+      due to [Firefox Scrolling
+      Bug](https://github.com/palantir/blueprint/issues/1712))
 - Form Validation: `react-hook-form` with `zod`
 
 ### Frontend Connection with Server
@@ -154,26 +140,17 @@ This state is fed to the React application via the Context API in the
 `onPatchChange` field of the `patchDataHandler`. The `PatchDataProvider`
 therefore must only be instantiated once. 
 
-
-## Branching Guide
-
-We try to adhere to OneFlow Branching as described in
-https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow. To
-create a new feature, branch off from main with 
-
-```
-git checkout -b feature/my-feature main
-```
-
-Once you want a review of your code or want to discuss some open questions, open
-a Pull Request on GitHub. 
-
-## Code Style
-
-All code should be well tested to ensure our goal of reliability. 
+## Backend Testing
 
 Server or API features should be tested server-side in JUnit 5. The client is
 then tested against the server during end-to-end testing in Cypress. 
+
+Backend Tests can be run with
+
+```sh
+cd cueglow-server
+./gradlew test
+```
 
 ## Known Issues
 
