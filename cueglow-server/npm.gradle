@@ -23,6 +23,9 @@ processResources {
 task runNoNpm {
     doFirst {
         npm_run_build.enabled = false
+        npmInstall.enabled = false
+        npmSetup.enabled = false
+        nodeSetup.enabled = false
     }
     finalizedBy run
 }
