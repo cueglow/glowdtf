@@ -175,7 +175,6 @@ export function NewFixtureForm(props: RouteComponentProps) {
                 inputProps={{
                     inputRef: fixtureTypeRef,
                     tabIndex: 1,
-                    onBlur: () => triggerValidation(),
                 }}
             />
             <ValidatedSuggest

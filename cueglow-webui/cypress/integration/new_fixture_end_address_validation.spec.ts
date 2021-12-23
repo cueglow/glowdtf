@@ -1,12 +1,12 @@
 import { getInputByLabel, pathEquals } from "../support/utilities"
 
-describe("Fixture Control", () => {
+describe("New Fixture End Address Validation", () => {
     beforeEach(() => {
         cy.clearFixtureTypes()
 
     })
 
-    it("let's us select a fixture, move a slider and the slider updates", () => {
+    it("throws a helpful error if fixtures go outside the DMX universe", () => {
         // Add GDTF
         cy.visit("/patch/fixtureTypes")
         cy.dataCy("gdtf_hidden_input")
