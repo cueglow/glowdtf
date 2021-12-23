@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Tabulator, TabulatorFull } from "tabulator-tables";
 
 interface GlowTabulatorProps extends Tabulator.Options {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onRowSelectionChanged?: (selected: any[]) => void;
     onCellEdited?: (cell: Tabulator.CellComponent) => void;
     onCellEditCancelled?: (cell: Tabulator.CellComponent) => void;
@@ -25,7 +26,7 @@ interface GlowTabulatorProps extends Tabulator.Options {
  * 
  * We also don't support all events yet, only the four we need. 
  */
-export function GlowTabulator<T>(props: GlowTabulatorProps) {
+export function GlowTabulator(props: GlowTabulatorProps) {
     const container = useRef<HTMLDivElement>(null);
     const t = useRef<{ tab: Tabulator | null }>({ tab: null });
     // keep track whether the table is built to trigger a data update
@@ -39,6 +40,7 @@ export function GlowTabulator<T>(props: GlowTabulatorProps) {
                 setBuilt(true)
             })
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // register event handlers
@@ -56,6 +58,7 @@ export function GlowTabulator<T>(props: GlowTabulatorProps) {
         t.current.tab?.on("validationFailed", (cell, value, validators) => {
             props.onValidationFailed && props.onValidationFailed(cell, value, validators)
         })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // update data
