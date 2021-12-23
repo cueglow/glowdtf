@@ -21,7 +21,7 @@ const Child = styled.div`
     min-width: 0;
     flex-basis: 0;
     flex-grow: 1;
-    margin-right: ${bp.vars.ptGridSize};
+    padding-right: ${bp.vars.ptGridSize};
     overflow: auto;
 `
 

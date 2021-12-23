@@ -315,9 +315,10 @@ function FixtureTypeDetails(props: { fixtureType?: FixtureType }) {
                     `}>
                             <h5 className="bp3-heading">{DmxModeString(mode)}</h5>
                             <div css={`
-                                column-width: ${23*bp.ptGridSizePx}px;
+                                column-width: ${24*bp.ptGridSizePx}px;
                                 column-count: 4;
                                 margin-bottom: ${bp.ptGridSizePx}px;
+                                overflow-wrap: break-word;
                             `}>
                             {mode.channelLayout.map( (dmxBreak, breakInd) => 
                                 dmxBreak.map( (channelName, channelInd) => 
