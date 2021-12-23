@@ -5,7 +5,7 @@ import { bp } from '../BlueprintVariables/BlueprintVariables';
 export function EstablishingConnectionPage(props: { isOpen: boolean; }) {
   return (
     <Dialog 
-    title="Connecting to CueGlow Server..."
+    title="Connecting to GlowDTF Server..."
     isOpen={props.isOpen} 
     className="bp3-dark" 
     isCloseButtonShown={false} 

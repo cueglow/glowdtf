@@ -1,7 +1,7 @@
 package org.cueglow.server.test_utilities
 
 import com.github.michaelbull.result.Ok
-import org.cueglow.server.CueGlowServer
+import org.cueglow.server.GlowDtfServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import java.net.URI
@@ -12,7 +12,7 @@ import java.net.URI
  * Classes for such "integration" tests should inherit from this class.
  */
 open class ClientAndServerTest {
-    val server = CueGlowServer()
+    val server = GlowDtfServer()
     val patch = server.state.patch
     val wsClient = WsClient(URI("ws://localhost:7000/ws"))
 

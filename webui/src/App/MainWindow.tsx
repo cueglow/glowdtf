@@ -27,7 +27,7 @@ export function MainWindow() {
             <Navbar>
                 <NavbarGroup>
                     <NavbarHeading>
-                        CueGlow
+                        GlowDTF
                     </NavbarHeading>
                 </NavbarGroup>
                 <NavbarGroup align={Alignment.RIGHT}>

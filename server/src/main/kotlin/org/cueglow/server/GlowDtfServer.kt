@@ -14,17 +14,17 @@ import java.util.concurrent.Executors
 
 fun main(args: Array<String>) {
     // TODO what happens if there is an exception in this main thread?
-    CueGlowServer()
+    GlowDtfServer()
 }
 
 /**
- * The main class of CueGlow Server.
+ * The main class of GlowDTF Server.
  *
  * Starts the Javalin server, associates network handlers and initiates state.
  */
-class CueGlowServer(port: Int = 7000) : Logging {
+class GlowDtfServer(port: Int = 7000) : Logging {
     init {
-        logger.info("Starting CueGlow Server")
+        logger.info("Starting GlowDTF Server")
     }
 
     val jsonSubscriptionHandler = JsonSubscriptionHandler()

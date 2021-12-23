@@ -1,6 +1,6 @@
 
 // TODO this module should provide automatic reconnection in the future
-// see https://github.com/cueglow/cueglow/issues/52
+// see https://github.com/cueglow/glowdtf/issues/52
 
 import { ClientMessage } from "./ClientMessage";
 import { MessageHandler } from "./MessageHandler";

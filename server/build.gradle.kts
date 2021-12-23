@@ -23,7 +23,7 @@ group = "org.cueglow"
 version = "0.0.1-dev"
 
 application {
-    mainClass.set("org.cueglow.server.CueGlowServerKt")
+    mainClass.set("org.cueglow.server.GlowDtfServerKt")
 }
 
 repositories {

@@ -12,8 +12,8 @@ export function NoConnectionPage(props: { isOpen: boolean; }) {
         </p>
         <p>Please check: </p>
         <UL style={{ marginBottom: 2 * bp.ptGridSizePx, }}>
-          <li>that the CueGlow Server is running</li>
-          <li>your network connection to the CueGlow Server</li>
+          <li>that the GlowDTF Server is running</li>
+          <li>your network connection to the GlowDTF Server</li>
         </UL>
         <p>Then reload the page to try connecting.  </p>
       </div>

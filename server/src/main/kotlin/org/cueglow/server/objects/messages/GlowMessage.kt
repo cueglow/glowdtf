@@ -11,7 +11,7 @@ import org.cueglow.server.rig.RigStateTransition
 import java.util.*
 
 /**
- * Represents a message inside CueGlow that may be parsed from or serialized to different formats like JSON
+ * Represents a message inside GlowDTF that may be parsed from or serialized to different formats like JSON
  *
  * The message MUST have the field "event" and CAN have the fields and "data" and "messageId".
  *

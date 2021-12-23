@@ -4,7 +4,7 @@ import com.beust.klaxon.Json
 import java.util.*
 
 /**
- * Custom Error Type for CueGlow Server
+ * Custom Error Type for GlowDTF Server
  *
  * The inheritors of GlowError are meant to be instantiated with the corresponding error information and
  * can then be converted to [GlowMessage] or serialized to JSON directly.
