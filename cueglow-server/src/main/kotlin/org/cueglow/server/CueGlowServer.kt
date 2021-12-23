@@ -1,6 +1,7 @@
 package org.cueglow.server
 
 import io.javalin.Javalin
+import io.javalin.http.staticfiles.Location
 import org.apache.logging.log4j.kotlin.Logging
 import org.cueglow.server.artnet.ArtNetSending
 import org.cueglow.server.gdtf.GdtfHandler
@@ -44,7 +45,7 @@ class CueGlowServer(port: Int = 7000) : Logging {
         config.requestLogger { ctx, executionTimeMs ->
             logger.info("HTTP Request (${executionTimeMs}ms) \"${ctx.req.pathInfo}\"")
         }
-        config.addStaticFiles("/webui")
+        config.addStaticFiles("/webui", Location.CLASSPATH)
         config.addSinglePageRoot("/", "/webui/index.html")
     }.apply {
         post("/api/fixturetype") { ctx -> handleGdtfUpload(ctx, gdtfHandler) }

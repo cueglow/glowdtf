@@ -10,10 +10,10 @@ import org.cueglow.server.objects.messages.MissingDescriptionXmlInGdtfError
 import java.io.File
 import java.io.InputStream
 import java.util.zip.ZipInputStream
-import javax.xml.XMLConstants
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.UnmarshalException
+import jakarta.xml.bind.JAXBContext
+import jakarta.xml.bind.UnmarshalException
 import javax.xml.validation.Schema
+import javax.xml.XMLConstants
 import javax.xml.validation.SchemaFactory
 
 
@@ -32,7 +32,7 @@ fun parseGdtf(inputStream: InputStream): Result<GDTF, GlowError> {
     val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
     // Since this is the XSD for GDTF version 1.1 and GDTF is not backwards compatible,
     // this only supports GDTF 1.1 which is equal to DIN 15800:2020-07.
-    val gdtfSchema: Schema = sf.newSchema(File("src/main/resources/gdtf/gdtf.xsd"))
+    val gdtfSchema: Schema? = sf.newSchema(File("src/main/resources/gdtf/gdtf.xsd"))
     unmarshaller.schema = gdtfSchema
 
     // TODO Additional Validation may be possible through Schematron in the future

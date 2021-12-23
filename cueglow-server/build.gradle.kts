@@ -5,17 +5,18 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.karumi.kotlinsnapshot:plugin:2.2.2")
+        classpath("com.karumi.kotlinsnapshot:plugin:2.2.3")
     }
 }
 
 apply(plugin = "com.karumi.kotlin-snapshot")
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.6.10"
     application
-    id("com.github.node-gradle.node") version "2.2.4"
-    id("com.dorongold.task-tree") version "1.5"
+    id("com.github.node-gradle.node") version "3.1.1"
+    id("com.dorongold.task-tree") version "2.1.0"
+    id("com.github.ben-manes.versions") version "0.39.0"
 }
 
 group = "org.cueglow"
@@ -30,20 +31,20 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.7.0"))
+    testImplementation(platform("org.junit:junit-bom:5.8.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
-    testImplementation("org.java-websocket:Java-WebSocket:1.5.1")
-    testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
-    testImplementation("com.google.truth:truth:1.1.2")
+    testImplementation("org.java-websocket:Java-WebSocket:1.5.2")
+    testImplementation("org.awaitility:awaitility-kotlin:4.1.1")
+    testImplementation("com.google.truth:truth:1.1.3")
 
-    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.9")
+    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.13")
 
-    implementation("io.javalin:javalin:3.11.2")
+    implementation("io.javalin:javalin:4.1.1")
 
-    implementation("org.apache.logging.log4j:log4j-api:2.13.3")
-    implementation("org.apache.logging.log4j:log4j-core:2.13.3")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.17.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.17.0")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
 
     implementation("com.beust:klaxon:5.5")
 
@@ -52,8 +53,8 @@ dependencies {
 
     implementation("de.deltaeight:LibArtNet:1.1.2-beta")
 
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.13.3")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.17.0")
 }
 
 tasks.test {

@@ -6,20 +6,24 @@ sourceSets {
     }
 }
 
+// configuration "xjc" holds classpath for running the JAXB XJC compiler
+configurations {
+    xjc
+}
+
 dependencies {
     implementation sourceSets.generated.output
 
-    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
-    generatedImplementation "org.glassfish.jaxb:jaxb-runtime:2.3.3"
-}
+    // dependencies for our code
+    implementation 'org.glassfish.jaxb:jaxb-runtime:3.0.2'
 
-// JAXB configuration holds classpath for running the JAXB XJC compiler
-configurations {
-    jaxb
-}
+    // dependencies for compiling the generated code
+    generatedImplementation "org.glassfish.jaxb:jaxb-runtime:3.0.2"
 
-dependencies {
-    jaxb "org.glassfish.jaxb:jaxb-xjc:2.3.3"
+    // dependencies for running xjc
+    xjc platform("org.glassfish.jaxb:jaxb-bom:3.0.2")
+    xjc "org.glassfish.jaxb:jaxb-xjc"
+    xjc "org.glassfish.jaxb:jaxb-runtime"
 }
 
 def addXjcTask(taskName, schema, pkg, dest, binding) {
@@ -30,7 +34,7 @@ def addXjcTask(taskName, schema, pkg, dest, binding) {
     tasks.create(name: taskName, type: JavaExec) {
         inputs.files schema, binding
         outputs.dir dest
-        classpath configurations.jaxb
+        classpath configurations.xjc
         main 'com.sun.tools.xjc.XJCFacade'
         // To explore available args, download the XJC JAR and run java -jar jaxb-xjc.jar --help
         args schema, "-p", pkg, "-d", dest, "-b", binding

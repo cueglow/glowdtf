@@ -4,7 +4,7 @@ import org.cueglow.gdtf.BasicGeometryAttributes
 import org.cueglow.gdtf.BasicGeometryType
 import org.cueglow.gdtf.Geometries
 import org.cueglow.gdtf.GeometryReference
-import javax.xml.bind.JAXBElement
+import jakarta.xml.bind.JAXBElement
 
 /**
  * Represents a top-level geometry that is referenced by a GeometryReference. It is "abstract" because the
