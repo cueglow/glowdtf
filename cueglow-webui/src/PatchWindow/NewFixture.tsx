@@ -1,7 +1,6 @@
 import { Button, FormGroup, InputGroup, Navbar, useHotkeys } from '@blueprintjs/core';
 import { ItemPredicate } from '@blueprintjs/select';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { ClientMessage } from 'src/ConnectionProvider/ClientMessage';
@@ -16,8 +15,9 @@ import { DmxMode, DmxModeString, FixtureType, fixtureTypeString } from '../Types
 import { ValidatedNumericInput } from './ValidatedNumericInput';
 import { ValidatedSuggest } from './ValidatedSuggest';
 import _ from 'lodash';
+import { useNavigate } from 'react-router-dom';
 
-export function NewFixtureWrapper(props: RouteComponentProps) {
+export function NewFixtureWrapper() {
     return (
         <div style={{ height: "100%", }}>
             <Navbar>
@@ -33,7 +33,7 @@ export function NewFixtureWrapper(props: RouteComponentProps) {
     )
 }
 
-export function NewFixtureForm(props: RouteComponentProps) {
+export function NewFixtureForm() {
     const navigate = useNavigate();
 
     // react-hook-form

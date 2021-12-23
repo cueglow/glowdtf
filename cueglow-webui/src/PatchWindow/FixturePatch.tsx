@@ -1,6 +1,5 @@
 
-import { Button, Callout, Toaster, useHotkeys } from "@blueprintjs/core";
-import { NavigateFn, RouteComponentProps, useNavigate } from "@reach/router";
+import { Button, Callout, HotkeyConfig, Toaster, useHotkeys } from "@blueprintjs/core";
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { GlowTabulator } from "src/Components/GlowTabulator";
@@ -12,8 +11,9 @@ import { PatchContext } from "../ConnectionProvider/PatchDataProvider";
 import { fixtureTypeString } from "../Types/FixtureType";
 import { } from 'styled-components/macro';
 import _ from "lodash";
+import { useNavigate } from "react-router-dom";
 
-export function FixturePatch(props: RouteComponentProps) {
+export function FixturePatch() {
     const navigate = useNavigate();
     const [selectedFixtureUuids, setSelectedFixtureUuids] = useState<string[]>([]);
 
@@ -23,7 +23,7 @@ export function FixturePatch(props: RouteComponentProps) {
         setSelectedFixtureUuids([])
     }, [selectedFixtureUuids])
 
-    const hotkeys = useMemo(() => [
+    const hotkeys: HotkeyConfig[] = useMemo(() => [
         {
             combo: "del",
             global: true,
@@ -35,7 +35,11 @@ export function FixturePatch(props: RouteComponentProps) {
             combo: "a",
             global: true,
             label: "Add New Fixtures",
-            onKeyDown: () => document.body.classList.contains("bp3-overlay-open") || navigate("/patch/newFixture"),
+            stopPropagation: true,
+            onKeyDown: (e) => {
+                e.preventDefault();
+                document.body.classList.contains("bp3-overlay-open") || navigate("/patch/newFixture")
+            },
         }
     ], [removeSelectedFixtures, selectedFixtureUuids, navigate]);
     useHotkeys(hotkeys);
@@ -51,10 +55,9 @@ export function FixturePatch(props: RouteComponentProps) {
             flexDirection: "column",
         }}>
             <ValidationMessage />
-            <TopButtons 
-            navigate={navigate} 
-            selectedFixtureUuids={selectedFixtureUuids} 
-            removeSelectedFixtures={removeSelectedFixtures} 
+            <TopButtons
+                selectedFixtureUuids={selectedFixtureUuids}
+                removeSelectedFixtures={removeSelectedFixtures}
             />
             <div style={{
                 flexGrow: 1,
@@ -75,53 +78,53 @@ function ValidationMessage() {
         // quickly validate Patch
         const sortedFixtures = _.sortBy(patchData.fixtures, ["universe", "address"])
 
-        for (let i =0; i < sortedFixtures.length; i++) {
+        for (let i = 0; i < sortedFixtures.length; i++) {
             const fixture = sortedFixtures[i]
 
             const channelCount = patchData.fixtureTypes
-            .find(fixtureType => fixtureType.fixtureTypeId === fixture?.fixtureTypeId)
-            ?.modes
-            .find(mode => mode.name === fixture?.dmxMode)
-            ?.channelCount ?? 1
+                .find(fixtureType => fixtureType.fixtureTypeId === fixture?.fixtureTypeId)
+                ?.modes
+                .find(mode => mode.name === fixture?.dmxMode)
+                ?.channelCount ?? 1
 
             const endAddress = fixture.address + channelCount - 1
 
             if (endAddress > 512) {
                 return `Fixture ${fixture.name} at start address ${fixture.universe}.${fixture.address} ` +
-                `ends at address ${fixture.universe}.${endAddress}, which is outside the DMX universe. The ` +
-                `Art-Net output will be truncated. `
+                    `ends at address ${fixture.universe}.${endAddress}, which is outside the DMX universe. The ` +
+                    `Art-Net output will be truncated. `
             }
 
             if (i >= sortedFixtures.length - 1) { return }
 
-            const nextFixture = sortedFixtures[i+1]
+            const nextFixture = sortedFixtures[i + 1]
 
             if (nextFixture.universe === fixture.universe && endAddress >= nextFixture.address) {
                 return `Fixture ${fixture.name} at start address ${fixture.universe}.${fixture.address} ` +
-                `ends at address ${fixture.universe}.${endAddress} and overlaps with fixture ${nextFixture.name} ` +
-                `at start address ${nextFixture.universe}.${nextFixture.address}. Overlapping channels are controlled by only ` +
-                `one of the fixtures.`
+                    `ends at address ${fixture.universe}.${endAddress} and overlaps with fixture ${nextFixture.name} ` +
+                    `at start address ${nextFixture.universe}.${nextFixture.address}. Overlapping channels are controlled by only ` +
+                    `one of the fixtures.`
             }
         }
     }, [patchData])
 
-    return errorMessage ? <Callout intent="danger" title="Error Found in Patch" css={`margin-bottom: ${1*bp.ptGridSizePx}px;`}>
+    return errorMessage ? <Callout intent="danger" title="Error Found in Patch" css={`margin-bottom: ${1 * bp.ptGridSizePx}px;`}>
         {errorMessage}
     </Callout> : <></>
 }
 
 function TopButtons(props: {
-    navigate: NavigateFn,
     selectedFixtureUuids: string[],
     removeSelectedFixtures: () => void
 }) {
+    const navigate = useNavigate();
     return <div style={{
         display: "flex",
         justifyContent: "flex-start", //flex-end for right-align
         marginBottom: bp.vars.ptGridSize,
     }}>
         <Button intent="success" icon="plus"
-            onClick={() => props.navigate("/patch/newFixture")}>
+            onClick={() => navigate("/patch/newFixture")}>
             <LabelWithHotkey label="Add New Fixtures" combo="A" />
         </Button>
         <div style={{ flexGrow: 1 }} />

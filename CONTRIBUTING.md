@@ -118,7 +118,7 @@ It builds on components from the [Blueprint.js](https://blueprintjs.com/docs/)
 library.
 
 Other notable tools are:
-- Client-Side Routing: `@reach/router`
+- Client-Side Routing: `react-router` v6
 - Utilities: `lodash`
 - CSS-in-JS: `styled-components`
     - `styled` interface: `import styled from 'styled-components/macro'`

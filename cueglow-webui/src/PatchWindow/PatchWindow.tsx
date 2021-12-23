@@ -1,23 +1,23 @@
 import { Alignment, Navbar, NavbarGroup, Tab, Tabs, useHotkeys } from "@blueprintjs/core";
-import { RouteComponentProps, Router, useLocation, useNavigate } from "@reach/router";
 import { useMemo } from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { bp } from "src/BlueprintVariables/BlueprintVariables";
 import { LabelWithHotkey } from "src/Components/HotkeyHint";
+import { NavbarExitWithTitle } from "../Components/NavbarExitWithTitle";
 import { FixturePatch } from "./FixturePatch";
 import { FixtureTypes } from "./FixtureTypes";
-import { NavbarExitWithTitle } from "../Components/NavbarExitWithTitle";
 import { NewFixtureWrapper } from "./NewFixture";
 
-export function PatchWindow(props: RouteComponentProps) {
+export function PatchWindow() {
     return (
-        <Router>
-            <PatchTabWrapper path="/" default />
-            <NewFixtureWrapper path="newFixture" />
-        </Router>
+        <Routes>
+            <Route path="/*" element={<PatchTabWrapper />} />
+            <Route path="newFixture" element={<NewFixtureWrapper />} />
+        </Routes>
     );
 }
 
-export function PatchTabWrapper(props: RouteComponentProps) {
+export function PatchTabWrapper() {
     const navigate = useNavigate();
 
     const location = useLocation();
@@ -71,9 +71,9 @@ export function PatchTabWrapper(props: RouteComponentProps) {
                     </Tabs>
                 </NavbarGroup>
             </Navbar>
-            <Router>
-                <FixturePatch path="/" default />
-                <FixtureTypes path="fixtureTypes" />
-            </Router>
+            <Routes>
+                <Route path="/*" element={<FixturePatch />} />
+                <Route path="fixtureTypes" element={<FixtureTypes />} />
+            </Routes>
         </div>);
 }

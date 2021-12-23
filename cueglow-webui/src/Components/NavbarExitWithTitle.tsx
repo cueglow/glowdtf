@@ -1,6 +1,6 @@
 import { Alignment, Button, NavbarGroup, NavbarHeading, useHotkeys } from "@blueprintjs/core";
-import { useNavigate } from "@reach/router";
 import { useMemo } from "react";
+import { useNavigate } from "react-router";
 import { HotkeyHint } from "src/Components/HotkeyHint";
 
 

@@ -1,13 +1,13 @@
 import { Alignment, Button, Navbar, NavbarGroup, NavbarHeading, useHotkeys } from "@blueprintjs/core";
-import { RouteComponentProps, useNavigate } from "@reach/router";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { LabelWithHotkey } from "src/Components/HotkeyHint";
 import { LeftRightSplit } from "src/Components/LeftRightSplit";
 import { PatchFixture } from "src/Types/Patch";
 import { ChannelFunctions } from "./ChannelFunctions";
 import { FixtureSelection } from "./FixtureSelection";
 
-export function MainWindow(props: RouteComponentProps) {
+export function MainWindow() {
     const navigate = useNavigate();
 
     const hotkeys = useMemo(() => [

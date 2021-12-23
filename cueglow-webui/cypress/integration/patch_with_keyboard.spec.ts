@@ -9,11 +9,13 @@ describe("Patch with Keyboard", () => {
         cy.visit("/")
 
         // Open Patch
-        cy.contains("Patch").type("{shift}p")
+        cy.contains("Patch")
+        cy.get("body").type("{shift}p")
         pathEquals("/patch")
 
         // Open Fixture Types
-        cy.contains("Patch").type("p")
+        cy.contains("Patch")
+        cy.get("body").type("p")
         pathEquals("/patch/fixtureTypes")
 
         // Add GDTF
@@ -29,6 +31,7 @@ describe("Patch with Keyboard", () => {
         // Add Fixture
         const testFixtureName = "Test Fixture"
         cy.contains("Patch")
+        cy.get("body")
             .type("i")
             .type("a")
         cy.get("body")
