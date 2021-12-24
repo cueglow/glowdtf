@@ -25,25 +25,56 @@ However, if you find any unexpected behavior or just want to tell us what you
 think about our demo, feel free to [open an
 issue](https://github.com/cueglow/glowdtf/issues/new) anyway. 
 
-## Running GlowDTF
+## How To Run
 
-**TODO**
+- Make sure you have Java 11 or higher installed ([How
+  To](https://www.baeldung.com/java-check-is-installed))
+  - If not, you can install it for example from
+    [Azul](https://www.azul.com/downloads/?package=jre)
+- Download the jar file from our [Releases](https://github.com/cueglow/glowdtf/releases)
+- Run the jar by double-clicking on it, or if your prefer the command line:
 
-<!--
-Something like: Make sure you Java 11 or higher, download release, run jar, open browser
--->
+```sh
+java -jar glowdtf-0.0.1-dev-all.jar
+```
 
-## Using GlowDTF
+- You should see the Javalin server start up in the terminal. Open the browser
+  and navigate to <http://localhost:7000>. You should see the empty GlowDTF main
+  screen. 
 
-**TODO**
+## Things to Try Out
 
-<!--
-Something like: Go to Fixture Types patch, upload GDTF, look at its details, patch a fixture and control it with sliders. Show ModeMaster behavior. Art-Net output is global broadcast. Maybe include some images?
--->
+**Add a GDTF**
+- Open the patch by clicking on the button in the upper right
+- Navigate to the "Fixture Types" tab and click "Add GDTF"
+- Select a GDTF file and confirm
+- The GDTF file will show up in the table. Click on it to see Details on the right. 
+- Click "Show ModeMaster Dependencies" below the DMX channel list to show the
+  dependency graph (only visible if there are ModeMaster dependencies). You can
+  drag the nodes around and zoom with the mouse wheel. 
 
-<!--
-Screenshots???
--->
+**Patch a Fixture**
+- Switch to the "Fixtures" tab in the patch and click "Add New Fixtures". Make
+  your settings and confirm with "Add Fixtures".  Your fixtures should show up
+  in the Fixture table. 
+- To go back to the main screen, click the Exit button in the upper left
+  
+**Control the Fixture**
+- On the main screen, select a fixture in the table on the left. Its
+  channel functions show up as sliders on the right. Drag them to change
+  the DMX output.
+- The DMX values are output via Art-Net to the address `255.255.255.255` (local
+  network broadcast address), so should reach all devices in your local network.
+  The Art-Net universes are numbered from 0 to 32767 and can be set in the
+  Fixture Patch. 
+- The channel function sliders react to out-of-range and ModeMaster values. If
+  their name is written in gray but the slider is enabled, the current value of
+  the channel is outside the range of the channel function. If the slider is
+  completely disabled, its ModeMaster needs to be set appropriately. 
+
+**Quitting GlowDTF**
+- Hit `Ctrl + C` in the GlowDTF terminal or just close the terminal. All
+added Fixture Types and Fixtures will be lost.
 
 ## Unimplemented Features
 
