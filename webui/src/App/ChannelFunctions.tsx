@@ -153,7 +153,7 @@ const ChannelFunctionElement = ({ chF, chFInd, fixtureUuid, channels }: ChannelF
 
         return <div css={`
         padding-left: ${2 * bp.ptGridSizePx}px;
-        padding-right: ${3 * bp.ptGridSizePx}px;
+        padding-right: ${2 * bp.ptGridSizePx}px;
         padding-bottom: ${1 * bp.ptGridSizePx}px;
         overflow-x: hidden;
         `}>
