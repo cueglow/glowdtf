@@ -70,7 +70,7 @@ export function NewFixtureForm() {
     const onSubmit = useCallback((data) => {
         const name = data.name
         const quantity = data.quantity
-        const fid = data.fid // TODO auto-increment and error when i32 boundary exceeded
+        let fid = data.fid
         const universe = data.universe
         let address = data.address
 
@@ -83,6 +83,13 @@ export function NewFixtureForm() {
                 setError("quantity", {
                     type: "universeOverflow",
                     message: `Only ${i} fixtures fit into universe`
+                })
+                return
+            }
+            if (fid > i32MaxValue) {
+                setError("fid", {
+                    type: "intOverflow",
+                    message: `FID is larger than ${i32MaxValue} after ${i} Fixtures`,
                 })
                 return
             }
@@ -106,6 +113,8 @@ export function NewFixtureForm() {
                 })
                 return
             }
+            // increment fid
+            fid += 1
         }
         const msg = new ClientMessage.AddFixtures(fixtureArray)
         connectionProvider.send(msg)
