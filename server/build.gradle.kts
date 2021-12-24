@@ -14,9 +14,14 @@ apply(plugin = "com.karumi.kotlin-snapshot")
 plugins {
     kotlin("jvm") version "1.6.10"
     application
+    // plugin to call npm from gradle
     id("com.github.node-gradle.node") version "3.1.1"
+    // plugin to show task dependencies
     id("com.dorongold.task-tree") version "2.1.0"
+    // plugin to check dependencies for updates
     id("com.github.ben-manes.versions") version "0.39.0"
+    // plugin to build fat jar
+    id("com.github.johnrengelman.shadow") version "7.1.1"
 }
 
 group = "org.cueglow"
@@ -71,3 +76,4 @@ apply(from="jaxb.gradle")
 
 apply(from="npm.gradle")
 
+apply(from="other.gradle")

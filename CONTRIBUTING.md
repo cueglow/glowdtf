@@ -152,6 +152,25 @@ cd server
 ./gradlew test
 ```
 
+## Packaging
+
+We use [Shadow](https://imperceptiblethoughts.com/shadow/) to generate a fat jar. Simply run
+
+```sh
+cd server
+./gradlew build
+```
+
+and you will find the fat jar under
+`server/build/libs/glowdtf-0.0.1-dev-all.jar`. This jar is fully self-contained
+and can be distributed. The end user just has to make sure Java is installed and
+double-click the jar file. Alternatively, the application can be started in the
+terminal with
+
+```sh
+java -jar glowdtf-0.0.1-dev-all.jar
+```
+
 ## Known Issues
 
 ### npmInstall failed

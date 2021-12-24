@@ -53,7 +53,7 @@ class WebSocketConnection(val state: StateProvider, val subscriptionHandler: Sub
     }
 
     override fun onWebSocketError(cause: Throwable?) {
-        logger.warn("WebSocket connection to ${session?.remoteAddress} experienced an error. Cause: $cause")
+        logger.warn("WebSocket connection to ${session?.remoteAddress} experienced an error. Cause: ", cause)
     }
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
