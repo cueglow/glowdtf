@@ -108,3 +108,9 @@ that are not supported:
   available [only upon
   request](https://gdtf-share.com/forum/index.php?/topic/339-mvr-portable-library/)
   and I don't know about its licensing. 
+
+## Developer Documentation
+
+Information on how to build and develop can be found in the
+[CONTRIBUTING.md](CONTRIBUTING.md). Additional in-depth notes on the design are
+in the folder `/dev-docs`. 
