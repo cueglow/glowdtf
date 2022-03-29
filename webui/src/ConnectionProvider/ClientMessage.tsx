@@ -6,7 +6,8 @@ export enum ClientEvent {
     AddFixtures = "addFixtures",
     RemoveFixtures = "removeFixtures",
     UpdateFixtures = "updateFixtures",
-    SetChannel = "setChannel"
+    SetChannel = "setChannel",
+    Shutdown = "shutdown"
 }
 
 export enum GlowTopic {
@@ -62,6 +63,12 @@ export class ClientMessage {
     static SetChannel = class extends ClientMessage {
         constructor(readonly data: SetChannelUpdate) {
             super(ClientEvent.SetChannel)
+        }
+    }
+
+    static Shutdown = class extends ClientMessage {
+        constructor() {
+            super(ClientEvent.Shutdown)
         }
     }
 }
