@@ -1,0 +1,31 @@
+node {
+    nodeModulesDir = file("../webui/")
+}
+
+npm_run_build {
+    inputs.files("../webui/package.json", "../webui/package-lock.json", "../webui/tsconfig.json")
+    inputs.dir("../webui/src")
+    inputs.dir("../webui/public")
+    inputs.dir(fileTree("../webui/node_modules").exclude(".cache"))
+
+    outputs.dir("../webui/build")
+}
+
+// Copy the static files from webui into the jar
+processResources {
+    from ('../webui/build') {
+        into 'webui'
+    }
+    dependsOn npm_run_build
+}
+
+//
+task runNoNpm {
+    doFirst {
+        npm_run_build.enabled = false
+        npmInstall.enabled = false
+        npmSetup.enabled = false
+        nodeSetup.enabled = false
+    }
+    finalizedBy run
+}

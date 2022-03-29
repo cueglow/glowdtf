@@ -1,8 +1,8 @@
-# Treatment of GDTF in CueGlow
+# Treatment of GDTF in GlowDTF
 
 [GDTF](https://gdtf-share.com/) or [DIN SPEC
 15800:2020-07](https://www.beuth.de/de/technische-regel/din-spec-15800/324748671)
-is a standard format to describe properties of lighting fixtures. CueGlow uses
+is a standard format to describe properties of lighting fixtures. GlowDTF uses
 it to map fixture functionality to DMX values. It was founded by MA Lighting,
 Vectorworks and Robe Lighting. It is still under active development. 
 
@@ -24,7 +24,7 @@ belongs to exactly one FullDmxRange.
 ChannelFunctions are shown to the user as the entry point for controlling
 fixture attributes. 
 
-CueGlow adds one RawDmx ChannelFunction to each DMXChannel that is just a direct
+GlowDTF adds one RawDmx ChannelFunction to each DMXChannel that is just a direct
 control of the DMX values. It has no Mode Master and covers the whole DmxRange,
 so it is always hot (see below). 
 
@@ -76,7 +76,7 @@ ChannelFunctions, is given by a simple hierarchy:
 All ChannelFunctions in a DmxMode form an acyclic directed graph of Mode Master
 dependencies. The nodes are ChannelFunctions. The edges go from the dependency
 to the dependent ChannelFunction. The edges are weighted with the enabling
-DmxRange of the dependency. These ranges must be clipped by CueGlow to the
+DmxRange of the dependency. These ranges must be clipped by GlowDTF to the
 DmxRange of the dependency. 
 
 A ChannelFunction is enabled when its dependency is enabled

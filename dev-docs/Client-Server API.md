@@ -1,6 +1,6 @@
 # Client-Server API
 
-The APIs between client (cueglow-webui) and server (cueglow-server) are divided
+The APIs between client (webui) and server are divided
 into two parts for future extensibility: 
 
 - Transport (e.g. WebSocket, HTTP)
@@ -431,7 +431,18 @@ To stop receiving updates, the client sends
 }
 ```
 
-## Ping
+## Simplified Ping API
+
+To ensure the WebSocket connection does not time out, the client regularly sends
+a ping message every minute:
+
+```json
+{
+    "event": "ping"
+}
+```
+
+## Old Ping API (NOT IMPLEMENTED)
 
 To ensure a good user experience, the server and client require a reliable and
 low latency connection and need to be able to react to incoming messages within
@@ -492,7 +503,7 @@ case)
 
 # WebSocket Transport
 
-The CueGlow WebSocket Transport uses WebSocket (RFC 6455). It
+The GlowDTF WebSocket Transport uses WebSocket (RFC 6455). It
 provides access to the JSON API by connecting to the URI `/webSocket`. Then, text
 messages according to the JSON API are exchanged between client
 and server. 

@@ -1,48 +1,35 @@
-# CueGlow Contribution Guide
+# GlowDTF Developer Guide
 
-You can help to improve CueGlow in many different ways: 
-
-- Reporting Bugs
-- Suggesting New Features
-- Triaging Issues
-- Programming
-- UX and Design Work
-- Telling Other People about CueGlow
-
-If you are not sure how you can contribute, don't hesitate to [open an
-issue](https://github.com/cueglow/cueglow/issues/new). We'd love to hear from
-you!
-
-The following sections will help you to build CueGlow and to contribute code. 
+This document will help you to build GlowDTF and develop the code. 
 
 ## How to Build
 
 Make sure you have the following dependencies installed: 
 
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-- [JDK 16 with Hotspot](https://adoptium.net/installation.html?variant=openjdk16&jvmVariant=hotspot)
+- JDK 11 (Hotspot) or higher, e.g. from [Azul](https://www.azul.com/downloads)
 - [Node.js 14 LTS](https://nodejs.org/) (we recommend a version manager like [nvm](https://github.com/nvm-sh/nvm) for Linux/macOS or [nvm-windows](https://github.com/coreybutler/nvm-windows) for Windows)
 
-First clone the CueGlow repository by running
-```
-git clone https://github.com/cueglow/cueglow.git
+First clone the GlowDTF repository by running
+```sh
+git clone https://github.com/cueglow/glowdtf.git
 ```
 
 On **Windows**, build and run the server with
 
-```
-cd cueglow\cueglow-server
+```cmd
+cd glowdtf\server
 gradlew run
 ```
 
 For the rest of this file, all commands will be given for Linux/macOS. If you
 are on Windows, adapt accordingly: Run `gradlew` instead of `./gradlew`, replace
-forward with backward slashes, etc. 
+`/` with `\`, etc. 
 
 On **Linux/macOS**, build and run the server with
 
-```
-cd cueglow/cueglow-server
+```sh
+cd glowdtf/server
 ./gradlew run
 ```
 
@@ -52,32 +39,32 @@ UI. If you run into any problems, have a look at our [known issues](#known-issue
 
 ## Repository Structure
 
-The repository contains two main projects: The folder `cueglow-server` is a
-Gradle Kotlin project, the folder `cueglow-webui` is an npm project based on
-create-react-app with Typescript. When building the backend server with
+The repository contains two main projects: The folder `server` is a
+Gradle Kotlin project, the folder `webui` is an npm project based on
+create-react-app with TypeScript. When building the backend server with
 `./gradlew run`, Gradle calls `npm run build` to produce a production build of
 the website and bundles it with the generated jar file before starting the
 compiled jar. 
 
 ## Getting Started with Frontend Development
 
-Starting from the root directory of the repository, build and run the backend
-server without building the frontend by executing
-```
-cd cueglow-server
+First, run the backend server without building the frontend by
+executing
+```sh
+cd server
 ./gradlew runNoNpm
 ```
 
 Then start the frontend development server with
-```
-cd cueglow-webui
+```sh
+cd webui
 npm start
 ```
 
 The Web-UI from the development server should start in the browser at
 `localhost:3000`. The development server will serve http requests on port 3000
 but forward relevant connections to the backend server at `locahost:7000`. This
-is configured in [setupProxy.js](cueglow-webui/src/setupProxy.js).
+is configured in [setupProxy.js](webui/src/setupProxy.js).
 
 To learn how to setup your editor, refer to the docs of
 [create-react-app](https://create-react-app.dev/docs/setting-up-your-editor) and
@@ -88,8 +75,8 @@ To learn how to setup your editor, refer to the docs of
 
 We use Cypress for frontend testing. To test the site served by the frontend
 development server, use our custom npm script `cy`:
-```
-cd cueglow-webui
+```sh
+cd webui
 npm run cy
 ```
 which should start the Cypress test runner. To learn how to use Cypress, please
@@ -99,48 +86,47 @@ Docs](https://docs.cypress.io/guides/overview/why-cypress.html).
 If you want to test the production site bundled with the backend server at
 `localhost:7000`, you can use the custom npm script `e2e` (for End-to-End
 testing):
-```
-cd cueglow-webui
+```sh
+cd webui
 npm run e2e
 ```
 
-For simple, non-GUI unit tests we use Jest which you can run with
-```
+For non-GUI unit tests, [Jest](https://jestjs.io/) and [Testing Library](https://testing-library.com/docs/) are available and can be run with
+```sh
 npm test
 ```
-[Testing Library](https://testing-library.com/docs/) is installed, but we
-currently don't use Jest for UI tests and use Cypress instead. 
+But currently there are no tests written for Jest, we only use Cypress. 
 
 ### Frontend Code Structure
 
-The Cueglow WebUI is a create-react-app based npm project utilizing TypeScript.
+The GlowDTF WebUI is a create-react-app based npm project utilizing TypeScript.
 It builds on components from the [Blueprint.js](https://blueprintjs.com/docs/)
 library.
 
 Other notable tools are:
-- Client-Side Routing: `react-router` v6
+- Client-Side Routing: `react-router` (v6)
 - Utilities: `lodash`
 - CSS-in-JS: `styled-components`
     - `styled` interface: `import styled from 'styled-components/macro'`
     - `css` prop interface: put an empty import into the file for it to work: 
       `import { } from 'styled-components/macro';`
     - Where possible, use SCSS Variables from Blueprint.js which are exported to
-      JavaScript in [BlueprintVariables](cueglow-webui/src/BlueprintVariables/BlueprintVariables.ts)
+      JavaScript in [BlueprintVariables](webui/src/BlueprintVariables/BlueprintVariables.ts)
 - Tables: 
-    - `tabulator-tables`/`react-tabulator` is currently used for the Patch, but
-      has typing issues (I had to [re-wrap
-      it](cueglow-webui/src/Components/GlowTabulator.tsx)) and does not support
-      cell-level selection
-    - Future components should use `react-table` with `react-table-plugins` and
-      a custom frontend based on the Blueprint.js Table (which can't be used due
-      to [Firefox Scrolling Bug](https://github.com/palantir/blueprint/issues/1712))
+    - `tabulator-tables` for tables. We built a React
+      [wrapper](webui/src/Components/GlowTabulator.tsx) for it. 
+    - Since `tabulator-tables` does not support cell level editing or selection,
+      future components should use `react-table` with `react-table-plugins` and
+      a custom frontend based on the Blueprint.js Table (which shouldn't be used
+      due to [Firefox Scrolling
+      Bug](https://github.com/palantir/blueprint/issues/1712))
 - Form Validation: `react-hook-form` with `zod`
 
 ### Frontend Connection with Server
 
 The WebSocket connection between frontend and server is managed outside of React
 in the
-[ConnectionProvider](cueglow-webui/src/ConnectionProvider/ConnectionProvider.tsx)
+[ConnectionProvider](webui/src/ConnectionProvider/ConnectionProvider.tsx)
 and associated modules. The current architecture works like this:  
 The singleton
 `ConnectionProvider` ensures that a connection is established. Each connection
@@ -154,26 +140,36 @@ This state is fed to the React application via the Context API in the
 `onPatchChange` field of the `patchDataHandler`. The `PatchDataProvider`
 therefore must only be instantiated once. 
 
-
-## Branching Guide
-
-We try to adhere to OneFlow Branching as described in
-https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow. To
-create a new feature, branch off from main with 
-
-```
-git checkout -b feature/my-feature main
-```
-
-Once you want a review of your code or want to discuss some open questions, open
-a Pull Request on GitHub. 
-
-## Code Style
-
-All code should be well tested to ensure our goal of reliability. 
+## Backend Testing
 
 Server or API features should be tested server-side in JUnit 5. The client is
 then tested against the server during end-to-end testing in Cypress. 
+
+Backend Tests can be run with
+
+```sh
+cd server
+./gradlew test
+```
+
+## Packaging
+
+We use [Shadow](https://imperceptiblethoughts.com/shadow/) to generate a fat jar. Simply run
+
+```sh
+cd server
+./gradlew build
+```
+
+and you will find the fat jar under
+`server/build/libs/glowdtf-0.0.1-dev-all.jar`. This jar is fully self-contained
+and can be distributed. The end user just has to make sure Java is installed and
+double-click the jar file. Alternatively, the application can be started in the
+terminal with
+
+```sh
+java -jar glowdtf-0.0.1-dev-all.jar
+```
 
 ## Known Issues
 
@@ -196,4 +192,4 @@ before trying it in IntelliJ again.
 
 ### Still didn't work?
 
-If you have any remaining issues, please [open an issue](https://github.com/cueglow/cueglow/issues/new).
+If you have any remaining issues, please [open an issue](https://github.com/glowdtf/glowdtf/issues/new).
