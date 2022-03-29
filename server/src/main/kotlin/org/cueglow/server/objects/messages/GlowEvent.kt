@@ -34,7 +34,10 @@ enum class GlowEvent(val string: String, val messageClass: KClass<out GlowMessag
     SET_CHANNEL("setChannel", GlowMessage.SetChannel::class),
 
     // Simplified Ping API
-    PING("ping", GlowMessage.Ping::class);
+    PING("ping", GlowMessage.Ping::class),
+
+    // Control
+    SHUTDOWN("shutdown", GlowMessage.Shutdown::class);
 
     override fun toString(): String {
         return string

@@ -39,7 +39,7 @@ class GlowDtfServer(port: Int = 7000) : Logging {
         // add our own WebSocket Handler
         config.server {
             val server = Server()
-            server.handler = GlowWebSocketHandler(state, jsonSubscriptionHandler)
+            server.handler = GlowWebSocketHandler(state, jsonSubscriptionHandler, this)
             return@server server
         }
         config.requestLogger { ctx, executionTimeMs ->

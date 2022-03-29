@@ -68,6 +68,11 @@ sealed class GlowMessage constructor(
 
     class Ping(messageId: Int? = null) : GlowMessage(GlowEvent.PING, messageId)
 
+    // Control
+
+    class Shutdown(messageId: Int? = null) :
+        GlowMessage(GlowEvent.SHUTDOWN, messageId)
+
     companion object
 }
 

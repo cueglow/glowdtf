@@ -1,5 +1,6 @@
 package org.cueglow.server.json
 
+import org.cueglow.server.GlowDtfServer
 import org.cueglow.server.StateProvider
 import org.cueglow.server.objects.messages.GlowMessage
 import org.cueglow.server.objects.messages.GlowRequest
@@ -15,7 +16,12 @@ interface StringReceiver {
  * A stateful handler, created for each JSON Connection.
  * It receives JSON messages, parses them and passes them to the handle implementation from [IncomingGlowRequestHandler].
  */
-class JsonHandler(private val client: AsyncClient, state: StateProvider, subscriptionHandler: SubscriptionHandler): StringReceiver, IncomingGlowRequestHandler(state, subscriptionHandler) {
+class JsonHandler(
+    private val client: AsyncClient,
+    state: StateProvider,
+    subscriptionHandler: SubscriptionHandler,
+    server: GlowDtfServer,
+): StringReceiver, IncomingGlowRequestHandler(state, subscriptionHandler, server) {
     override fun receive(message: String) {
         val glowMessage = GlowMessage.fromJsonString(message)
         val request = GlowRequest(glowMessage, client)

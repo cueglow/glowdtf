@@ -1,6 +1,7 @@
 package org.cueglow.server.websocket
 
 import org.apache.logging.log4j.kotlin.Logging
+import org.cueglow.server.GlowDtfServer
 import org.cueglow.server.StateProvider
 import org.cueglow.server.json.AsyncClient
 import org.cueglow.server.json.JsonHandler
@@ -10,7 +11,7 @@ import org.cueglow.server.objects.messages.SubscriptionHandler
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.WebSocketListener
 
-class WebSocketConnection(val state: StateProvider, val subscriptionHandler: SubscriptionHandler): WebSocketListener, AsyncClient, Logging {
+class WebSocketConnection(val state: StateProvider, val subscriptionHandler: SubscriptionHandler, private val server: GlowDtfServer): WebSocketListener, AsyncClient, Logging {
 
     @Volatile
     var session: Session? = null
@@ -40,7 +41,7 @@ class WebSocketConnection(val state: StateProvider, val subscriptionHandler: Sub
     override fun onWebSocketConnect(newSession: Session) {
         session = newSession
         logger.info("WebSocket connection with ${newSession.remoteAddress} established")
-        jsonHandler = JsonHandler(this, state, subscriptionHandler)
+        jsonHandler = JsonHandler(this, state, subscriptionHandler, server)
     }
 
     override fun onWebSocketText(message: String?) {

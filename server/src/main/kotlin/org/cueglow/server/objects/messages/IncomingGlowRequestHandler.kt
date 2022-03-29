@@ -2,13 +2,15 @@ package org.cueglow.server.objects.messages
 
 import com.github.michaelbull.result.getOrElse
 import org.apache.logging.log4j.kotlin.Logging
+import org.cueglow.server.GlowDtfServer
 import org.cueglow.server.StateProvider
 import org.cueglow.server.rig.transition
 import kotlin.concurrent.withLock
 
 abstract class IncomingGlowRequestHandler(
     private val state: StateProvider,
-    private val subscriptionHandler: SubscriptionHandler
+    private val subscriptionHandler: SubscriptionHandler,
+    private val server: GlowDtfServer,
 ) : Logging {
     fun handle(request: GlowRequest) {
         when (request.originalMessage.event) {
@@ -27,6 +29,9 @@ abstract class IncomingGlowRequestHandler(
             GlowEvent.REMOVE_FIXTURE_TYPES -> handleRemoveFixtureTypes(request)
             GlowEvent.SET_CHANNEL -> handleSetChannel(request)
             GlowEvent.PING -> logger.info("Received Ping from Client")
+
+            GlowEvent.SHUTDOWN -> handleShutdown()
+
             else -> logger.warn("Received a message with event ${request.originalMessage.event} which should not be sent by client. Discarding message. ")
         }
     }
@@ -68,5 +73,10 @@ abstract class IncomingGlowRequestHandler(
     private fun handleUpdateFixture(glowRequest: GlowRequest) {
         val data = (glowRequest.originalMessage as GlowMessage.UpdateFixtures).data
         state.patch.updateFixtures(data).getOrElse { glowRequest.answer(it[0]) }
+    }
+
+    private fun handleShutdown() {
+        logger.info("Shutting down due to shutdown message")
+        server.stop()
     }
 }
