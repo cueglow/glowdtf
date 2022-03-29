@@ -442,6 +442,16 @@ a ping message every minute:
 }
 ```
 
+## Shutdown
+
+To shutdown the server process, the client can send:
+
+```json
+{
+    "event": "shutdown"
+}
+```
+
 ## Old Ping API (NOT IMPLEMENTED)
 
 To ensure a good user experience, the server and client require a reliable and
