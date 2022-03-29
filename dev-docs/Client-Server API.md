@@ -1,6 +1,6 @@
 # Client-Server API
 
-The APIs between client (cueglow-webui) and server (cueglow-server) are divided
+The APIs between client (webui) and server are divided
 into two parts for future extensibility: 
 
 - Transport (e.g. WebSocket, HTTP)
@@ -361,7 +361,88 @@ The client may also send `updateFixtures`, `removeFixtures` or
 messages are the same as received from the server (see above), but the client
 adds a `messageId`. 
 
-## Ping
+## Topic: `rigState`
+
+The rig state is the state of all fixtures (the "rig"). 
+
+### `rigState` Events
+
+- `subscribe`/`unsubscribe`/`error`
+- `rigState` (sent by server)
+- `setChannel`
+
+### Rig State Lifecycle
+
+
+Client sends:
+```json
+{
+    "event": "subscribe",
+    "data": "rigState"
+}
+```
+
+Server returns:
+```json
+{
+    "event": "rigState",
+    "data": { // map from fixture uuid to fixture state
+        "1465f08b-4746-4c45-9f47-c9f3f3039bb7": { // first fixture
+            "chValues": [
+                0,
+                255
+            ],
+            "chFDisabled": [
+                null, // not disabled
+                null,
+                null,
+                "Dimmer 1 must be 128-255" // reason for being disabled
+            ]
+        },
+        "55394860-2e07-4633-b555-14e3699e92de": { // second fixture
+            // ...
+        }
+    }
+}
+```
+
+When the rig state changes, the server sends the whole `rigState` message again. 
+
+When the client wants to update the value of a channel, it sends:
+```json
+{
+    "event": "setChannel",
+    "data": {
+        "fixtureUuid": "1465f08b-4746-4c45-9f47-c9f3f3039bb7",
+        "chInd": 0,
+        "value": 255
+    }
+}
+```
+
+The server will update the rigSate and send out `rigState` if there are changes. 
+If the update was invalid, the server discards the message with a warning log. 
+
+To stop receiving updates, the client sends
+```json
+{
+    "event": "unsubscribe",
+    "data": "rigState"
+}
+```
+
+## Simplified Ping API
+
+To ensure the WebSocket connection does not time out, the client regularly sends
+a ping message every minute:
+
+```json
+{
+    "event": "ping"
+}
+```
+
+## Old Ping API (NOT IMPLEMENTED)
 
 To ensure a good user experience, the server and client require a reliable and
 low latency connection and need to be able to react to incoming messages within
@@ -422,8 +503,8 @@ case)
 
 # WebSocket Transport
 
-The CueGlow WebSocket Transport uses WebSocket (RFC 6455). It
-provides access to the JSON API by connecting to the URI `/ws`. Then, text
+The GlowDTF WebSocket Transport uses WebSocket (RFC 6455). It
+provides access to the JSON API by connecting to the URI `/webSocket`. Then, text
 messages according to the JSON API are exchanged between client
 and server. 
 

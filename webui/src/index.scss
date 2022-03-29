@@ -1,0 +1,16 @@
+/* Blueprint.js CSS imports */
+@import "~normalize.css";
+@import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+
+@import "~@blueprintjs/core/lib/scss/variables";
+
+@import "~@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+
+// Tabulator Imports
+@import  "~tabulator-tables/dist/css/tabulator.min.css";
+@import  "~tabulator-tables/dist/css/tabulator_midnight.min.css";
+
+input {
+    color: inherit;
+}

@@ -1,0 +1,13 @@
+diff --git a/node_modules/@types/tabulator-tables/index.d.ts b/node_modules/@types/tabulator-tables/index.d.ts
+index 4520e11..c5e32af 100755
+--- a/node_modules/@types/tabulator-tables/index.d.ts
++++ b/node_modules/@types/tabulator-tables/index.d.ts
+@@ -2433,7 +2433,7 @@ declare class ResizeTableModule {}
+ declare class ResponsiveLayoutModule {}
+ declare class SelectRowModule {}
+ declare class SortModule {}
+-declare class TabulatorFull {}
++declare class TabulatorFull extends Tabulator {}
+ declare class ValidateModule {}
+ 
+ export {

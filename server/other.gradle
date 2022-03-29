@@ -1,0 +1,7 @@
+// Make fat jar from Shadow a Multi-Release one, otherwise Log4j doesn't work
+// see https://stackoverflow.com/q/52953483
+jar {
+    manifest {
+        attributes 'Multi-Release': 'true'
+    }
+}
