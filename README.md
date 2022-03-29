@@ -30,7 +30,7 @@ issue](https://github.com/cueglow/glowdtf/issues/new) anyway.
 - Make sure you have Java 11 or higher installed ([How
   To](https://www.baeldung.com/java-check-is-installed))
   - If not, you can install it for example from
-    [Azul](https://www.azul.com/downloads/?package=jre)
+    [Adoptium](https://adoptium.net/)
 - Download the jar file from our [Releases](https://github.com/cueglow/glowdtf/releases)
 - Run the jar by double-clicking on it, or if your prefer the command line:
 
