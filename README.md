@@ -73,8 +73,8 @@ java -jar glowdtf-0.0.1-dev-all.jar
   completely disabled, its ModeMaster needs to be set appropriately. 
 
 **Quitting GlowDTF**
-- Hit `Ctrl + C` in the GlowDTF terminal or just close the terminal. All
-added Fixture Types and Fixtures will be lost.
+- On the main screen, click the "Close" Button in the upper right corner. All
+  added Fixture Types and Fixtures will be lost. 
 
 ## Unimplemented Features
 
