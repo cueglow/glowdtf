@@ -91,9 +91,12 @@ class ArtNetSending(val state: StateProvider) : Runnable {
                 }
 
                 lastSent = System.nanoTime()
+            } catch (e: InterruptedException) {
+                logger.info("ArtNetSending Loop interrupted - shutting down", e)
+                sender.stop()
             } catch (e: Exception) {
                 logger.error("Error in ArtNetSending Loop", e)
-                Thread.sleep(2_000)
+                Thread.sleep(2_000) // Just wait and try again
             }
         }
     }

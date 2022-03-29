@@ -10,6 +10,7 @@ import org.cueglow.server.rest.handleGdtfUpload
 import org.cueglow.server.websocket.GlowWebSocketHandler
 import org.eclipse.jetty.server.Server
 import java.util.concurrent.Executors
+import kotlin.system.exitProcess
 
 
 fun main(args: Array<String>) {
@@ -55,12 +56,15 @@ class GlowDtfServer(port: Int = 7000) : Logging {
 
     init {
         logger.info("Serving frontend at http://localhost:$port")
-
-        val artNetSendingFuture = Executors.newSingleThreadExecutor().submit(ArtNetSending(state))
     }
 
+    val artNetSendingExecutor = Executors.newSingleThreadExecutor()
+    val artNetSendingFuture = artNetSendingExecutor.submit(ArtNetSending(state))
+
     fun stop() {
+        artNetSendingExecutor.shutdownNow()
         app.stop()
         logger.info("Server stopped")
+        exitProcess(0)
     }
 }
