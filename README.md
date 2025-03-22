@@ -100,11 +100,11 @@ that are not supported:
 - [mvrdevelopment/spec](https://github.com/mvrdevelopment/spec) - Repository for
   GDTF Development. If you find an issue with the standard document (or the
   Builder?), open an issue here. You can also find the XML Schema here. 
-- [GDTF Wiki](https://gdtf-share.com/wiki/Main_Page) - This Wiki on the official
-  GDTF site has an up-to-date main page. Older pages from
-  GDTF 1.0 days can still be found with the search. They sometimes contain
-  background info that you won't find anywhere else.  
-  Note that the library for parsing GDTF and MVR mentioned here is currently
+- [Archives of the former GDTF Wiki](https://web.archive.org/web/*/https://gdtf-share.com/wiki/*) - This Wiki on the official
+  GDTF site used to have an up-to-date main page. Older pages from
+  GDTF 1.0 days could still be found with the search. They sometimes contained
+  background info that you couldn't find anywhere else.  
+  Note that the library for parsing GDTF and MVR mentioned there was 
   available [only upon
   request](https://gdtf-share.com/forum/index.php?/topic/339-mvr-portable-library/)
   and I don't know about its licensing. 
